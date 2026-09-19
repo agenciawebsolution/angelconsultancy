@@ -64,6 +64,22 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, navItem
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
+  // Derive active section cleanly during render
+  const getActiveSection = () => {
+    if (typeof window === 'undefined') return '#inicio';
+    const sections = navItems.map(item => item.href.replace('#', ''));
+    const currentScroll = window.scrollY + 140;
+    for (let i = sections.length - 1; i >= 0; i--) {
+      const el = document.getElementById(sections[i]);
+      if (el && el.offsetTop <= currentScroll) {
+        return `#${sections[i]}`;
+      }
+    }
+    return '#inicio';
+  };
+
+  const activeSection = isOpen ? getActiveSection() : '#inicio';
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -114,20 +130,36 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, navItem
                   Navegação
                 </p>
                 <motion.ul className="space-y-1">
-                  {navItems.map((item) => (
-                    <motion.li key={item.label} variants={itemVariants}>
-                      <a
-                        href={item.href}
-                        onClick={onClose}
-                        className="group flex items-center justify-between px-3.5 py-3 rounded-xl text-base font-medium text-slate-700 hover:text-brand-navy hover:bg-brand-navy-50/70 transition-all duration-200"
-                      >
-                        <span className="group-hover:translate-x-1 transition-transform duration-200">
-                          {item.label}
-                        </span>
-                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-brand-navy group-hover:translate-x-1 transition-all duration-200 opacity-0 group-hover:opacity-100" />
-                      </a>
-                    </motion.li>
-                  ))}
+                  {navItems.map((item) => {
+                    const isActive = item.href === activeSection;
+                    return (
+                      <motion.li key={item.label} variants={itemVariants}>
+                        <a
+                          href={item.href}
+                          onClick={onClose}
+                          className={`group flex items-center justify-between px-3.5 py-3 rounded-xl text-base transition-all duration-200 ${
+                            isActive
+                              ? 'bg-brand-navy-50 text-brand-navy font-semibold'
+                              : 'text-slate-700 hover:text-brand-navy hover:bg-slate-50 font-medium'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            {isActive && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-brand-amber flex-shrink-0" />
+                            )}
+                            <span className="group-hover:translate-x-0.5 transition-transform duration-200">
+                              {item.label}
+                            </span>
+                          </div>
+                          <ArrowRight className={`w-4 h-4 transition-all duration-200 ${
+                            isActive 
+                              ? 'text-brand-navy opacity-100' 
+                              : 'text-slate-400 group-hover:text-brand-navy group-hover:translate-x-1 opacity-0 group-hover:opacity-100'
+                          }`} />
+                        </a>
+                      </motion.li>
+                    );
+                  })}
                 </motion.ul>
               </nav>
             </div>
@@ -137,7 +169,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, navItem
               <a
                 href="#contato"
                 onClick={onClose}
-                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-brand-navy hover:bg-brand-navy-700 text-white text-sm font-semibold shadow-soft-sm transition-all duration-200"
+                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-brand-navy hover:bg-brand-navy-700 text-white text-sm font-semibold shadow-soft-sm transition-all duration-200 active:scale-[0.98]"
               >
                 <span>Fale conosco</span>
                 <ArrowRight className="w-4 h-4" />

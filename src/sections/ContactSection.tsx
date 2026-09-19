@@ -355,13 +355,13 @@ export const ContactSection: React.FC = () => {
                       <label className="block text-sm font-semibold text-slate-700">
                         Em que podemos ajudar? <span className="text-brand-amber-700 font-bold">*</span>
                       </label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
                         {serviceOptions.map((option) => {
                           const isChecked = formData.services.includes(option);
                           return (
                             <label
                               key={option}
-                              className={`flex items-center gap-3 p-3 rounded-xl border text-sm cursor-pointer transition-all duration-150 ${
+                              className={`flex items-center gap-3 p-3 rounded-xl border text-xs sm:text-sm cursor-pointer transition-all duration-150 ${
                                 isChecked
                                   ? 'bg-brand-navy-50 border-brand-navy text-brand-navy font-semibold'
                                   : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
@@ -372,9 +372,9 @@ export const ContactSection: React.FC = () => {
                                 value={option}
                                 checked={isChecked}
                                 onChange={() => handleCheckboxChange(option)}
-                                className="accent-brand-navy w-4 h-4 rounded"
+                                className="accent-brand-navy w-4 h-4 rounded flex-shrink-0 mt-0.5"
                               />
-                              <span className="leading-snug">{option}</span>
+                              <span className="leading-snug text-slate-800">{option}</span>
                             </label>
                           );
                         })}
@@ -407,7 +407,7 @@ export const ContactSection: React.FC = () => {
                         {preferenceOptions.map((option) => (
                           <label
                             key={option}
-                            className={`flex items-center gap-2.5 p-3 rounded-xl border text-sm cursor-pointer transition-all duration-150 ${
+                            className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs sm:text-sm cursor-pointer transition-all duration-150 ${
                               formData.meetingPreference === option
                                 ? 'bg-brand-navy-50 border-brand-navy text-brand-navy font-semibold'
                                 : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
@@ -422,7 +422,7 @@ export const ContactSection: React.FC = () => {
                                 setFormData({ ...formData, meetingPreference: option });
                                 if (errors.meetingPreference) setErrors({ ...errors, meetingPreference: '' });
                               }}
-                              className="accent-brand-navy w-4 h-4"
+                              className="accent-brand-navy w-4 h-4 flex-shrink-0"
                             />
                             <span>{option}</span>
                           </label>
@@ -457,8 +457,8 @@ export const ContactSection: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Submit Button */}
-                    <div className="pt-2">
+                    {/* Submit Button with mobile safety margin */}
+                    <div className="pt-3 pb-8 sm:pb-0">
                       <Button
                         type="submit"
                         size="lg"
