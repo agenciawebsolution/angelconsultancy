@@ -6,12 +6,14 @@ import {
   CheckCircle2, 
   Send, 
   MapPin, 
-  Sparkles 
+  Sparkles,
+  AlertCircle
 } from 'lucide-react';
 import { SectionTitle } from '../components/ui/SectionTitle';
 import { Input } from '../components/ui/Input';
 import { Textarea } from '../components/ui/Textarea';
 import { Button } from '../components/ui/Button';
+import { submitContact } from '../services/contactService';
 import type { 
   ContactFormData, 
   ProfileType, 
@@ -55,6 +57,7 @@ export const ContactSection: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [serverError, setServerError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -105,19 +108,36 @@ export const ContactSection: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setServerError(null);
+
     if (!validate()) {
       return;
     }
 
     setIsSubmitting(true);
 
-    // Simulating frontend processing - ready for future PHP / MariaDB backend integration
-    setTimeout(() => {
+    try {
+      const response = await submitContact(formData);
+
+      if (response.success) {
+        setIsSubmitted(true);
+      } else {
+        if (response.errors) {
+          setErrors(response.errors);
+        }
+        if (response.message) {
+          setServerError(response.message);
+        }
+      }
+    } catch {
+      setServerError(
+        'Não foi possível registrar seu contato no momento. Por favor, tente novamente mais tarde ou fale conosco pelo WhatsApp ou e-mail.'
+      );
+    } finally {
       setIsSubmitting(false);
-      setIsSubmitted(true);
-    }, 900);
+    }
   };
 
   const handleCheckboxChange = (service: ServiceInterest) => {
@@ -147,6 +167,7 @@ export const ContactSection: React.FC = () => {
       consentAccepted: false,
     });
     setErrors({});
+    setServerError(null);
     setIsSubmitted(false);
   };
 
@@ -456,6 +477,17 @@ export const ContactSection: React.FC = () => {
                         <p className="text-xs text-rose-600 font-medium mt-1.5">{errors.consentAccepted}</p>
                       )}
                     </div>
+
+                    {/* Server Error Alert Banner */}
+                    {serverError && (
+                      <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm flex items-start gap-3">
+                        <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-semibold text-rose-900">Aviso</p>
+                          <p className="mt-0.5 text-rose-700 leading-relaxed">{serverError}</p>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Submit Button with mobile safety margin */}
                     <div className="pt-3 pb-8 sm:pb-0">

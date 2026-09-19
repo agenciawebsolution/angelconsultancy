@@ -1,0 +1,33 @@
+# ==============================================================================
+# Angel Consultancy & Network - Proteção de Segurança para Diretório de API
+# ==============================================================================
+
+# Desativar listagem de diretório
+Options -Indexes
+
+# Bloquear acesso direto aos arquivos de configuração, conexão e arquivos ocultos
+<FilesMatch "^(config\.php|config\.example\.php|db\.php|\.htaccess|\.env|\.git.*)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Bloquear qualquer acesso direto a arquivos .sql ou à pasta database
+<FilesMatch "\.(sql|log|ini|conf)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^database(/.*)?$ - [F,L]
+</IfModule>
