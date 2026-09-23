@@ -207,7 +207,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
 
   return (
     <div 
-      className="relative w-full overflow-hidden min-h-[660px] sm:min-h-[720px] lg:h-[760px] xl:h-[780px] flex items-center bg-[#F8FAFC]"
+      className="relative w-full overflow-hidden min-h-[580px] sm:min-h-[680px] lg:h-[760px] xl:h-[780px] flex items-center bg-[#F8FAFC]"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
@@ -263,28 +263,33 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
         </AnimatePresence>
 
         {/* Subtle Editorial Gradient Overlay for Perfect Typography Readability */}
-        {/* Mobile: soft veil covering whole width for high contrast text */}
-        <div className="block lg:hidden absolute inset-0 bg-white/85 backdrop-blur-[2px]" />
+        {/* Mobile: Localized soft gradient ONLY behind text on the left; crystal clear on the right over the executive */}
+        <div 
+          className="block lg:hidden absolute inset-0 pointer-events-none"
+          style={{
+            background: 'linear-gradient(95deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.76) 48%, rgba(255,255,255,0.12) 72%, rgba(255,255,255,0) 100%)',
+          }}
+        />
 
         {/* Desktop: Gentle linear gradient from solid white on the left to crystal clear on the right */}
         <div className="hidden lg:block absolute inset-0 bg-gradient-to-r from-white via-white/85 via-35% lg:via-white/50 lg:via-45% to-transparent" />
       </div>
 
-      {/* Floating Circular Carousel Arrows on Outer Edges */}
+      {/* Floating Circular Carousel Arrows on Outer Edges (Scaled down & safely positioned on mobile) */}
       <button
         onClick={prevSlide}
         aria-label="Slide anterior"
-        className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/90 hover:bg-white shadow-soft-lg text-[#0A162B] flex items-center justify-center border border-slate-200/80 z-30 transition-all hover:scale-105 active:scale-95 group focus:outline-none focus:ring-2 focus:ring-[#0A162B]"
+        className="absolute left-1.5 sm:left-4 lg:left-6 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full bg-white/85 sm:bg-white/90 hover:bg-white shadow-soft-md sm:shadow-soft-lg text-[#0A162B] flex items-center justify-center border border-slate-200/80 z-30 transition-all hover:scale-105 active:scale-95 group focus:outline-none focus:ring-2 focus:ring-[#0A162B]"
       >
-        <ChevronLeft className="w-5 h-5 text-slate-700 group-hover:text-[#0A162B] transition-colors" />
+        <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700 group-hover:text-[#0A162B] transition-colors" />
       </button>
 
       <button
         onClick={nextSlide}
         aria-label="Próximo slide"
-        className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/90 hover:bg-white shadow-soft-lg text-[#0A162B] flex items-center justify-center border border-slate-200/80 z-30 transition-all hover:scale-105 active:scale-95 group focus:outline-none focus:ring-2 focus:ring-[#0A162B]"
+        className="absolute right-1.5 sm:right-4 lg:right-6 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full bg-white/85 sm:bg-white/90 hover:bg-white shadow-soft-md sm:shadow-soft-lg text-[#0A162B] flex items-center justify-center border border-slate-200/80 z-30 transition-all hover:scale-105 active:scale-95 group focus:outline-none focus:ring-2 focus:ring-[#0A162B]"
       >
-        <ChevronRight className="w-5 h-5 text-slate-700 group-hover:text-[#0A162B] transition-colors" />
+        <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700 group-hover:text-[#0A162B] transition-colors" />
       </button>
 
       {/* Floating Micro-Cards on the Panoramic Composition (Desktop Only) */}
@@ -327,10 +332,10 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
       {/* ========================================================= */}
       {/* 2. Editorial Foreground Content Container                 */}
       {/* ========================================================= */}
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-0 relative z-10">
+      <div className="max-w-7xl mx-auto w-full px-11 sm:px-14 lg:px-8 py-8 sm:py-14 lg:py-0 relative z-10">
         
         {/* Text Area bounded to left side (~48% - 52%) */}
-        <div className="max-w-[560px] lg:max-w-[590px] xl:max-w-[620px] text-left">
+        <div className="max-w-[275px] min-[390px]:max-w-[310px] sm:max-w-[480px] lg:max-w-[590px] xl:max-w-[620px] text-left">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={currentSlide.id || currentIndex}
@@ -339,12 +344,12 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
               initial="enter"
               animate="center"
               exit="exit"
-              className="space-y-4 sm:space-y-5"
+              className="space-y-3 sm:space-y-5"
             >
               {/* 1. Pill Badge */}
               <div>
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 backdrop-blur-sm border border-slate-200/90 shadow-soft-xs text-xs font-bold tracking-wide">
-                  <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-white/95 backdrop-blur-sm border border-slate-200/90 shadow-soft-xs text-[10px] sm:text-xs font-bold tracking-wide max-w-full">
+                  <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#D4AF37] flex-shrink-0" />
                   <span className="text-[#D4AF37] font-extrabold uppercase">
                     {currentSlide.badge ? currentSlide.badge.split('AND')[0].trim() : 'ANGEL CONSULTANCY'}
                   </span>
@@ -355,7 +360,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
               </div>
 
               {/* 2. Headline with High-End Proportions */}
-              <h1 className="text-3xl sm:text-4xl lg:text-[2.65rem] xl:text-[3.15rem] font-extrabold tracking-tight text-[#0A162B] leading-[1.12]">
+              <h1 className="text-[28px] min-[380px]:text-[32px] sm:text-4xl lg:text-[2.65rem] xl:text-[3.15rem] font-extrabold tracking-tight text-[#0A162B] leading-[1.02] sm:leading-[1.12]">
                 {currentSlide.title}{' '}
                 {currentSlide.highlightText && (
                   <span className="text-[#1D5BD8] inline-block font-extrabold">
@@ -363,31 +368,31 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
                   </span>
                 )}
                 {currentIndex === 0 && !currentSlide.title.includes('administrativa') && (
-                  <span className="block text-[#0A162B]">
-                    para sua organização financeira e administrativa.
+                  <span className="hidden sm:inline lg:block text-[#0A162B]">
+                    {' '}para sua organização financeira e administrativa.
                   </span>
                 )}
               </h1>
 
               {/* 3. Editorial Description */}
-              <p className="text-sm sm:text-base lg:text-[1.025rem] text-[#475569] leading-relaxed max-w-[520px] font-normal">
+              <p className="text-[14px] min-[380px]:text-[15px] sm:text-base lg:text-[1.025rem] text-[#475569] leading-snug sm:leading-relaxed max-w-[270px] min-[390px]:max-w-[300px] sm:max-w-[480px] lg:max-w-[520px] font-normal line-clamp-3 sm:line-clamp-none">
                 {currentSlide.subtitle}
               </p>
 
               {/* 4. Two Pill CTAs */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3.5 pt-1 sm:pt-2">
                 <a
                   href={currentSlide.ctaPrimaryLink || '#contato'}
-                  className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 sm:px-8 sm:py-4 rounded-full bg-[#0A162B] hover:bg-[#102D55] text-white font-bold text-sm sm:text-base shadow-soft-md hover:shadow-soft-lg transition-all duration-200 active:scale-[0.98] group"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:px-8 sm:py-4 rounded-full bg-[#0A162B] hover:bg-[#102D55] text-white font-bold text-xs sm:text-base shadow-soft-md hover:shadow-soft-lg transition-all duration-200 active:scale-[0.98] group"
                 >
                   <span>{currentSlide.ctaPrimaryText || 'Fale conosco'}</span>
-                  <ArrowRight className="w-4 h-4 text-[#D4AF37] transition-transform duration-200 group-hover:translate-x-1" />
+                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#D4AF37] transition-transform duration-200 group-hover:translate-x-1" />
                 </a>
 
                 {currentSlide.ctaSecondaryText && (
                   <a
                     href={currentSlide.ctaSecondaryLink || '#servicos'}
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:px-7 sm:py-4 rounded-full bg-white/95 hover:bg-white border border-[#2563EB]/80 text-[#1D5BD8] font-bold text-sm sm:text-base transition-all duration-200 shadow-soft-xs hover:shadow-soft-sm active:scale-[0.98]"
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 sm:px-7 sm:py-4 rounded-full bg-white/95 hover:bg-white border border-[#2563EB]/80 text-[#1D5BD8] font-bold text-xs sm:text-base transition-all duration-200 shadow-soft-xs hover:shadow-soft-sm active:scale-[0.98]"
                   >
                     <span>{currentSlide.ctaSecondaryText}</span>
                   </a>
@@ -395,8 +400,31 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
               </div>
 
               {/* 5. Metrics Row Directly Below CTAs */}
-              <div className="pt-5 sm:pt-6 border-t border-slate-200/80">
-                <div className="grid grid-cols-3 gap-3 sm:gap-4 max-w-xl">
+              <div className="pt-3 sm:pt-6 border-t border-slate-200/80">
+                {/* Mobile: horizontal scrollable pills strip with zero text clipping */}
+                <div className="flex sm:hidden items-center gap-2 overflow-x-auto no-scrollbar py-1 -mx-1 px-1">
+                  {(currentSlide.stats && currentSlide.stats.length > 0 ? currentSlide.stats : [
+                    { label: 'Clientes atendidos na Europa', value: '+500' },
+                    { label: 'Satisfação dos clientes', value: '99%' },
+                    { label: 'De experiência no mercado europeu', value: '+10 anos' },
+                  ]).map((stat, i) => (
+                    <div
+                      key={i}
+                      className="flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-soft-xs"
+                    >
+                      <div className="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
+                        {React.cloneElement(metricIcons[i % metricIcons.length], { className: 'w-2.5 h-2.5' })}
+                      </div>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-xs font-black text-[#0A162B] leading-none">{stat.value}</span>
+                        <span className="text-[10px] font-medium text-slate-600 whitespace-nowrap leading-none">{stat.label}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop / Tablet: standard 3-column grid */}
+                <div className="hidden sm:grid sm:grid-cols-3 gap-3 sm:gap-4 max-w-xl">
                   {(currentSlide.stats && currentSlide.stats.length > 0 ? currentSlide.stats : [
                     { label: 'Clientes atendidos na Europa', value: '+500' },
                     { label: 'Satisfação dos clientes', value: '99%' },
@@ -420,7 +448,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
               </div>
 
               {/* 6. Slider Pagination Indicator (01 ━━━━━ 02 03) */}
-              <div className="pt-3 flex items-center gap-4">
+              <div className="pt-2 sm:pt-3 flex items-center gap-3 sm:gap-4">
                 {slidesToRender.map((s, idx) => {
                   const isCurrent = idx === currentIndex;
                   const numberFormatted = String(idx + 1).padStart(2, '0');
@@ -430,10 +458,10 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
                       key={s.id || idx}
                       onClick={() => goToSlide(idx)}
                       aria-label={`Ir para slide ${idx + 1}`}
-                      className="flex items-center gap-3 group focus:outline-none"
+                      className="flex items-center gap-2 sm:gap-3 group focus:outline-none"
                     >
                       <span
-                        className={`text-sm sm:text-base font-extrabold transition-colors ${
+                        className={`text-xs sm:text-base font-extrabold transition-colors ${
                           isCurrent
                             ? 'text-[#0A162B]'
                             : 'text-slate-400 group-hover:text-slate-600'
@@ -445,7 +473,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
                       {isCurrent && (
                         <motion.span
                           layoutId="activeSlideIndicator"
-                          className="w-12 sm:w-16 h-1 bg-[#D4AF37] rounded-full inline-block"
+                          className="w-8 sm:w-16 h-1 bg-[#D4AF37] rounded-full inline-block"
                           transition={{ duration: 0.3 }}
                         />
                       )}
