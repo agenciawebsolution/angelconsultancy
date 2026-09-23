@@ -13,7 +13,8 @@ try {
     $pdo = getDbConnection();
     ensureCmsTablesExist($pdo);
 } catch (Throwable $e) {
-    sendJson(false, 'Indisponibilidade de conexão com o banco de dados.', 500);
+    error_log('[API DB/Schema Init Error] ' . $e->getMessage());
+    sendJson(false, 'Erro de inicialização do banco de dados: ' . $e->getMessage(), 500);
 }
 
 $action = $_GET['action'] ?? ($_SERVER['REQUEST_METHOD'] === 'POST' ? 'login' : 'check');
@@ -38,7 +39,7 @@ if ($action === 'check') {
             ]);
         }
     } catch (Throwable $e) {
-        sendJson(false, 'Erro ao verificar sessão administrativa.', 500);
+        sendJson(false, 'Erro ao verificar sessão administrativa: ' . $e->getMessage(), 500);
     }
 }
 
@@ -82,38 +83,20 @@ if ($action === 'login') {
         $token = bin2hex(random_bytes(32));
         $expires = date('Y-m-d H:i:s', strtotime('+7 days'));
 
-        // Garante explicitamente que a tabela admin_sessions existe antes do INSERT
-        if (!checkTableExists($pdo, 'admin_sessions')) {
-            ensureCmsTablesExist($pdo);
-        }
+        // Garante explicitamente que a tabela física admin_sessions existe antes do INSERT
+        ensureTableCreated($pdo, 'admin_sessions', getCmsTableDefinitions()['admin_sessions']);
 
-        try {
-            $sessStmt = $pdo->prepare(
-                'INSERT INTO admin_sessions (admin_user_id, token, ip_address, user_agent, expires_at)
-                 VALUES (:uid, :token, :ip, :ua, :exp)'
-            );
-            $sessStmt->execute([
-                ':uid'   => $userId,
-                ':token' => $token,
-                ':ip'    => $_SERVER['REMOTE_ADDR'] ?? null,
-                ':ua'    => substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255),
-                ':exp'   => $expires,
-            ]);
-        } catch (Throwable $sessErr) {
-            error_log('[Session Insert Retry] ' . $sessErr->getMessage());
-            ensureCmsTablesExist($pdo);
-            $sessStmt = $pdo->prepare(
-                'INSERT INTO admin_sessions (admin_user_id, token, ip_address, user_agent, expires_at)
-                 VALUES (:uid, :token, :ip, :ua, :exp)'
-            );
-            $sessStmt->execute([
-                ':uid'   => $userId,
-                ':token' => $token,
-                ':ip'    => $_SERVER['REMOTE_ADDR'] ?? null,
-                ':ua'    => substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255),
-                ':exp'   => $expires,
-            ]);
-        }
+        $sessStmt = $pdo->prepare(
+            'INSERT INTO admin_sessions (admin_user_id, token, ip_address, user_agent, expires_at)
+             VALUES (:uid, :token, :ip, :ua, :exp)'
+        );
+        $sessStmt->execute([
+            ':uid'   => $userId,
+            ':token' => $token,
+            ':ip'    => $_SERVER['REMOTE_ADDR'] ?? null,
+            ':ua'    => substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255),
+            ':exp'   => $expires,
+        ]);
 
         try {
             $pdo->prepare('UPDATE admin_users SET last_login_at = NOW() WHERE id = :id')->execute([':id' => $userId]);

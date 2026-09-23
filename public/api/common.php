@@ -185,21 +185,60 @@ function logAdminActivity(PDO $pdo, ?int $userId, string $action, string $entity
 }
 
 /**
- * Verifica individualmente se uma tabela existe no banco de dados MariaDB
+ * Verifica individualmente se uma tabela física existe no banco de dados MariaDB
  */
 function checkTableExists(PDO $pdo, string $tableName): bool
 {
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
+        return false;
+    }
+
     try {
-        $stmt = $pdo->prepare('SHOW TABLES LIKE :table');
-        $stmt->execute([':table' => $tableName]);
+        $stmt = $pdo->query("SHOW TABLES LIKE '{$tableName}'");
         return (bool)$stmt->fetch();
     } catch (Throwable) {
-        return false;
+        try {
+            $stmt = $pdo->prepare(
+                'SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :tbl LIMIT 1'
+            );
+            $stmt->execute([':tbl' => $tableName]);
+            return (bool)$stmt->fetch();
+        } catch (Throwable) {
+            return false;
+        }
+    }
+}
+
+/**
+ * Garante a criação física individual de uma tabela no MariaDB.
+ * Lança RuntimeException com o diagnóstico exato caso a criação falhe.
+ *
+ * @throws RuntimeException
+ */
+function ensureTableCreated(PDO $pdo, string $tableName, string $createSql): void
+{
+    if (checkTableExists($pdo, $tableName)) {
+        return;
+    }
+
+    try {
+        $pdo->exec($createSql);
+    } catch (Throwable $e) {
+        $msg = "Falha ao criar tabela física '{$tableName}': " . $e->getMessage();
+        error_log("[CMS Table Create Error] {$msg}");
+        throw new RuntimeException($msg, 0, $e);
+    }
+
+    if (!checkTableExists($pdo, $tableName)) {
+        $msg = "Comando CREATE TABLE para '{$tableName}' executou mas a tabela física não foi confirmada no MariaDB.";
+        error_log("[CMS Table Verify Error] {$msg}");
+        throw new RuntimeException($msg);
     }
 }
 
 /**
  * Retorna as definições DDL individuais para todas as tabelas do CMS
+ * Sem constraints de chave estrangeira para garantir criação autônoma e compatibilidade total
  *
  * @return array<string, string>
  */
@@ -221,20 +260,20 @@ function getCmsTableDefinitions(): array
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
         'admin_sessions' => "CREATE TABLE IF NOT EXISTS `admin_sessions` (
-            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            `admin_user_id` INT UNSIGNED NOT NULL,
+            `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `admin_user_id` BIGINT UNSIGNED NOT NULL,
             `token` VARCHAR(64) NOT NULL UNIQUE COMMENT 'Token de sessão gerado criptograficamente',
             `ip_address` VARCHAR(45) NULL,
             `user_agent` VARCHAR(255) NULL,
             `expires_at` DATETIME NOT NULL COMMENT 'Expiração da sessão',
             `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             INDEX `idx_session_token` (`token`),
-            INDEX `idx_session_expires` (`expires_at`),
-            CONSTRAINT `fk_session_user` FOREIGN KEY (`admin_user_id`) REFERENCES `admin_users`(`id`) ON DELETE CASCADE
+            INDEX `idx_session_user` (`admin_user_id`),
+            INDEX `idx_session_expires` (`expires_at`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
         'admin_activity_log' => "CREATE TABLE IF NOT EXISTS `admin_activity_log` (
-            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             `admin_user_id` INT UNSIGNED NULL,
             `action` VARCHAR(50) NOT NULL COMMENT 'Tipo de ação (login, create, update, delete)',
             `entity_type` VARCHAR(50) NOT NULL COMMENT 'Entidade afetada (contacts, blog, settings, users)',
@@ -242,6 +281,7 @@ function getCmsTableDefinitions(): array
             `description` TEXT NOT NULL COMMENT 'Detalhes da ação',
             `ip_address` VARCHAR(45) NULL,
             `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            INDEX `idx_activity_user` (`admin_user_id`),
             INDEX `idx_activity_created` (`created_at`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
@@ -279,9 +319,9 @@ function getCmsTableDefinitions(): array
             `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             INDEX `idx_post_slug` (`slug`),
+            INDEX `idx_post_cat` (`category_id`),
             INDEX `idx_post_status` (`status`),
-            INDEX `idx_post_published` (`published_at`),
-            CONSTRAINT `fk_post_category` FOREIGN KEY (`category_id`) REFERENCES `blog_categories`(`id`) ON DELETE SET NULL
+            INDEX `idx_post_published` (`published_at`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
         'pages' => "CREATE TABLE IF NOT EXISTS `pages` (
@@ -393,85 +433,80 @@ function ensureDefaultAdminExists(PDO $pdo): void
 
 /**
  * Inicialização individual e idempotente de TODAS as tabelas CMS no MariaDB
+ *
+ * @throws RuntimeException em caso de falha crítica na criação de tabelas
  */
 function ensureCmsTablesExist(PDO $pdo): void
 {
-    static $executed = false;
-    if ($executed) {
-        return;
-    }
-    $executed = true;
+    $tables = getCmsTableDefinitions();
+    $creationErrors = [];
 
-    try {
-        $tables = getCmsTableDefinitions();
-
-        // 1. Cria cada tabela individualmente se estiver ausente
-        foreach ($tables as $tableName => $createSql) {
-            if (!checkTableExists($pdo, $tableName)) {
-                try {
-                    $pdo->exec($createSql);
-                } catch (Throwable $e) {
-                    error_log("[CMS Table Create Error] Falha ao criar tabela {$tableName}: " . $e->getMessage());
-                }
-            }
-        }
-
-        // 2. Garante a coluna role na tabela admin_users caso a tabela já existisse sem ela
+    // 1. Cria cada tabela individualmente se estiver ausente
+    foreach ($tables as $tableName => $createSql) {
         try {
-            $colStmt = $pdo->query("SHOW COLUMNS FROM `admin_users` LIKE 'role'");
-            if (!$colStmt || !$colStmt->fetch()) {
-                $pdo->exec("ALTER TABLE `admin_users` ADD COLUMN `role` VARCHAR(50) NOT NULL DEFAULT 'admin' AFTER `password_hash`");
-            }
+            ensureTableCreated($pdo, $tableName, $createSql);
         } catch (Throwable $e) {
-            // Coluna já existe ou variação sintática permitida
+            $creationErrors[$tableName] = $e->getMessage();
+            error_log("[CMS Table Create Error] {$tableName}: " . $e->getMessage());
         }
-
-        // 3. Views de compatibilidade caso o ambiente faça referência com prefixo angel_consultancy_
-        try {
-            $pdo->exec("CREATE OR REPLACE VIEW `angel_consultancy_admin_sessions` AS SELECT * FROM `admin_sessions`");
-            $pdo->exec("CREATE OR REPLACE VIEW `angel_consultancy_admin_users` AS SELECT * FROM `admin_users`");
-        } catch (Throwable) {
-            // Silencia caso criação de view não seja suportada pelo usuário do banco
-        }
-
-        // 4. Insere configurações padrão em site_settings caso a tabela esteja vazia
-        try {
-            $countStmt = $pdo->query('SELECT COUNT(*) FROM `site_settings`');
-            if ((int)$countStmt->fetchColumn() === 0) {
-                $pdo->exec("INSERT IGNORE INTO `site_settings` (`setting_key`, `setting_value`, `setting_type`) VALUES
-                    ('company_name', 'Angel Consultancy and Network', 'text'),
-                    ('company_description', 'Assistência humana, simples e confiável para sua organização financeira e administrativa.', 'textarea'),
-                    ('company_phone', '+32 492 319 741', 'text'),
-                    ('company_email', 'info@angel-consultancy.be', 'text'),
-                    ('company_whatsapp_url', 'https://wa.me/32492319741?text=Ol%C3%A1%2C%20gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20os%20servi%C3%A7os%20da%20Angel%20Consultancy.', 'text'),
-                    ('company_location', 'Bélgica (Atendimento Presencial e Online)', 'text'),
-                    ('seo_site_title', 'Angel Consultancy and Network | Apoio Humano, Simples e Confiável', 'text'),
-                    ('seo_meta_description', 'Assistência humana, simples e confiável para sua organização financeira e administrativa. Atendimento personalizado para pessoas físicas, associações e autônomos.', 'textarea'),
-                    ('seo_default_og_image', '/logo.png', 'text'),
-                    ('seo_canonical_url', 'https://www.angel-consultancy.be', 'text'),
-                    ('seo_robots', 'index, follow', 'text')");
-            }
-        } catch (Throwable) {
-            // Continua caso já existam configurações
-        }
-
-        // 5. Insere categorias padrão no blog caso esteja vazio
-        try {
-            $catCountStmt = $pdo->query('SELECT COUNT(*) FROM `blog_categories`');
-            if ((int)$catCountStmt->fetchColumn() === 0) {
-                $pdo->exec("INSERT IGNORE INTO `blog_categories` (`id`, `name`, `slug`, `description`) VALUES
-                    (1, 'Geral', 'geral', 'Artigos gerais e novidades da Angel Consultancy'),
-                    (2, 'Organização Administrativa', 'organizacao-administrativa', 'Dicas práticas para organizar documentos e rotinas'),
-                    (3, 'Tributário & Finanças', 'tributario-financas', 'Orientações simplificadas sobre impostos e obrigações')");
-            }
-        } catch (Throwable) {
-            // Continua caso já existam categorias
-        }
-
-        // 6. Garante o usuário administrador padrão com hash seguro
-        ensureDefaultAdminExists($pdo);
-
-    } catch (Throwable $e) {
-        error_log('[CMS Tables Init Error] ' . $e->getMessage());
     }
+
+    // Se houve erro na criação das tabelas essenciais de autenticação, lança exceção com diagnóstico claro
+    if (isset($creationErrors['admin_sessions']) || isset($creationErrors['admin_users'])) {
+        $failed = [];
+        if (isset($creationErrors['admin_users'])) {
+            $failed[] = 'admin_users (' . $creationErrors['admin_users'] . ')';
+        }
+        if (isset($creationErrors['admin_sessions'])) {
+            $failed[] = 'admin_sessions (' . $creationErrors['admin_sessions'] . ')';
+        }
+        throw new RuntimeException('Falha crítica na criação das tabelas no MariaDB: ' . implode(' | ', $failed));
+    }
+
+    // 2. Garante a coluna role na tabela admin_users caso a tabela já existisse sem ela
+    try {
+        $colStmt = $pdo->query("SHOW COLUMNS FROM `admin_users` LIKE 'role'");
+        if (!$colStmt || !$colStmt->fetch()) {
+            $pdo->exec("ALTER TABLE `admin_users` ADD COLUMN `role` VARCHAR(50) NOT NULL DEFAULT 'admin' AFTER `password_hash`");
+        }
+    } catch (Throwable $e) {
+        error_log('[Admin Users Column role Error] ' . $e->getMessage());
+    }
+
+    // 3. Insere configurações padrão em site_settings caso a tabela esteja vazia
+    try {
+        $countStmt = $pdo->query('SELECT COUNT(*) FROM `site_settings`');
+        if ((int)$countStmt->fetchColumn() === 0) {
+            $pdo->exec("INSERT IGNORE INTO `site_settings` (`setting_key`, `setting_value`, `setting_type`) VALUES
+                ('company_name', 'Angel Consultancy and Network', 'text'),
+                ('company_description', 'Assistência humana, simples e confiável para sua organização financeira e administrativa.', 'textarea'),
+                ('company_phone', '+32 492 319 741', 'text'),
+                ('company_email', 'info@angel-consultancy.be', 'text'),
+                ('company_whatsapp_url', 'https://wa.me/32492319741?text=Ol%C3%A1%2C%20gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20os%20servi%C3%A7os%20da%20Angel%20Consultancy.', 'text'),
+                ('company_location', 'Bélgica (Atendimento Presencial e Online)', 'text'),
+                ('seo_site_title', 'Angel Consultancy and Network | Apoio Humano, Simples e Confiável', 'text'),
+                ('seo_meta_description', 'Assistência humana, simples e confiável para sua organização financeira e administrativa. Atendimento personalizado para pessoas físicas, associações e autônomos.', 'textarea'),
+                ('seo_default_og_image', '/logo.png', 'text'),
+                ('seo_canonical_url', 'https://www.angel-consultancy.be', 'text'),
+                ('seo_robots', 'index, follow', 'text')");
+        }
+    } catch (Throwable) {
+        // Continua caso já existam configurações
+    }
+
+    // 4. Insere categorias padrão no blog caso esteja vazio
+    try {
+        $catCountStmt = $pdo->query('SELECT COUNT(*) FROM `blog_categories`');
+        if ((int)$catCountStmt->fetchColumn() === 0) {
+            $pdo->exec("INSERT IGNORE INTO `blog_categories` (`id`, `name`, `slug`, `description`) VALUES
+                (1, 'Geral', 'geral', 'Artigos gerais e novidades da Angel Consultancy'),
+                (2, 'Organização Administrativa', 'organizacao-administrativa', 'Dicas práticas para organizar documentos e rotinas'),
+                (3, 'Tributário & Finanças', 'tributario-financas', 'Orientações simplificadas sobre impostos e obrigações')");
+        }
+    } catch (Throwable) {
+        // Continua caso já existam categorias
+    }
+
+    // 5. Garante o usuário administrador padrão com hash seguro
+    ensureDefaultAdminExists($pdo);
 }

@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS `admin_sessions` (
   `expires_at` DATETIME NOT NULL COMMENT 'Expiração da sessão',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX `idx_session_token` (`token`),
-  INDEX `idx_session_expires` (`expires_at`),
-  CONSTRAINT `fk_session_user` FOREIGN KEY (`admin_user_id`) REFERENCES `admin_users`(`id`) ON DELETE CASCADE
+  INDEX `idx_session_user` (`admin_user_id`),
+  INDEX `idx_session_expires` (`expires_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 3. Log de Atividades e Auditoria
@@ -82,9 +82,9 @@ CREATE TABLE IF NOT EXISTS `blog_posts` (
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX `idx_post_slug` (`slug`),
+  INDEX `idx_post_cat` (`category_id`),
   INDEX `idx_post_status` (`status`),
-  INDEX `idx_post_published` (`published_at`),
-  CONSTRAINT `fk_post_category` FOREIGN KEY (`category_id`) REFERENCES `blog_categories`(`id`) ON DELETE SET NULL
+  INDEX `idx_post_published` (`published_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 6. Páginas Institucionais Dinâmicas
