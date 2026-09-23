@@ -6,7 +6,7 @@
 Options -Indexes
 
 # Bloquear acesso direto aos arquivos de configuração, conexão e arquivos ocultos
-<FilesMatch "^(config\.php|config\.example\.php|db\.php|\.htaccess|\.env|\.git.*)$">
+<FilesMatch "^(config\.php|config\.example\.php|db\.php|common\.php|\.htaccess|\.env|\.git.*)$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>

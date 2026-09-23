@@ -3,7 +3,23 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles, CheckCircle2, ShieldCheck, HeartHandshake } from 'lucide-react';
 import { heroFadeInUp, heroStaggerContainer } from '../lib/animations';
 
-export const HeroSection: React.FC = () => {
+export interface HeroSectionData {
+  badge?: string;
+  title?: string;
+  subtitle?: string;
+  ctaPrimaryText?: string;
+  ctaPrimaryLink?: string;
+  ctaSecondaryText?: string;
+  ctaSecondaryLink?: string;
+  imageUrl?: string;
+  imageAlt?: string;
+}
+
+interface HeroSectionProps {
+  data?: HeroSectionData;
+}
+
+export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
   return (
     <section id="inicio" className="relative pt-24 sm:pt-28 lg:pt-32 pb-14 sm:pb-16 lg:pb-20 overflow-hidden flex items-center">
       {/* Subtle organic background glows */}
@@ -22,7 +38,7 @@ export const HeroSection: React.FC = () => {
             {/* Tag Badge */}
             <motion.div variants={heroFadeInUp} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-navy-50 border border-brand-navy-100 text-brand-navy text-xs sm:text-sm font-semibold">
               <Sparkles className="w-4 h-4 text-brand-amber" />
-              <span>Angel Consultancy and Network</span>
+              <span>{data?.badge || 'Angel Consultancy and Network'}</span>
             </motion.div>
 
             {/* Main Headline */}
@@ -30,12 +46,18 @@ export const HeroSection: React.FC = () => {
               variants={heroFadeInUp}
               className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 leading-[1.14] text-balance"
             >
-              Assistência humana, simples e confiável para sua{' '}
-              <span className="relative inline-block text-brand-navy">
-                organização financeira
-                <span className="absolute bottom-1 left-0 w-full h-[6px] bg-brand-amber/30 rounded-full -z-10" />
-              </span>{' '}
-              e administrativa.
+              {data?.title ? (
+                data.title
+              ) : (
+                <>
+                  Assistência humana, simples e confiável para sua{' '}
+                  <span className="relative inline-block text-brand-navy">
+                    organização financeira
+                    <span className="absolute bottom-1 left-0 w-full h-[6px] bg-brand-amber/30 rounded-full -z-10" />
+                  </span>{' '}
+                  e administrativa.
+                </>
+              )}
             </motion.h1>
 
             {/* Subtitle strictly from client doc */}
@@ -43,24 +65,23 @@ export const HeroSection: React.FC = () => {
               variants={heroFadeInUp}
               className="text-base sm:text-lg lg:text-xl text-slate-600 leading-relaxed max-w-2xl font-normal"
             >
-              Apoio humano, simples e confiável para você, sua organização financeira e administrativa. 
-              Orientação clara, acessível e verdadeira para tornar o seu mundo administrativo muito mais leve.
+              {data?.subtitle || 'Apoio humano, simples e confiável para você, sua organização financeira e administrativa. Orientação clara, acessível e verdadeira para tornar o seu mundo administrativo muito mais leve.'}
             </motion.p>
 
             {/* CTAs */}
             <motion.div variants={heroFadeInUp} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1 sm:pt-2">
               <a
-                href="#contato"
+                href={data?.ctaPrimaryLink || '#contato'}
                 className="inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3.5 sm:py-4 rounded-xl bg-brand-navy hover:bg-brand-navy-700 text-white font-semibold text-base shadow-soft-md hover:shadow-soft-lg transition-all duration-200 active:scale-[0.98]"
               >
-                <span>Fale conosco</span>
+                <span>{data?.ctaPrimaryText || 'Fale conosco'}</span>
                 <ArrowRight className="w-4 h-4" />
               </a>
               <a
-                href="#servicos"
+                href={data?.ctaSecondaryLink || '#servicos'}
                 className="inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3.5 sm:py-4 rounded-xl border border-slate-200 hover:border-slate-300 bg-white/90 hover:bg-slate-50 text-slate-700 font-semibold text-base transition-all duration-200 shadow-soft-sm"
               >
-                <span>Conheça nossos serviços</span>
+                <span>{data?.ctaSecondaryText || 'Conheça nossos serviços'}</span>
               </a>
             </motion.div>
 
@@ -97,8 +118,8 @@ export const HeroSection: React.FC = () => {
                 {/* High quality photography depicting warm consultation / personal guidance */}
                 <div className="relative rounded-2xl overflow-hidden aspect-[4/5] bg-slate-100">
                   <img
-                    src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1000&q=80"
-                    alt="Consultora prestando orientação atenciosa e próxima"
+                    src={data?.imageUrl || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1000&q=80"}
+                    alt={data?.imageAlt || "Consultora prestando orientação atenciosa e próxima"}
                     className="w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105"
                     loading="eager"
                   />

@@ -1,11 +1,12 @@
 import React from 'react';
+import { Outlet } from 'react-router-dom';
 import { Header } from '../components/navigation/Header';
 import { FooterSection } from '../sections/FooterSection';
 import { WhatsAppButton } from '../components/common/WhatsAppButton';
 import { ScrollToTop } from '../components/common/ScrollToTop';
 
 interface MainLayoutProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
@@ -23,7 +24,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <Header />
 
       <main id="main-content" className="flex-grow">
-        {children}
+        {children || <Outlet />}
       </main>
 
       <FooterSection />

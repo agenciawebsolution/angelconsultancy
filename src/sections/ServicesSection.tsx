@@ -67,7 +67,17 @@ const servicesData: ServiceItem[] = [
   },
 ];
 
-export const ServicesSection: React.FC = () => {
+export interface ServicesSectionData {
+  tag?: string;
+  title?: string;
+  subtitle?: string;
+}
+
+interface ServicesSectionProps {
+  data?: ServicesSectionData;
+}
+
+export const ServicesSection: React.FC<ServicesSectionProps> = ({ data }) => {
   const getIcon = (icon: string) => {
     switch (icon) {
       case 'folder':
@@ -87,10 +97,10 @@ export const ServicesSection: React.FC = () => {
     <section id="servicos" className="py-20 lg:py-28 bg-[#FAFBFD] relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionTitle
-          tag="Nossos Serviços"
+          tag={data?.tag || "Nossos Serviços"}
           tagVariant="blue"
-          title="Soluções estruturadas para suas necessidades reais"
-          subtitle="Acompanhamento contínuo e personalizado, com explicações claras e sem complicações burocráticas."
+          title={data?.title || "Soluções estruturadas para suas necessidades reais"}
+          subtitle={data?.subtitle || "Acompanhamento contínuo e personalizado, com explicações claras e sem complicações burocráticas."}
         />
 
         <motion.div

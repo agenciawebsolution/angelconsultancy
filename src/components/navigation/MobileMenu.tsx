@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { X, Phone, Mail, ArrowRight } from 'lucide-react';
@@ -50,6 +51,9 @@ const itemVariants: Variants = {
 };
 
 export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, navItems }) => {
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+
   // Lock body scroll while drawer is open
   useScrollLock(isOpen);
 
@@ -111,9 +115,15 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, navItem
             {/* Header / Top bar inside drawer */}
             <div>
               <div className="flex items-center justify-between p-5 border-b border-slate-100">
-                <a href="#inicio" onClick={onClose} className="flex items-center gap-2">
-                  <img src="/logo.png" alt="Angel Consultancy" className="h-8 w-auto object-contain" />
-                </a>
+                {isHome ? (
+                  <a href="#inicio" onClick={onClose} className="flex items-center gap-2">
+                    <img src="/logo.png" alt="Angel Consultancy" className="h-8 w-auto object-contain" />
+                  </a>
+                ) : (
+                  <Link to="/" onClick={onClose} className="flex items-center gap-2">
+                    <img src="/logo.png" alt="Angel Consultancy" className="h-8 w-auto object-contain" />
+                  </Link>
+                )}
                 <button
                   type="button"
                   onClick={onClose}
@@ -131,32 +141,79 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, navItem
                 </p>
                 <motion.ul className="space-y-1">
                   {navItems.map((item) => {
-                    const isActive = item.href === activeSection;
+                    const isAnchor = item.href.startsWith('#');
+                    const isActive = isAnchor ? item.href === activeSection : location.pathname.startsWith(item.href);
+
                     return (
                       <motion.li key={item.label} variants={itemVariants}>
-                        <a
-                          href={item.href}
-                          onClick={onClose}
-                          className={`group flex items-center justify-between px-3.5 py-3 rounded-xl text-base transition-all duration-200 ${
-                            isActive
-                              ? 'bg-brand-navy-50 text-brand-navy font-semibold'
-                              : 'text-slate-700 hover:text-brand-navy hover:bg-slate-50 font-medium'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            {isActive && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-brand-amber flex-shrink-0" />
-                            )}
-                            <span className="group-hover:translate-x-0.5 transition-transform duration-200">
-                              {item.label}
-                            </span>
-                          </div>
-                          <ArrowRight className={`w-4 h-4 transition-all duration-200 ${
-                            isActive 
-                              ? 'text-brand-navy opacity-100' 
-                              : 'text-slate-400 group-hover:text-brand-navy group-hover:translate-x-1 opacity-0 group-hover:opacity-100'
-                          }`} />
-                        </a>
+                        {isAnchor ? (
+                          isHome ? (
+                            <a
+                              href={item.href}
+                              onClick={onClose}
+                              className={`group flex items-center justify-between px-3.5 py-3 rounded-xl text-base transition-all duration-200 ${
+                                isActive
+                                  ? 'bg-brand-navy-50 text-brand-navy font-semibold'
+                                  : 'text-slate-700 hover:text-brand-navy hover:bg-slate-50 font-medium'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5">
+                                {isActive && (
+                                  <span className="w-1.5 h-1.5 rounded-full bg-brand-amber flex-shrink-0" />
+                                )}
+                                <span className="group-hover:translate-x-0.5 transition-transform duration-200">
+                                  {item.label}
+                                </span>
+                              </div>
+                              <ArrowRight className={`w-4 h-4 transition-all duration-200 ${
+                                isActive 
+                                  ? 'text-brand-navy opacity-100' 
+                                  : 'text-slate-400 group-hover:text-brand-navy group-hover:translate-x-1 opacity-0 group-hover:opacity-100'
+                              }`} />
+                            </a>
+                          ) : (
+                            <Link
+                              to={`/${item.href}`}
+                              onClick={onClose}
+                              className={`group flex items-center justify-between px-3.5 py-3 rounded-xl text-base transition-all duration-200 ${
+                                isActive
+                                  ? 'bg-brand-navy-50 text-brand-navy font-semibold'
+                                  : 'text-slate-700 hover:text-brand-navy hover:bg-slate-50 font-medium'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <span className="group-hover:translate-x-0.5 transition-transform duration-200">
+                                  {item.label}
+                                </span>
+                              </div>
+                              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-brand-navy group-hover:translate-x-1 opacity-0 group-hover:opacity-100 transition-all duration-200" />
+                            </Link>
+                          )
+                        ) : (
+                          <Link
+                            to={item.href}
+                            onClick={onClose}
+                            className={`group flex items-center justify-between px-3.5 py-3 rounded-xl text-base transition-all duration-200 ${
+                              isActive
+                                ? 'bg-brand-navy-50 text-brand-navy font-semibold'
+                                : 'text-slate-700 hover:text-brand-navy hover:bg-slate-50 font-medium'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5">
+                              {isActive && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-brand-amber flex-shrink-0" />
+                              )}
+                              <span className="group-hover:translate-x-0.5 transition-transform duration-200">
+                                {item.label}
+                              </span>
+                            </div>
+                            <ArrowRight className={`w-4 h-4 transition-all duration-200 ${
+                              isActive 
+                                ? 'text-brand-navy opacity-100' 
+                                : 'text-slate-400 group-hover:text-brand-navy group-hover:translate-x-1 opacity-0 group-hover:opacity-100'
+                            }`} />
+                          </Link>
+                        )}
                       </motion.li>
                     );
                   })}
@@ -166,14 +223,25 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, navItem
 
             {/* Bottom Drawer CTA & Direct Contacts */}
             <div className="p-5 border-t border-slate-100 bg-slate-50/70 space-y-4">
-              <a
-                href="#contato"
-                onClick={onClose}
-                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-brand-navy hover:bg-brand-navy-700 text-white text-sm font-semibold shadow-soft-sm transition-all duration-200 active:scale-[0.98]"
-              >
-                <span>Fale conosco</span>
-                <ArrowRight className="w-4 h-4" />
-              </a>
+              {isHome ? (
+                <a
+                  href="#contato"
+                  onClick={onClose}
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-brand-navy hover:bg-brand-navy-700 text-white text-sm font-semibold shadow-soft-sm transition-all duration-200 active:scale-[0.98]"
+                >
+                  <span>Fale conosco</span>
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+              ) : (
+                <Link
+                  to="/#contato"
+                  onClick={onClose}
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-brand-navy hover:bg-brand-navy-700 text-white text-sm font-semibold shadow-soft-sm transition-all duration-200 active:scale-[0.98]"
+                >
+                  <span>Fale conosco</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              )}
 
               {/* Direct channels */}
               <div className="pt-2 space-y-2 text-xs text-slate-600">

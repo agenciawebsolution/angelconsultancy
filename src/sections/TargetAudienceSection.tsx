@@ -29,7 +29,17 @@ const audienceData: TargetAudienceItem[] = [
   },
 ];
 
-export const TargetAudienceSection: React.FC = () => {
+export interface AudienceSectionData {
+  tag?: string;
+  title?: string;
+  subtitle?: string;
+}
+
+interface TargetAudienceSectionProps {
+  data?: AudienceSectionData;
+}
+
+export const TargetAudienceSection: React.FC<TargetAudienceSectionProps> = ({ data }) => {
   const getAudienceIcon = (icon: string) => {
     switch (icon) {
       case 'user':
@@ -47,10 +57,10 @@ export const TargetAudienceSection: React.FC = () => {
     <section id="para-quem-e" className="py-20 lg:py-28 bg-white relative border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionTitle
-          tag="Público Atendido"
+          tag={data?.tag || "Público Atendido"}
           tagVariant="amber"
-          title="Para quem é o nosso trabalho"
-          subtitle="Atendimento focado em quem precisa de apoio verdadeiro, descomplicado e seguro no dia a dia."
+          title={data?.title || "Para quem é o nosso trabalho"}
+          subtitle={data?.subtitle || "Atendimento focado em quem precisa de apoio verdadeiro, descomplicado e seguro no dia a dia."}
         />
 
         <motion.div

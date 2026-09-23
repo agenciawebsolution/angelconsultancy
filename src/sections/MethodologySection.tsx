@@ -32,7 +32,17 @@ const stepsData: MethodologyStep[] = [
   },
 ];
 
-export const MethodologySection: React.FC = () => {
+export interface MethodologySectionData {
+  tag?: string;
+  title?: string;
+  subtitle?: string;
+}
+
+interface MethodologySectionProps {
+  data?: MethodologySectionData;
+}
+
+export const MethodologySection: React.FC<MethodologySectionProps> = ({ data }) => {
   const getStepIcon = (icon: string) => {
     switch (icon) {
       case 'clock':
@@ -52,10 +62,10 @@ export const MethodologySection: React.FC = () => {
     <section id="como-trabalhamos" className="py-20 lg:py-28 bg-[#FAFBFD] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionTitle
-          tag="Nosso Jeito de Trabalhar"
+          tag={data?.tag || "Nosso Jeito de Trabalhar"}
           tagVariant="blue"
-          title="Acolhimento, paciência e comunicação transparente"
-          subtitle="Acreditamos em um processo humano onde você é ouvido com atenção e participa ativamente de cada escolha."
+          title={data?.title || "Acolhimento, paciência e comunicação transparente"}
+          subtitle={data?.subtitle || "Acreditamos em um processo humano onde você é ouvido com atenção e participa ativamente de cada escolha."}
         />
 
         {/* Timeline / Sequential Steps */}
