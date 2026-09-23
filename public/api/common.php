@@ -15,13 +15,17 @@ header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: SAMEORIGIN');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 
-// Manipulador global de exceções não capturadas para SEMPRE retornar JSON válido
+// Manipulador global de exceções não capturadas para SEMPRE retornar JSON válido com diagnóstico
 set_exception_handler(function (Throwable $e): void {
-    error_log('[Angel API Unhandled Exception] ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+    $detail = $e->getMessage() . ' (' . basename($e->getFile()) . ':' . $e->getLine() . ')';
+    error_log('[Angel API Unhandled Exception] ' . $detail);
     while (ob_get_level() > 0) {
         ob_end_clean();
     }
-    sendJson(false, 'Erro interno no servidor ao processar requisição.', 500);
+    sendJson(false, [
+        'message' => 'Erro interno no servidor: ' . $e->getMessage(),
+        'detail'  => $detail,
+    ], 500);
 });
 
 // Manipulador de encerramento para garantir que erros fatais nunca retornem corpo vazio
@@ -116,6 +120,27 @@ function getJsonInput(): array
 function getAuthToken(): ?string
 {
     $header = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+
+    if (empty($header) && function_exists('getallheaders')) {
+        $allHeaders = getallheaders();
+        foreach ($allHeaders as $key => $val) {
+            if (strcasecmp($key, 'Authorization') === 0) {
+                $header = $val;
+                break;
+            }
+        }
+    }
+
+    if (empty($header) && function_exists('apache_request_headers')) {
+        $apacheHeaders = apache_request_headers();
+        foreach ($apacheHeaders as $key => $val) {
+            if (strcasecmp($key, 'Authorization') === 0) {
+                $header = $val;
+                break;
+            }
+        }
+    }
+
     if (preg_match('/Bearer\s+(\S+)/i', $header, $matches)) {
         return $matches[1];
     }
@@ -390,6 +415,12 @@ function getCmsTableDefinitions(): array
             `stats_json` TEXT NULL,
             `sort_order` INT NOT NULL DEFAULT 0,
             `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+            `desktop_position_x` INT NOT NULL DEFAULT 75,
+            `desktop_position_y` INT NOT NULL DEFAULT 50,
+            `desktop_zoom` INT NOT NULL DEFAULT 100,
+            `mobile_position_x` INT NOT NULL DEFAULT 65,
+            `mobile_position_y` INT NOT NULL DEFAULT 50,
+            `mobile_zoom` INT NOT NULL DEFAULT 110,
             `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             INDEX `idx_slide_order` (`sort_order`),
@@ -579,9 +610,25 @@ function ensureCmsTablesExist(PDO $pdo): void
                  1)");
         } else {
             // Atualiza URLs legadas dos slides padrão para as imagens panorâmicas de alta fidelidade
-            $pdo->exec("UPDATE `home_slides` SET image_url = '/images/hero-slide-01.png' WHERE image_url LIKE '%hero-executive-1%'");
-            $pdo->exec("UPDATE `home_slides` SET image_url = '/images/hero-slide-02.png' WHERE image_url LIKE '%hero-consultant-2%'");
-            $pdo->exec("UPDATE `home_slides` SET image_url = '/images/hero-slide-03.png' WHERE image_url LIKE '%hero-consultant-3%'");
+            $pdo->exec("UPDATE `home_slides` SET image_url = '/images/hero-slide-01.png' WHERE sort_order = 1 OR id = 1");
+            $pdo->exec("UPDATE `home_slides` SET image_url = '/images/hero-slide-02.png' WHERE sort_order = 2 OR id = 2");
+            $pdo->exec("UPDATE `home_slides` SET image_url = '/images/hero-slide-03.png' WHERE sort_order = 3 OR id = 3");
+        }
+
+        // Garante as novas colunas de enquadramento desktop/mobile caso a tabela já existisse
+        try {
+            $colStmt = $pdo->query("SHOW COLUMNS FROM `home_slides` LIKE 'desktop_position_x'");
+            if (!$colStmt || !$colStmt->fetch()) {
+                $pdo->exec("ALTER TABLE `home_slides` 
+                    ADD COLUMN `desktop_position_x` INT NOT NULL DEFAULT 75,
+                    ADD COLUMN `desktop_position_y` INT NOT NULL DEFAULT 50,
+                    ADD COLUMN `desktop_zoom` INT NOT NULL DEFAULT 100,
+                    ADD COLUMN `mobile_position_x` INT NOT NULL DEFAULT 65,
+                    ADD COLUMN `mobile_position_y` INT NOT NULL DEFAULT 50,
+                    ADD COLUMN `mobile_zoom` INT NOT NULL DEFAULT 110");
+            }
+        } catch (Throwable $e) {
+            error_log('[Home Slides Alter Columns Error] ' . $e->getMessage());
         }
     } catch (Throwable $e) {
         error_log('[Default Slides Init Error] ' . $e->getMessage());

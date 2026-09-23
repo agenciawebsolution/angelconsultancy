@@ -1,23 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
+  Edit, 
   Trash2, 
-  Edit3, 
   ArrowUp, 
   ArrowDown, 
+  Check, 
+  X, 
+  UploadCloud, 
+  ImageIcon, 
   Eye, 
   EyeOff, 
-  Loader2, 
-  Image as ImageIcon, 
-  Check, 
-  X,
-  UploadCloud,
-  Sparkles
+  Sparkles,
+  Monitor,
+  Smartphone,
+  RotateCcw,
+  FolderOpen
 } from 'lucide-react';
 import { slidesService } from '../../services/slidesService';
 import { mediaService } from '../../services/mediaService';
-import type { HomeSlide, HomeSlideInput, SlideStat } from '../../types/slide';
 import { Button } from '../ui/Button';
+import type { HomeSlide, HomeSlideInput, SlideStat } from '../../types/slide';
+import type { MediaItem } from '../../types/cms';
 
 export const SlidesManager: React.FC = () => {
   const [slides, setSlides] = useState<HomeSlide[]>([]);
@@ -29,6 +33,33 @@ export const SlidesManager: React.FC = () => {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSlideId, setEditingSlideId] = useState<number | null>(null);
+
+  // Framing Preview State (Desktop vs Mobile)
+  const [framingPreviewMode, setFramingPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
+
+  // Media Library Modal
+  const [isLibraryModalOpen, setIsLibraryModalOpen] = useState(false);
+  const [mediaList, setMediaList] = useState<MediaItem[]>([]);
+  const [loadingMedia, setLoadingMedia] = useState(false);
+
+  // Official Presets
+  const officialPresets = [
+    {
+      title: 'Slide 1 — Executivo Internacional & Totem Angel',
+      path: '/images/hero-slide-01.png',
+      alt: 'Composição corporativa Angel Consultancy & Network com executivo internacional',
+    },
+    {
+      title: 'Slide 2 — Consultora Executiva em Bruxelas',
+      path: '/images/hero-slide-02.png',
+      alt: 'Consultora executiva em terraço corporativo de Bruxelas',
+    },
+    {
+      title: 'Slide 3 — Diretoria e Reunião Corporativa Europeia',
+      path: '/images/hero-slide-03.png',
+      alt: 'Diretoria executiva em reunião corporativa com vista panorâmica europeia',
+    },
+  ];
 
   // Form State
   const initialFormState: HomeSlideInput = {
@@ -49,13 +80,19 @@ export const SlidesManager: React.FC = () => {
     ],
     sortOrder: 1,
     isActive: true,
+    desktopPositionX: 75,
+    desktopPositionY: 50,
+    desktopZoom: 100,
+    mobilePositionX: 65,
+    mobilePositionY: 50,
+    mobileZoom: 110,
   };
 
   const [formData, setFormData] = useState<HomeSlideInput>(initialFormState);
 
   const showNotification = (text: string, type: 'success' | 'error' = 'success') => {
     setMessage({ text, type });
-    setTimeout(() => setMessage(null), 3500);
+    setTimeout(() => setMessage(null), 4000);
   };
 
   const loadSlides = async (showSpinner = true) => {
@@ -80,6 +117,29 @@ export const SlidesManager: React.FC = () => {
       .finally(() => setLoading(false));
   }, []);
 
+  const openLibraryModal = async () => {
+    setIsLibraryModalOpen(true);
+    setLoadingMedia(true);
+    try {
+      const items = await mediaService.getMedia();
+      setMediaList(items);
+    } catch {
+      setMediaList([]);
+    } finally {
+      setLoadingMedia(false);
+    }
+  };
+
+  const selectMediaItem = (path: string, altText?: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      imageUrl: path,
+      imageAlt: altText || prev.imageAlt,
+    }));
+    setIsLibraryModalOpen(false);
+    showNotification('Imagem selecionada da biblioteca!');
+  };
+
   const handleOpenCreateModal = () => {
     setEditingSlideId(null);
     const nextOrder = slides.length > 0 ? Math.max(...slides.map((s) => s.sortOrder)) + 1 : 1;
@@ -87,6 +147,7 @@ export const SlidesManager: React.FC = () => {
       ...initialFormState,
       sortOrder: nextOrder,
     });
+    setFramingPreviewMode('desktop');
     setIsModalOpen(true);
   };
 
@@ -104,13 +165,20 @@ export const SlidesManager: React.FC = () => {
       imageUrl: slide.imageUrl,
       imageAlt: slide.imageAlt || '',
       stats: slide.stats && slide.stats.length > 0 ? slide.stats : [
-        { label: 'Anos de Atuação', value: '+10' },
-        { label: 'Atendimento', value: 'Multilíngue' },
-        { label: 'Clientes Satisfeitos', value: '100%' },
+        { label: 'Clientes atendidos na Europa', value: '+500' },
+        { label: 'Satisfação dos clientes', value: '99%' },
+        { label: 'De experiência no mercado europeu', value: '+10 anos' },
       ],
       sortOrder: slide.sortOrder,
       isActive: slide.isActive,
+      desktopPositionX: slide.desktopPositionX ?? 75,
+      desktopPositionY: slide.desktopPositionY ?? 50,
+      desktopZoom: slide.desktopZoom ?? 100,
+      mobilePositionX: slide.mobilePositionX ?? 65,
+      mobilePositionY: slide.mobilePositionY ?? 50,
+      mobileZoom: slide.mobileZoom ?? 110,
     });
+    setFramingPreviewMode('desktop');
     setIsModalOpen(true);
   };
 
@@ -119,14 +187,27 @@ export const SlidesManager: React.FC = () => {
     setEditingSlideId(null);
   };
 
+  const handleResetFraming = () => {
+    setFormData((prev) => ({
+      ...prev,
+      desktopPositionX: 75,
+      desktopPositionY: 50,
+      desktopZoom: 100,
+      mobilePositionX: 65,
+      mobilePositionY: 50,
+      mobileZoom: 110,
+    }));
+    showNotification('Enquadramento restaurado para os padrões recomendados.');
+  };
+
   const handleSaveSlide = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title.trim()) {
-      alert('O título do slide é obrigatório.');
+      showNotification('O título do slide é obrigatório.', 'error');
       return;
     }
     if (!formData.imageUrl.trim()) {
-      alert('A URL da imagem é obrigatória.');
+      showNotification('A URL da imagem é obrigatória.', 'error');
       return;
     }
 
@@ -137,43 +218,42 @@ export const SlidesManager: React.FC = () => {
         showNotification('Slide atualizado com sucesso!');
       } else {
         await slidesService.createSlide(formData);
-        showNotification('Novo slide criado com sucesso!');
+        showNotification('Novo slide cadastrado com sucesso!');
       }
-      handleCloseModal();
-      await loadSlides();
+      setIsModalOpen(false);
+      loadSlides();
     } catch (err: any) {
-      showNotification(err?.message || 'Erro ao salvar slide.', 'error');
+      showNotification(err?.message || 'Erro ao salvar o slide.', 'error');
     } finally {
       setSaving(false);
     }
   };
 
+  const handleDeleteSlide = async (id: number) => {
+    if (!window.confirm('Tem certeza de que deseja excluir este slide?')) return;
+    try {
+      await slidesService.deleteSlide(id);
+      showNotification('Slide removido!');
+      setSlides((prev) => prev.filter((s) => s.id !== id));
+    } catch (err: any) {
+      showNotification(err?.message || 'Erro ao excluir o slide.', 'error');
+    }
+  };
+
   const handleToggleActive = async (slide: HomeSlide) => {
+    const newActive = !slide.isActive;
     try {
-      const newStatus = await slidesService.toggleActive(slide.id);
+      await slidesService.toggleActive(slide.id);
       setSlides((prev) =>
-        prev.map((s) => (s.id === slide.id ? { ...s, isActive: newStatus } : s))
+        prev.map((s) => (s.id === slide.id ? { ...s, isActive: newActive } : s))
       );
-      showNotification(`Slide ${newStatus ? 'ativado' : 'desativado'} com sucesso!`);
+      showNotification(`Slide ${newActive ? 'ativado' : 'desativado'} com sucesso!`);
     } catch (err: any) {
-      showNotification(err?.message || 'Erro ao alterar status.', 'error');
+      showNotification(err?.message || 'Erro ao alterar visibilidade.', 'error');
     }
   };
 
-  const handleDelete = async (slide: HomeSlide) => {
-    if (!window.confirm(`Tem certeza que deseja excluir o slide "${slide.title}"?`)) {
-      return;
-    }
-    try {
-      await slidesService.deleteSlide(slide.id);
-      showNotification('Slide excluído com sucesso!');
-      setSlides((prev) => prev.filter((s) => s.id !== slide.id));
-    } catch (err: any) {
-      showNotification(err?.message || 'Erro ao excluir slide.', 'error');
-    }
-  };
-
-  const handleMoveOrder = async (index: number, direction: 'up' | 'down') => {
+  const handleMoveSlide = async (index: number, direction: 'up' | 'down') => {
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= slides.length) return;
 
@@ -182,7 +262,6 @@ export const SlidesManager: React.FC = () => {
     newSlides[index] = newSlides[targetIndex];
     newSlides[targetIndex] = temp;
 
-    // Atualiza ordenação visual imediata
     const orders = newSlides.map((s, idx) => ({ id: s.id, sortOrder: idx + 1 }));
     setSlides(newSlides.map((s, idx) => ({ ...s, sortOrder: idx + 1 })));
 
@@ -207,11 +286,13 @@ export const SlidesManager: React.FC = () => {
         imageUrl: media.path,
         imageAlt: media.alt_text || prev.imageAlt,
       }));
-      showNotification('Imagem enviada com sucesso para a biblioteca!');
+      showNotification('Imagem enviada e aplicada com sucesso!');
     } catch (err: any) {
-      alert(err?.message || 'Erro ao fazer upload da imagem.');
+      showNotification(err?.message || 'Erro ao fazer upload da imagem.', 'error');
     } finally {
       setUploadingImage(false);
+      // Reset input value so same file can be re-selected if needed
+      e.target.value = '';
     }
   };
 
@@ -229,7 +310,7 @@ export const SlidesManager: React.FC = () => {
       {/* Notifications */}
       {message && (
         <div
-          className={`p-4 rounded-2xl text-xs sm:text-sm flex items-center gap-3 ${
+          className={`p-4 rounded-2xl text-xs sm:text-sm flex items-center gap-3 transition-all ${
             message.type === 'success'
               ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
               : 'bg-rose-50 border border-rose-200 text-rose-800'
@@ -244,313 +325,484 @@ export const SlidesManager: React.FC = () => {
         </div>
       )}
 
-      {/* Header bar */}
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-soft-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-soft-sm">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0B1528]/5 text-[#0B1528] text-xs font-bold border border-[#D4AF37]/30 mb-2">
-            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>Hero Slider Premium</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-xs font-bold tracking-wide uppercase mb-2">
+            <Sparkles className="w-3 h-3 text-[#D4AF37]" />
+            Carrossel Panorâmico
           </div>
-          <h3 className="text-lg sm:text-xl font-bold text-slate-900">
-            Gerenciador de Slides da Home
-          </h3>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Cadastre, ordene e configure múltiplos slides para o carrossel principal da página inicial.
+          <h2 className="text-xl sm:text-2xl font-black text-[#0A162B] tracking-tight">
+            Slides da Home
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl">
+            Gerencie as capas cinematográficas da Angel Consultancy, ajustando textos, CTAs, métricas e o enquadramento independente para Desktop e Mobile.
           </p>
         </div>
 
         <Button
           onClick={handleOpenCreateModal}
-          icon={<Plus className="w-4 h-4 text-[#D4AF37]" />}
-          className="bg-[#0B1528] hover:bg-[#132342] text-white self-start sm:self-auto"
+          className="bg-[#0A162B] hover:bg-[#123A73] text-white flex items-center gap-2 shadow-soft-sm hover:shadow-soft-md"
         >
-          Novo Slide
+          <Plus className="w-4 h-4 text-[#D4AF37]" />
+          <span>Novo Slide</span>
         </Button>
       </div>
 
-      {/* Slides list */}
+      {/* Slides Table/Card List */}
       {loading ? (
-        <div className="py-16 flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-brand-navy" />
+        <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center">
+          <div className="w-8 h-8 border-3 border-[#0A162B] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm font-semibold text-slate-600">Carregando slides...</p>
         </div>
       ) : slides.length === 0 ? (
-        <div className="bg-white p-12 rounded-3xl border border-slate-100 text-center space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto text-slate-400">
-            <ImageIcon className="w-8 h-8" />
-          </div>
-          <h4 className="text-base font-bold text-slate-900">Nenhum slide cadastrado ainda</h4>
+        <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center space-y-4">
+          <ImageIcon className="w-12 h-12 text-slate-300 mx-auto" />
+          <h3 className="text-lg font-bold text-slate-800">Nenhum slide cadastrado</h3>
           <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
-            O site atualmente está exibindo os 3 slides padrão de alta definição. Clique abaixo para cadastrar seu primeiro slide personalizado.
+            Crie o primeiro slide para compor a capa panorâmica com os dados oficiais da consultoria.
           </p>
-          <Button onClick={handleOpenCreateModal} icon={<Plus className="w-4 h-4" />}>
-            Cadastrar Primeiro Slide
+          <Button onClick={handleOpenCreateModal} className="bg-[#0A162B] text-white">
+            Criar Primeiro Slide
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:gap-6">
-          {slides.map((slide, index) => (
-            <div
-              key={slide.id}
-              className={`p-5 sm:p-6 rounded-3xl border transition-all duration-200 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 ${
-                slide.isActive
-                  ? 'bg-white border-slate-200 shadow-soft-sm hover:shadow-soft-md'
-                  : 'bg-slate-50/80 border-slate-200/60 opacity-75'
-              }`}
-            >
-              {/* Left info & Image */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 flex-1 min-w-0">
-                {/* Thumbnail */}
-                <div className="relative w-full sm:w-36 h-28 rounded-2xl overflow-hidden bg-slate-900 flex-shrink-0 shadow-soft-xs border border-slate-100">
-                  <img
-                    src={slide.imageUrl}
-                    alt={slide.imageAlt || slide.title}
-                    className="w-full h-full object-cover object-top"
-                  />
-                  <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#0B1528]/90 text-white font-extrabold text-[10px] tracking-wide border border-white/10">
-                    #{index + 1}
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-soft-sm overflow-hidden">
+          <div className="divide-y divide-slate-100">
+            {slides.map((slide, index) => (
+              <div
+                key={slide.id}
+                className="p-5 sm:p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 hover:bg-slate-50/60 transition-colors"
+              >
+                {/* Left: Thumbnail & Core Details */}
+                <div className="flex items-start gap-4 sm:gap-5 flex-1 min-w-0">
+                  {/* Thumbnail */}
+                  <div className="relative w-28 sm:w-36 h-20 sm:h-24 rounded-2xl overflow-hidden bg-slate-900 border border-slate-200 flex-shrink-0 shadow-soft-xs">
+                    <img
+                      src={slide.imageUrl}
+                      alt={slide.title}
+                      style={{
+                        objectPosition: `${slide.desktopPositionX ?? 75}% ${slide.desktopPositionY ?? 50}%`,
+                        transform: `scale(${(slide.desktopZoom ?? 100) / 100})`,
+                      }}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                    <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/60 backdrop-blur-sm text-[9px] font-bold text-white uppercase">
+                      #{slide.sortOrder}
+                    </div>
                   </div>
-                </div>
 
-                {/* Content Details */}
-                <div className="min-w-0 flex-1 space-y-1.5">
-                  <div className="flex flex-wrap items-center gap-2">
+                  {/* Texts */}
+                  <div className="min-w-0 space-y-1">
                     {slide.badge && (
-                      <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider">
+                      <span className="inline-block text-[10px] font-extrabold uppercase tracking-wider text-[#D4AF37] bg-slate-900 px-2 py-0.5 rounded-full">
                         {slide.badge}
                       </span>
                     )}
-                    <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                        slide.isActive
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          : 'bg-rose-50 text-rose-700 border border-rose-200'
-                      }`}
-                    >
-                      <span className={`w-1.5 h-1.5 rounded-full ${slide.isActive ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                      {slide.isActive ? 'Ativo na Home' : 'Inativo (Oculto)'}
-                    </span>
-                  </div>
-
-                  <h4 className="text-base sm:text-lg font-bold text-slate-900 leading-snug truncate">
-                    {slide.title}{' '}
-                    {slide.highlightText && (
-                      <span className="text-[#0B1528] underline decoration-[#D4AF37]">
-                        {slide.highlightText}
-                      </span>
-                    )}
-                  </h4>
-
-                  {slide.subtitle && (
-                    <p className="text-xs sm:text-sm text-slate-500 line-clamp-2 leading-relaxed">
+                    <h3 className="text-base sm:text-lg font-bold text-[#0A162B] truncate">
+                      {slide.title} {slide.highlightText && <span className="text-[#1D5BD8]">{slide.highlightText}</span>}
+                    </h3>
+                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
                       {slide.subtitle}
                     </p>
-                  )}
-
-                  <div className="flex flex-wrap gap-2 pt-1 text-[11px] text-slate-400">
-                    {slide.ctaPrimaryText && (
-                      <span className="px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200 text-slate-600">
-                        CTA 1: {slide.ctaPrimaryText}
-                      </span>
-                    )}
-                    {slide.ctaSecondaryText && (
-                      <span className="px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200 text-slate-600">
-                        CTA 2: {slide.ctaSecondaryText}
-                      </span>
-                    )}
+                    <div className="flex flex-wrap items-center gap-3 pt-1 text-[11px] text-slate-400 font-mono">
+                      <span>Desktop: {slide.desktopPositionX ?? 75}%/{slide.desktopPositionY ?? 50}%</span>
+                      <span>•</span>
+                      <span>Mobile: {slide.mobilePositionX ?? 65}%/{slide.mobilePositionY ?? 50}% (Zoom {slide.mobileZoom ?? 110}%)</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2 self-stretch lg:self-auto justify-end pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100">
-                {/* Reordering buttons */}
-                <div className="flex items-center bg-slate-100 rounded-xl p-0.5 mr-1">
+                {/* Right: Actions */}
+                <div className="flex items-center gap-2 self-end lg:self-center flex-shrink-0">
+                  {/* Reorder Buttons */}
+                  <div className="flex items-center gap-1 border-r border-slate-200 pr-2 mr-2">
+                    <button
+                      onClick={() => handleMoveSlide(index, 'up')}
+                      disabled={index === 0}
+                      title="Mover para cima"
+                      className="p-2 rounded-xl text-slate-500 hover:text-[#0A162B] hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                    >
+                      <ArrowUp className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleMoveSlide(index, 'down')}
+                      disabled={index === slides.length - 1}
+                      title="Mover para baixo"
+                      className="p-2 rounded-xl text-slate-500 hover:text-[#0A162B] hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                    >
+                      <ArrowDown className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Toggle Active */}
                   <button
-                    type="button"
-                    disabled={index === 0}
-                    onClick={() => handleMoveOrder(index, 'up')}
-                    title="Subir ordem"
-                    aria-label="Subir ordem"
-                    className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-white rounded-lg disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                    onClick={() => handleToggleActive(slide)}
+                    title={slide.isActive ? 'Desativar slide' : 'Ativar slide'}
+                    className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      slide.isActive
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100'
+                        : 'bg-slate-100 border-slate-200 text-slate-500 hover:bg-slate-200'
+                    }`}
                   >
-                    <ArrowUp className="w-4 h-4" />
+                    {slide.isActive ? (
+                      <>
+                        <Eye className="w-3.5 h-3.5 text-emerald-600" />
+                        <span className="hidden sm:inline">Ativo</span>
+                      </>
+                    ) : (
+                      <>
+                        <EyeOff className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="hidden sm:inline">Inativo</span>
+                      </>
+                    )}
                   </button>
+
+                  {/* Edit */}
                   <button
-                    type="button"
-                    disabled={index === slides.length - 1}
-                    onClick={() => handleMoveOrder(index, 'down')}
-                    title="Descer ordem"
-                    aria-label="Descer ordem"
-                    className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-white rounded-lg disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                    onClick={() => handleOpenEditModal(slide)}
+                    title="Editar slide"
+                    className="p-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 transition-colors flex items-center gap-1.5 text-xs font-bold"
                   >
-                    <ArrowDown className="w-4 h-4" />
+                    <Edit className="w-3.5 h-3.5 text-[#1D5BD8]" />
+                    <span className="hidden sm:inline">Editar</span>
+                  </button>
+
+                  {/* Delete */}
+                  <button
+                    onClick={() => handleDeleteSlide(slide.id)}
+                    title="Excluir slide"
+                    className="p-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
-
-                {/* Toggle Active */}
-                <button
-                  type="button"
-                  onClick={() => handleToggleActive(slide)}
-                  title={slide.isActive ? 'Ocultar slide' : 'Ativar slide'}
-                  aria-label={slide.isActive ? 'Ocultar slide' : 'Ativar slide'}
-                  className={`p-2 rounded-xl border transition-colors ${
-                    slide.isActive
-                      ? 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                      : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50'
-                  }`}
-                >
-                  {slide.isActive ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                </button>
-
-                {/* Edit */}
-                <button
-                  type="button"
-                  onClick={() => handleOpenEditModal(slide)}
-                  title="Editar slide"
-                  aria-label="Editar slide"
-                  className="p-2 rounded-xl border border-slate-200 text-slate-700 hover:text-[#0B1528] hover:bg-slate-50 hover:border-slate-300 transition-colors"
-                >
-                  <Edit3 className="w-4 h-4" />
-                </button>
-
-                {/* Delete */}
-                <button
-                  type="button"
-                  onClick={() => handleDelete(slide)}
-                  title="Excluir slide"
-                  aria-label="Excluir slide"
-                  className="p-2 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 
       {/* ========================================================= */}
-      {/* Slide Edit / Create Modal                                 */}
+      {/* Modal de Criação / Edição de Slide                        */}
       {/* ========================================================= */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-soft-2xl border border-slate-100 overflow-hidden my-8">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-3xl w-full shadow-soft-2xl border border-slate-200 overflow-hidden my-8">
             
             {/* Modal Header */}
-            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div className="p-6 sm:p-7 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#0B1528] text-white flex items-center justify-center shadow-soft-xs">
+                <div className="w-10 h-10 rounded-2xl bg-[#0A162B] text-white flex items-center justify-center shadow-soft-xs">
                   <Sparkles className="w-5 h-5 text-[#D4AF37]" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900">
-                    {editingSlideId ? 'Editar Slide da Home' : 'Criar Novo Slide'}
+                  <h3 className="text-lg sm:text-xl font-bold text-[#0A162B]">
+                    {editingSlideId ? 'Editar Slide do Hero' : 'Criar Novo Slide do Hero'}
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Configure os textos, botões e fotografia deste slide.
+                    Ajuste os dados editoriais, imagem e enquadramento independente.
                   </p>
                 </div>
               </div>
               <button
-                type="button"
                 onClick={handleCloseModal}
-                aria-label="Fechar"
-                className="w-9 h-9 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-500 flex items-center justify-center transition-colors"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Modal Body */}
+            {/* Modal Form */}
             <form onSubmit={handleSaveSlide} className="p-6 sm:p-8 space-y-6 max-h-[75vh] overflow-y-auto">
               
-              {/* Image Preview & URL */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-4">
+              {/* 1. Seleção e Upload da Imagem */}
+              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                  <label className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                    <ImageIcon className="w-4 h-4 text-[#0B1528]" />
-                    Fotografia Editorial do Slide
+                  <label className="text-xs font-bold text-[#0A162B] uppercase tracking-wider flex items-center gap-1.5">
+                    <ImageIcon className="w-4 h-4 text-[#D4AF37]" />
+                    Imagem Panorâmica de Fundo
                   </label>
 
-                  <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold cursor-pointer shadow-soft-xs transition-colors">
-                    <UploadCloud className="w-4 h-4 text-brand-navy" />
-                    <span>{uploadingImage ? 'Enviando...' : 'Fazer Upload de Imagem'}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      disabled={uploadingImage}
-                      className="hidden"
-                    />
-                  </label>
+                  <div className="flex items-center gap-2">
+                    {/* Botão Biblioteca */}
+                    <button
+                      type="button"
+                      onClick={openLibraryModal}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold shadow-soft-xs transition-colors"
+                    >
+                      <FolderOpen className="w-4 h-4 text-[#D4AF37]" />
+                      <span>Biblioteca de Mídia</span>
+                    </button>
+
+                    {/* Botão Upload */}
+                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0A162B] hover:bg-[#123A73] text-white text-xs font-semibold cursor-pointer shadow-soft-xs transition-colors">
+                      <UploadCloud className="w-4 h-4 text-[#D4AF37]" />
+                      <span>{uploadingImage ? 'Enviando...' : 'Fazer Upload'}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={uploadingImage}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                  <div className="sm:col-span-8">
-                    <input
-                      type="text"
-                      required
-                      value={formData.imageUrl}
-                      onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                      placeholder="https://... ou /uploads/..."
-                      className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-navy font-mono"
-                    />
-                    <p className="text-[11px] text-slate-400 mt-1">
-                      Cole a URL da imagem corporativa ou use o botão de upload acima.
-                    </p>
-                  </div>
-
-                  <div className="sm:col-span-4 flex justify-center">
-                    <div className="w-full h-24 rounded-xl overflow-hidden bg-slate-900 border border-slate-200 shadow-soft-xs">
-                      {formData.imageUrl ? (
-                        <img
-                          src={formData.imageUrl}
-                          alt="Preview"
-                          className="w-full h-full object-cover object-top"
-                          onError={(e) => {
-                            (e.target as HTMLElement).style.display = 'none';
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">
-                          Sem imagem
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                <div>
+                  <input
+                    type="text"
+                    required
+                    value={formData.imageUrl}
+                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                    placeholder="/images/hero-slide-01.png ou /uploads/..."
+                    className="w-full p-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0A162B] font-mono"
+                  />
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Caminho da imagem panorâmica. Use os botões acima para upload ou selecionar presets oficiais.
+                  </p>
                 </div>
               </div>
 
-              {/* Badges & Titles */}
+              {/* 2. Seção de Enquadramento Independente Desktop & Mobile */}
+              <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-[#0A162B] text-white border border-slate-700 shadow-soft-lg space-y-5">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-700 pb-3">
+                  <div>
+                    <h4 className="text-xs font-black uppercase tracking-wider text-[#D4AF37] flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Enquadramento da Imagem
+                    </h4>
+                    <p className="text-[11px] text-slate-300 mt-0.5">
+                      Ajuste a posição focal e o zoom separadamente para Desktop e Celular.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {/* Mode Switcher Tabs */}
+                    <div className="inline-flex p-1 rounded-xl bg-slate-800 border border-slate-700">
+                      <button
+                        type="button"
+                        onClick={() => setFramingPreviewMode('desktop')}
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                          framingPreviewMode === 'desktop'
+                            ? 'bg-[#1D5BD8] text-white shadow-soft-xs'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        <Monitor className="w-3.5 h-3.5" />
+                        <span>Desktop</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFramingPreviewMode('mobile')}
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                          framingPreviewMode === 'mobile'
+                            ? 'bg-[#1D5BD8] text-white shadow-soft-xs'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        <Smartphone className="w-3.5 h-3.5" />
+                        <span>Mobile</span>
+                      </button>
+                    </div>
+
+                    {/* Reset Button */}
+                    <button
+                      type="button"
+                      onClick={handleResetFraming}
+                      title="Restaurar padrão"
+                      className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs transition-colors"
+                    >
+                      <RotateCcw className="w-4 h-4 text-[#D4AF37]" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Live Interactive Preview Box */}
+                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                    <span>
+                      Pré-visualização em tempo real — Modo {framingPreviewMode === 'desktop' ? 'Desktop (Widescreen 16:9)' : 'Mobile (Smartphone)'}
+                    </span>
+                    <span className="text-[#D4AF37]">
+                      {framingPreviewMode === 'desktop'
+                        ? `X: ${formData.desktopPositionX ?? 75}% | Y: ${formData.desktopPositionY ?? 50}% | Zoom: ${formData.desktopZoom ?? 100}%`
+                        : `X: ${formData.mobilePositionX ?? 65}% | Y: ${formData.mobilePositionY ?? 50}% | Zoom: ${formData.mobileZoom ?? 110}%`}
+                    </span>
+                  </div>
+
+                  {framingPreviewMode === 'desktop' ? (
+                    /* Desktop 16:9 Frame */
+                    <div className="w-full h-52 sm:h-64 rounded-xl overflow-hidden relative bg-slate-900 border border-slate-700 shadow-inner flex items-center justify-center">
+                      {formData.imageUrl ? (
+                        <img
+                          src={formData.imageUrl}
+                          alt="Preview Desktop"
+                          style={{
+                            objectPosition: `${formData.desktopPositionX ?? 75}% ${formData.desktopPositionY ?? 50}%`,
+                            transform: `scale(${(formData.desktopZoom ?? 100) / 100})`,
+                            transformOrigin: `${formData.desktopPositionX ?? 75}% ${formData.desktopPositionY ?? 50}%`,
+                          }}
+                          className="w-full h-full object-cover transition-all duration-75"
+                        />
+                      ) : (
+                        <span className="text-slate-500 text-xs">Sem imagem selecionada</span>
+                      )}
+                    </div>
+                  ) : (
+                    /* Mobile Vertical Smartphone Mockup */
+                    <div className="w-44 h-64 sm:w-48 sm:h-72 mx-auto rounded-3xl overflow-hidden relative bg-slate-900 border-4 border-slate-700 shadow-2xl flex items-center justify-center">
+                      {formData.imageUrl ? (
+                        <img
+                          src={formData.imageUrl}
+                          alt="Preview Mobile"
+                          style={{
+                            objectPosition: `${formData.mobilePositionX ?? 65}% ${formData.mobilePositionY ?? 50}%`,
+                            transform: `scale(${(formData.mobileZoom ?? 110) / 100})`,
+                            transformOrigin: `${formData.mobilePositionX ?? 65}% ${formData.mobilePositionY ?? 50}%`,
+                          }}
+                          className="w-full h-full object-cover transition-all duration-75"
+                        />
+                      ) : (
+                        <span className="text-slate-500 text-xs">Sem imagem</span>
+                      )}
+                      <div className="absolute top-1.5 w-12 h-2.5 bg-slate-800 rounded-full" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Sliders for Active Mode */}
+                {framingPreviewMode === 'desktop' ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-800/60 p-4 rounded-xl border border-slate-700">
+                    <div>
+                      <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                        <span>Posição Horizontal (X)</span>
+                        <span className="text-[#D4AF37] font-mono">{formData.desktopPositionX ?? 75}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={formData.desktopPositionX ?? 75}
+                        onChange={(e) => setFormData({ ...formData, desktopPositionX: parseInt(e.target.value, 10) })}
+                        className="w-full accent-[#D4AF37] cursor-pointer"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                        <span>Posição Vertical (Y)</span>
+                        <span className="text-[#D4AF37] font-mono">{formData.desktopPositionY ?? 50}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={formData.desktopPositionY ?? 50}
+                        onChange={(e) => setFormData({ ...formData, desktopPositionY: parseInt(e.target.value, 10) })}
+                        className="w-full accent-[#D4AF37] cursor-pointer"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                        <span>Zoom Desktop</span>
+                        <span className="text-[#D4AF37] font-mono">{formData.desktopZoom ?? 100}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="100"
+                        max="150"
+                        value={formData.desktopZoom ?? 100}
+                        onChange={(e) => setFormData({ ...formData, desktopZoom: parseInt(e.target.value, 10) })}
+                        className="w-full accent-[#D4AF37] cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-800/60 p-4 rounded-xl border border-slate-700">
+                    <div>
+                      <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                        <span>Posição Horizontal Mobile (X)</span>
+                        <span className="text-[#D4AF37] font-mono">{formData.mobilePositionX ?? 65}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={formData.mobilePositionX ?? 65}
+                        onChange={(e) => setFormData({ ...formData, mobilePositionX: parseInt(e.target.value, 10) })}
+                        className="w-full accent-[#D4AF37] cursor-pointer"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                        <span>Posição Vertical Mobile (Y)</span>
+                        <span className="text-[#D4AF37] font-mono">{formData.mobilePositionY ?? 50}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={formData.mobilePositionY ?? 50}
+                        onChange={(e) => setFormData({ ...formData, mobilePositionY: parseInt(e.target.value, 10) })}
+                        className="w-full accent-[#D4AF37] cursor-pointer"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                        <span>Zoom Mobile</span>
+                        <span className="text-[#D4AF37] font-mono">{formData.mobileZoom ?? 110}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="100"
+                        max="150"
+                        value={formData.mobileZoom ?? 110}
+                        onChange={(e) => setFormData({ ...formData, mobileZoom: parseInt(e.target.value, 10) })}
+                        className="w-full accent-[#D4AF37] cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 3. Textos do Slide */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                     Tag Superior (Badge)
                   </label>
                   <input
                     type="text"
                     value={formData.badge}
                     onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                    placeholder="Ex: CONSULTORIA ESTRATÉGICA EUROPEIA"
-                    className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                    placeholder="Ex: ANGEL CONSULTANCY AND NETWORK"
+                    className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0A162B]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Palavra/Frase de Destaque (Dourado/Gradiente)
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    Destaque em Azul Royal
                   </label>
                   <input
                     type="text"
                     value={formData.highlightText}
                     onChange={(e) => setFormData({ ...formData, highlightText: e.target.value })}
-                    placeholder="Ex: Alto Desempenho"
-                    className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                    placeholder="Ex: simples e confiável"
+                    className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0A162B]"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                     Título Principal (Headline) *
                   </label>
                   <textarea
@@ -558,27 +810,27 @@ export const SlidesManager: React.FC = () => {
                     required
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="Ex: Soluções Corporativas com Clareza, Segurança e"
-                    className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                    placeholder="Ex: Assistência humana,"
+                    className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0A162B]"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                     Subtítulo / Descrição
                   </label>
                   <textarea
                     rows={3}
                     value={formData.subtitle}
                     onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                    placeholder="Ex: Apoio administrativo, financeiro e consultoria estratégica internacional..."
-                    className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                    placeholder="Ex: Apoio humano, simples e confiável para você..."
+                    className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0A162B]"
                   />
                 </div>
               </div>
 
-              {/* CTAs */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-4">
+              {/* 4. CTAs */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
                 <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                   Botões de Ação (CTAs)
                 </h4>
@@ -592,8 +844,8 @@ export const SlidesManager: React.FC = () => {
                       type="text"
                       value={formData.ctaPrimaryText}
                       onChange={(e) => setFormData({ ...formData, ctaPrimaryText: e.target.value })}
-                      placeholder="Fale com um Especialista"
-                      className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                      placeholder="Fale conosco"
+                      className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0A162B]"
                     />
                   </div>
 
@@ -606,7 +858,7 @@ export const SlidesManager: React.FC = () => {
                       value={formData.ctaPrimaryLink}
                       onChange={(e) => setFormData({ ...formData, ctaPrimaryLink: e.target.value })}
                       placeholder="#contato"
-                      className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                      className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0A162B]"
                     />
                   </div>
 
@@ -618,8 +870,8 @@ export const SlidesManager: React.FC = () => {
                       type="text"
                       value={formData.ctaSecondaryText}
                       onChange={(e) => setFormData({ ...formData, ctaSecondaryText: e.target.value })}
-                      placeholder="Conheça Nossos Serviços"
-                      className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                      placeholder="Conheça nossos serviços"
+                      className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0A162B]"
                     />
                   </div>
 
@@ -632,16 +884,16 @@ export const SlidesManager: React.FC = () => {
                       value={formData.ctaSecondaryLink}
                       onChange={(e) => setFormData({ ...formData, ctaSecondaryLink: e.target.value })}
                       placeholder="#servicos"
-                      className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                      className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0A162B]"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Stats / Trust Badges (3 items) */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+              {/* 5. Métricas Institucionais (3 itens) */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
                 <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                  Estatísticas / Selos de Confiança
+                  Métricas Institucionais (3 Indicadores)
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {[0, 1, 2].map((idx) => (
@@ -654,7 +906,7 @@ export const SlidesManager: React.FC = () => {
                           type="text"
                           value={formData.stats?.[idx]?.value || ''}
                           onChange={(e) => updateStatItem(idx, 'value', e.target.value)}
-                          placeholder="Ex: +10 Anos"
+                          placeholder="Ex: +500"
                           className="w-full p-1.5 text-xs font-bold rounded-lg border border-slate-200"
                         />
                       </div>
@@ -666,7 +918,7 @@ export const SlidesManager: React.FC = () => {
                           type="text"
                           value={formData.stats?.[idx]?.label || ''}
                           onChange={(e) => updateStatItem(idx, 'label', e.target.value)}
-                          placeholder="Ex: na Bélgica"
+                          placeholder="Ex: Clientes atendidos"
                           className="w-full p-1.5 text-xs rounded-lg border border-slate-200"
                         />
                       </div>
@@ -675,7 +927,7 @@ export const SlidesManager: React.FC = () => {
                 </div>
               </div>
 
-              {/* Status & Order */}
+              {/* 6. Status e Ordem */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
@@ -686,7 +938,7 @@ export const SlidesManager: React.FC = () => {
                     min={1}
                     value={formData.sortOrder}
                     onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value, 10) || 1 })}
-                    className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                    className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0A162B]"
                   />
                 </div>
 
@@ -696,7 +948,7 @@ export const SlidesManager: React.FC = () => {
                       type="checkbox"
                       checked={formData.isActive}
                       onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                      className="w-5 h-5 rounded text-brand-navy focus:ring-brand-navy"
+                      className="w-5 h-5 rounded text-[#0A162B] focus:ring-[#0A162B]"
                     />
                     <span className="text-sm font-semibold text-slate-800">
                       Slide ativo (visível no carrossel da Home)
@@ -713,7 +965,7 @@ export const SlidesManager: React.FC = () => {
                 <Button
                   type="submit"
                   disabled={saving}
-                  className="bg-[#0B1528] hover:bg-[#132342] text-white"
+                  className="bg-[#0A162B] hover:bg-[#123A73] text-white"
                 >
                   {saving ? 'Salvando...' : editingSlideId ? 'Atualizar Slide' : 'Criar Slide'}
                 </Button>
@@ -723,6 +975,86 @@ export const SlidesManager: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* ========================================================= */}
+      {/* Modal da Biblioteca de Mídia (Presets e Uploads)          */}
+      {/* ========================================================= */}
+      {isLibraryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-2xl w-full shadow-soft-2xl border border-slate-200 overflow-hidden my-8">
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+              <div className="flex items-center gap-2.5">
+                <FolderOpen className="w-5 h-5 text-[#D4AF37]" />
+                <h3 className="text-lg font-bold text-[#0A162B]">Biblioteca de Mídia</h3>
+              </div>
+              <button
+                onClick={() => setIsLibraryModalOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+              {/* Presets Oficiais */}
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-slate-500 mb-3">
+                  Imagens Panorâmicas Oficiais da Angel Consultancy
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {officialPresets.map((preset, i) => (
+                    <button
+                      type="button"
+                      key={i}
+                      onClick={() => selectMediaItem(preset.path, preset.alt)}
+                      className="group p-2 rounded-2xl border border-slate-200 hover:border-[#1D5BD8] bg-slate-50 hover:bg-blue-50/40 text-left transition-all"
+                    >
+                      <div className="w-full h-24 rounded-xl overflow-hidden bg-slate-900 mb-2 border border-slate-200">
+                        <img src={preset.path} alt={preset.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                      </div>
+                      <p className="text-xs font-bold text-slate-800 line-clamp-1 group-hover:text-[#1D5BD8]">
+                        {preset.title}
+                      </p>
+                      <span className="text-[10px] text-slate-400 font-mono">{preset.path}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Uploads da Biblioteca */}
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-slate-500 mb-3">
+                  Arquivos Enviados para a Biblioteca
+                </h4>
+                {loadingMedia ? (
+                  <p className="text-xs text-slate-400 py-4 text-center">Carregando mídias...</p>
+                ) : mediaList.length === 0 ? (
+                  <p className="text-xs text-slate-400 py-4 text-center bg-slate-50 rounded-2xl">
+                    Nenhum upload registrado ainda. Faça upload pelo botão no formulário.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {mediaList.map((m) => (
+                      <button
+                        type="button"
+                        key={m.id}
+                        onClick={() => selectMediaItem(m.path, m.alt_text || undefined)}
+                        className="group p-2 rounded-2xl border border-slate-200 hover:border-[#1D5BD8] bg-slate-50 text-left transition-all"
+                      >
+                        <div className="w-full h-20 rounded-xl overflow-hidden bg-slate-900 mb-1.5 border border-slate-200">
+                          <img src={m.path} alt={m.alt_text || m.filename} className="w-full h-full object-cover" />
+                        </div>
+                        <p className="text-xs font-semibold text-slate-700 truncate">{m.original_name}</p>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

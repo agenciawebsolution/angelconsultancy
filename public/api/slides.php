@@ -46,6 +46,12 @@ function formatSlideRow(array $row): array
         'stats'            => $stats,
         'sortOrder'        => (int)($row['sort_order'] ?? 0),
         'isActive'         => (bool)($row['is_active'] ?? 1),
+        'desktopPositionX' => (int)($row['desktop_position_x'] ?? 75),
+        'desktopPositionY' => (int)($row['desktop_position_y'] ?? 50),
+        'desktopZoom'      => (int)($row['desktop_zoom'] ?? 100),
+        'mobilePositionX'  => (int)($row['mobile_position_x'] ?? 65),
+        'mobilePositionY'  => (int)($row['mobile_position_y'] ?? 50),
+        'mobileZoom'       => (int)($row['mobile_zoom'] ?? 110),
         'createdAt'        => $row['created_at'] ?? null,
         'updatedAt'        => $row['updated_at'] ?? null,
     ];
@@ -117,13 +123,22 @@ if ($method === 'POST') {
         $statsJson = $data['stats_json'];
     }
 
+    $desktopPositionX = isset($data['desktopPositionX']) ? (int)$data['desktopPositionX'] : (isset($data['desktop_position_x']) ? (int)$data['desktop_position_x'] : 75);
+    $desktopPositionY = isset($data['desktopPositionY']) ? (int)$data['desktopPositionY'] : (isset($data['desktop_position_y']) ? (int)$data['desktop_position_y'] : 50);
+    $desktopZoom      = isset($data['desktopZoom']) ? (int)$data['desktopZoom'] : (isset($data['desktop_zoom']) ? (int)$data['desktop_zoom'] : 100);
+    $mobilePositionX  = isset($data['mobilePositionX']) ? (int)$data['mobilePositionX'] : (isset($data['mobile_position_x']) ? (int)$data['mobile_position_x'] : 65);
+    $mobilePositionY  = isset($data['mobilePositionY']) ? (int)$data['mobilePositionY'] : (isset($data['mobile_position_y']) ? (int)$data['mobile_position_y'] : 50);
+    $mobileZoom       = isset($data['mobileZoom']) ? (int)$data['mobileZoom'] : (isset($data['mobile_zoom']) ? (int)$data['mobile_zoom'] : 110);
+
     $stmt = $pdo->prepare(
         'INSERT INTO `home_slides` 
          (`badge`, `title`, `highlight_text`, `subtitle`, `cta_primary_text`, `cta_primary_link`, 
-          `cta_secondary_text`, `cta_secondary_link`, `image_url`, `image_alt`, `stats_json`, `sort_order`, `is_active`, `created_at`, `updated_at`)
+          `cta_secondary_text`, `cta_secondary_link`, `image_url`, `image_alt`, `stats_json`, `sort_order`, `is_active`, 
+          `desktop_position_x`, `desktop_position_y`, `desktop_zoom`, `mobile_position_x`, `mobile_position_y`, `mobile_zoom`, `created_at`, `updated_at`)
          VALUES 
          (:badge, :title, :highlight, :subtitle, :cta1_text, :cta1_link,
-          :cta2_text, :cta2_link, :image_url, :image_alt, :stats_json, :sort_order, :is_active, NOW(), NOW())'
+          :cta2_text, :cta2_link, :image_url, :image_alt, :stats_json, :sort_order, :is_active,
+          :d_pos_x, :d_pos_y, :d_zoom, :m_pos_x, :m_pos_y, :m_zoom, NOW(), NOW())'
     );
 
     $stmt->execute([
@@ -140,6 +155,12 @@ if ($method === 'POST') {
         ':stats_json' => $statsJson,
         ':sort_order' => $sortOrder,
         ':is_active'  => $isActive,
+        ':d_pos_x'    => $desktopPositionX,
+        ':d_pos_y'    => $desktopPositionY,
+        ':d_zoom'     => $desktopZoom,
+        ':m_pos_x'    => $mobilePositionX,
+        ':m_pos_y'    => $mobilePositionY,
+        ':m_zoom'     => $mobileZoom,
     ]);
 
     $newId = (int)$pdo->lastInsertId();
@@ -223,6 +244,13 @@ if ($method === 'PUT') {
         $statsJson = $data['stats_json'];
     }
 
+    $desktopPositionX = isset($data['desktopPositionX']) ? (int)$data['desktopPositionX'] : (isset($data['desktop_position_x']) ? (int)$data['desktop_position_x'] : (int)($current['desktop_position_x'] ?? 75));
+    $desktopPositionY = isset($data['desktopPositionY']) ? (int)$data['desktopPositionY'] : (isset($data['desktop_position_y']) ? (int)$data['desktop_position_y'] : (int)($current['desktop_position_y'] ?? 50));
+    $desktopZoom      = isset($data['desktopZoom']) ? (int)$data['desktopZoom'] : (isset($data['desktop_zoom']) ? (int)$data['desktop_zoom'] : (int)($current['desktop_zoom'] ?? 100));
+    $mobilePositionX  = isset($data['mobilePositionX']) ? (int)$data['mobilePositionX'] : (isset($data['mobile_position_x']) ? (int)$data['mobile_position_x'] : (int)($current['mobile_position_x'] ?? 65));
+    $mobilePositionY  = isset($data['mobilePositionY']) ? (int)$data['mobilePositionY'] : (isset($data['mobile_position_y']) ? (int)$data['mobile_position_y'] : (int)($current['mobile_position_y'] ?? 50));
+    $mobileZoom       = isset($data['mobileZoom']) ? (int)$data['mobileZoom'] : (isset($data['mobile_zoom']) ? (int)$data['mobile_zoom'] : (int)($current['mobile_zoom'] ?? 110));
+
     $updStmt = $pdo->prepare(
         'UPDATE `home_slides` 
          SET `badge` = :badge,
@@ -238,6 +266,12 @@ if ($method === 'PUT') {
              `stats_json` = :stats_json,
              `sort_order` = :sort_order,
              `is_active` = :is_active,
+             `desktop_position_x` = :d_pos_x,
+             `desktop_position_y` = :d_pos_y,
+             `desktop_zoom` = :d_zoom,
+             `mobile_position_x` = :m_pos_x,
+             `mobile_position_y` = :m_pos_y,
+             `mobile_zoom` = :m_zoom,
              `updated_at` = NOW()
          WHERE id = :id'
     );
@@ -256,6 +290,12 @@ if ($method === 'PUT') {
         ':stats_json' => $statsJson,
         ':sort_order' => $sortOrder,
         ':is_active'  => $isActive,
+        ':d_pos_x'    => $desktopPositionX,
+        ':d_pos_y'    => $desktopPositionY,
+        ':d_zoom'     => $desktopZoom,
+        ':m_pos_x'    => $mobilePositionX,
+        ':m_pos_y'    => $mobilePositionY,
+        ':m_zoom'     => $mobileZoom,
         ':id'         => $id,
     ]);
 

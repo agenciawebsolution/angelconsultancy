@@ -41,6 +41,12 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
       ],
       sortOrder: 1,
       isActive: true,
+      desktopPositionX: 75,
+      desktopPositionY: 50,
+      desktopZoom: 100,
+      mobilePositionX: 65,
+      mobilePositionY: 50,
+      mobileZoom: 110,
     },
     {
       id: 2,
@@ -61,6 +67,12 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
       ],
       sortOrder: 2,
       isActive: true,
+      desktopPositionX: 75,
+      desktopPositionY: 50,
+      desktopZoom: 100,
+      mobilePositionX: 65,
+      mobilePositionY: 50,
+      mobileZoom: 110,
     },
     {
       id: 3,
@@ -81,6 +93,12 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
       ],
       sortOrder: 3,
       isActive: true,
+      desktopPositionX: 75,
+      desktopPositionY: 50,
+      desktopZoom: 100,
+      mobilePositionX: 65,
+      mobilePositionY: 50,
+      mobileZoom: 110,
     },
   ];
 
@@ -205,19 +223,42 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
       <div className="absolute inset-0 w-full h-full pointer-events-none">
         <AnimatePresence mode="wait">
           <motion.div
-            key={currentSlide.imageUrl}
-            initial={{ opacity: 0, scale: 1.02 }}
-            animate={{ opacity: 1, scale: 1 }}
+            key={currentSlide.imageUrl + (currentSlide.id || currentIndex)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: shouldReduceMotion ? 0.2 : 0.65, ease: 'easeInOut' }}
-            className="absolute inset-0 w-full h-full"
+            transition={{ duration: shouldReduceMotion ? 0.2 : 0.6, ease: 'easeInOut' }}
+            className="absolute inset-0 w-full h-full overflow-hidden"
           >
-            <img
-              src={currentSlide.imageUrl}
-              alt={currentSlide.imageAlt || currentSlide.title}
-              className="w-full h-full object-cover object-[75%_center] lg:object-[80%_center] xl:object-right"
-              loading="eager"
-            />
+            {/* Mobile / Tablet Image (< 1024px) */}
+            <div className="block lg:hidden w-full h-full overflow-hidden">
+              <img
+                src={currentSlide.imageUrl}
+                alt={currentSlide.imageAlt || currentSlide.title}
+                style={{
+                  objectPosition: `${currentSlide.mobilePositionX ?? 65}% ${currentSlide.mobilePositionY ?? 50}%`,
+                  transform: `scale(${(currentSlide.mobileZoom ?? 110) / 100})`,
+                  transformOrigin: `${currentSlide.mobilePositionX ?? 65}% ${currentSlide.mobilePositionY ?? 50}%`,
+                }}
+                className="w-full h-full object-cover transition-transform duration-300"
+                loading="eager"
+              />
+            </div>
+
+            {/* Desktop Image (>= 1024px) */}
+            <div className="hidden lg:block w-full h-full overflow-hidden">
+              <img
+                src={currentSlide.imageUrl}
+                alt={currentSlide.imageAlt || currentSlide.title}
+                style={{
+                  objectPosition: `${currentSlide.desktopPositionX ?? 75}% ${currentSlide.desktopPositionY ?? 50}%`,
+                  transform: `scale(${(currentSlide.desktopZoom ?? 100) / 100})`,
+                  transformOrigin: `${currentSlide.desktopPositionX ?? 75}% ${currentSlide.desktopPositionY ?? 50}%`,
+                }}
+                className="w-full h-full object-cover transition-transform duration-300"
+                loading="eager"
+              />
+            </div>
           </motion.div>
         </AnimatePresence>
 

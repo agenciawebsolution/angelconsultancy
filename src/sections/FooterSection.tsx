@@ -117,9 +117,9 @@ export const FooterSection: React.FC = () => {
               <li>
                 <a
                   href={`tel:${phoneClean}`}
-                  className="flex items-center gap-3 text-slate-300 hover:text-white transition-colors"
+                  className="flex items-center gap-3 text-slate-300 hover:text-white transition-colors group"
                 >
-                  <span className="w-8 h-8 rounded-lg bg-slate-800 text-brand-amber-400 flex items-center justify-center flex-shrink-0">
+                  <span className="w-8 h-8 rounded-xl bg-slate-800/90 border border-slate-700 text-[#D4AF37] flex items-center justify-center flex-shrink-0 group-hover:border-[#D4AF37]/50 transition-colors">
                     <Phone className="w-4 h-4" />
                   </span>
                   <span>{phone}</span>
@@ -128,16 +128,16 @@ export const FooterSection: React.FC = () => {
               <li>
                 <a
                   href={`mailto:${email}`}
-                  className="flex items-center gap-3 text-slate-300 hover:text-white transition-colors"
+                  className="flex items-center gap-3 text-slate-300 hover:text-white transition-colors group"
                 >
-                  <span className="w-8 h-8 rounded-lg bg-slate-800 text-brand-amber-400 flex items-center justify-center flex-shrink-0">
+                  <span className="w-8 h-8 rounded-xl bg-slate-800/90 border border-slate-700 text-[#D4AF37] flex items-center justify-center flex-shrink-0 group-hover:border-[#D4AF37]/50 transition-colors">
                     <Mail className="w-4 h-4" />
                   </span>
                   <span className="truncate">{email}</span>
                 </a>
               </li>
               <li className="flex items-center gap-3 text-slate-400 pt-1">
-                <span className="w-8 h-8 rounded-lg bg-slate-800 text-brand-navy-300 flex items-center justify-center flex-shrink-0">
+                <span className="w-8 h-8 rounded-xl bg-slate-800/90 border border-slate-700 text-[#1D5BD8] flex items-center justify-center flex-shrink-0">
                   <MapPin className="w-4 h-4" />
                 </span>
                 <span>{locationText}</span>

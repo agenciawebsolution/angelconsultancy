@@ -18,6 +18,12 @@ export interface HomeSlide {
   stats?: SlideStat[];
   sortOrder: number;
   isActive: boolean;
+  desktopPositionX?: number;
+  desktopPositionY?: number;
+  desktopZoom?: number;
+  mobilePositionX?: number;
+  mobilePositionY?: number;
+  mobileZoom?: number;
   createdAt?: string;
   updatedAt?: string;
 }

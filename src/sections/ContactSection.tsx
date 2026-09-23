@@ -238,8 +238,12 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contato" className="py-20 lg:py-28 bg-white relative overflow-hidden border-t border-slate-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="contato" className="py-24 lg:py-32 bg-gradient-to-b from-[#F6F8FC] via-white to-[#F6F8FC] relative overflow-hidden border-t border-slate-200/80">
+      {/* Decorative luxury lighting */}
+      <div className="absolute top-1/4 left-0 w-96 h-96 bg-blue-100/40 rounded-full blur-3xl pointer-events-none -z-0" />
+      <div className="absolute bottom-10 right-0 w-96 h-96 bg-amber-100/30 rounded-full blur-3xl pointer-events-none -z-0" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <SectionTitle
           tag={ct.tag}
           tagVariant="amber"
@@ -247,18 +251,19 @@ export const ContactSection: React.FC = () => {
           subtitle={ct.subtitle}
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start mt-12 sm:mt-16">
           {/* Left Column: Direct Contact & Client Letter */}
           <div className="lg:col-span-5 space-y-8">
-            <div className="p-7 sm:p-8 rounded-3xl bg-slate-50 border border-slate-100 space-y-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-navy-50 text-brand-navy text-xs font-semibold">
-                <Sparkles className="w-3.5 h-3.5 text-brand-amber" />
+            <div className="p-8 sm:p-9 rounded-3xl bg-gradient-to-br from-[#0A162B] to-[#123A73] text-white border border-slate-800 shadow-xl space-y-5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-[#D4AF37]/15 rounded-full blur-2xl pointer-events-none" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 text-[#F3E5AB] text-xs font-bold border border-[#D4AF37]/40 uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
                 <span>{ct.directContactTitle}</span>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 leading-snug">
+              <h3 className="text-xl sm:text-2xl font-black text-white leading-snug tracking-tight">
                 {ct.tag}
               </h3>
-              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+              <p className="text-slate-200 text-sm sm:text-base leading-relaxed font-normal">
                 {ct.directContactSubtitle}
               </p>
             </div>
@@ -270,14 +275,14 @@ export const ContactSection: React.FC = () => {
                 href="https://wa.me/32492319741"
                 target="_blank"
                 rel="noreferrer"
-                className="group flex items-center gap-4 p-5 rounded-2xl bg-white border border-slate-100 shadow-soft-sm hover:border-brand-navy-200 hover:shadow-soft-md transition-all duration-200"
+                className="group flex items-center gap-4 p-5 rounded-2xl bg-white border border-slate-200/90 shadow-soft-sm hover:border-[#1D5BD8] hover:shadow-soft-md transition-all duration-200"
               >
-                <div className="w-12 h-12 rounded-xl bg-brand-navy-50 text-brand-navy group-hover:bg-brand-navy group-hover:text-white flex items-center justify-center flex-shrink-0 transition-colors duration-200">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#1D5BD8] group-hover:bg-[#0A162B] group-hover:text-white flex items-center justify-center flex-shrink-0 transition-all duration-200 shadow-soft-xs">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{ct.whatsappButton}</p>
-                  <p className="text-base font-bold text-slate-900 group-hover:text-brand-navy transition-colors">
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{ct.whatsappButton}</p>
+                  <p className="text-base font-bold text-[#0A162B] group-hover:text-[#1D5BD8] transition-colors">
                     +32 492 319 741
                   </p>
                 </div>
@@ -286,27 +291,27 @@ export const ContactSection: React.FC = () => {
               {/* Email */}
               <a
                 href="mailto:info@angel-consultancy.be"
-                className="group flex items-center gap-4 p-5 rounded-2xl bg-white border border-slate-100 shadow-soft-sm hover:border-brand-navy-200 hover:shadow-soft-md transition-all duration-200"
+                className="group flex items-center gap-4 p-5 rounded-2xl bg-white border border-slate-200/90 shadow-soft-sm hover:border-[#1D5BD8] hover:shadow-soft-md transition-all duration-200"
               >
-                <div className="w-12 h-12 rounded-xl bg-brand-navy-50 text-brand-navy group-hover:bg-brand-navy group-hover:text-white flex items-center justify-center flex-shrink-0 transition-colors duration-200">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#1D5BD8] group-hover:bg-[#0A162B] group-hover:text-white flex items-center justify-center flex-shrink-0 transition-all duration-200 shadow-soft-xs">
                   <Mail className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">E-mail</p>
-                  <p className="text-base font-bold text-slate-900 group-hover:text-brand-navy transition-colors truncate">
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">E-mail</p>
+                  <p className="text-base font-bold text-[#0A162B] group-hover:text-[#1D5BD8] transition-colors truncate">
                     info@angel-consultancy.be
                   </p>
                 </div>
               </a>
 
               {/* Location & Modality */}
-              <div className="flex items-center gap-4 p-5 rounded-2xl bg-white border border-slate-100 shadow-soft-sm">
-                <div className="w-12 h-12 rounded-xl bg-brand-amber-50 text-brand-amber-700 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-5 h-5 text-brand-amber-600" />
+              <div className="flex items-center gap-4 p-5 rounded-2xl bg-white border border-slate-200/90 shadow-soft-sm">
+                <div className="w-12 h-12 rounded-xl bg-amber-50 text-[#D4AF37] flex items-center justify-center flex-shrink-0 border border-amber-100 shadow-soft-xs">
+                  <MapPin className="w-5 h-5 text-[#D4AF37]" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{ct.fieldPreference}</p>
-                  <p className="text-sm font-semibold text-slate-800">
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{ct.fieldPreference}</p>
+                  <p className="text-sm font-bold text-slate-800">
                     Bélgica — {ct.preferences.inPerson} / {ct.preferences.online}
                   </p>
                 </div>
@@ -318,7 +323,7 @@ export const ContactSection: React.FC = () => {
           <div className="lg:col-span-7">
             <div 
               ref={formCardRef}
-              className={`bg-[#FAFBFD] p-6 sm:p-10 rounded-3xl border border-slate-100 shadow-soft-md relative transition-all duration-300 ${
+              className={`bg-white p-7 sm:p-10 rounded-3xl border border-slate-200/90 shadow-soft-xl relative transition-all duration-300 ${
                 isSubmitted ? 'min-h-[520px] sm:min-h-[600px] flex flex-col justify-center' : ''
               }`}
             >
