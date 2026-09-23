@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Phone, 
@@ -45,6 +45,7 @@ const preferenceOptions: MeetingPreference[] = [
 ];
 
 export const ContactSection: React.FC = () => {
+  const formCardRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState<ContactFormData>({
     fullName: '',
     email: '',
@@ -123,6 +124,12 @@ export const ContactSection: React.FC = () => {
 
       if (response.success) {
         setIsSubmitted(true);
+        requestAnimationFrame(() => {
+          formCardRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+          });
+        });
       } else {
         if (response.errors) {
           setErrors(response.errors);
@@ -169,6 +176,12 @@ export const ContactSection: React.FC = () => {
     setErrors({});
     setServerError(null);
     setIsSubmitted(false);
+    requestAnimationFrame(() => {
+      formCardRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
+    });
   };
 
   return (
@@ -248,27 +261,35 @@ export const ContactSection: React.FC = () => {
 
           {/* Right Column: Interactive Form */}
           <div className="lg:col-span-7">
-            <div className="bg-[#FAFBFD] p-6 sm:p-10 rounded-3xl border border-slate-100 shadow-soft-md relative">
+            <div 
+              ref={formCardRef}
+              className={`bg-[#FAFBFD] p-6 sm:p-10 rounded-3xl border border-slate-100 shadow-soft-md relative transition-all duration-300 ${
+                isSubmitted ? 'min-h-[520px] sm:min-h-[600px] flex flex-col justify-center' : ''
+              }`}
+            >
               <AnimatePresence mode="wait">
                 {isSubmitted ? (
                   <motion.div
                     key="success"
-                    initial={{ opacity: 0, scale: 0.95 }}
+                    initial={{ opacity: 0, scale: 0.96 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    className="text-center py-12 px-4 space-y-5"
+                    exit={{ opacity: 0, scale: 0.96 }}
+                    transition={{ duration: 0.25 }}
+                    className="text-center py-8 sm:py-12 px-4 space-y-6 my-auto"
                   >
-                    <div className="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-soft-sm">
-                      <CheckCircle2 className="w-8 h-8" />
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-soft-sm">
+                      <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10" />
                     </div>
-                    <h4 className="text-2xl font-bold text-slate-900">
-                      Solicitação enviada com sucesso!
-                    </h4>
-                    <p className="text-slate-600 text-base max-w-md mx-auto leading-relaxed">
-                      Muito obrigado pelo seu contato. Recebemos seus dados e entraremos em contato o mais breve possível para conversar sobre a melhor solução para sua situação.
-                    </p>
-                    <div className="pt-4">
-                      <Button variant="outline" onClick={resetForm}>
+                    <div className="space-y-2">
+                      <h4 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                        Solicitação enviada com sucesso!
+                      </h4>
+                      <p className="text-slate-600 text-sm sm:text-base max-w-md mx-auto leading-relaxed">
+                        Muito obrigado pelo seu contato. Recebemos seus dados e entraremos em contato o mais breve possível para conversar sobre a melhor solução para sua situação.
+                      </p>
+                    </div>
+                    <div className="pt-2">
+                      <Button variant="outline" onClick={resetForm} className="min-w-[200px]">
                         Enviar outra mensagem
                       </Button>
                     </div>
