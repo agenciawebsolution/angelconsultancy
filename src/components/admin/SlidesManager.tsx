@@ -40,8 +40,8 @@ export const SlidesManager: React.FC = () => {
     ctaPrimaryLink: '#contato',
     ctaSecondaryText: 'Conheça nossos serviços',
     ctaSecondaryLink: '#servicos',
-    imageUrl: '/images/hero-executive-1.jpg',
-    imageAlt: 'Executivo corporativo internacional em terno azul marinho',
+    imageUrl: '/images/hero-slide-01.png',
+    imageAlt: 'Composição executiva corporativa Angel Consultancy & Network com executivo internacional',
     stats: [
       { label: 'Clientes atendidos na Europa', value: '+500' },
       { label: 'Satisfação dos clientes', value: '99%' },

@@ -528,7 +528,7 @@ function ensureCmsTablesExist(PDO $pdo): void
         // Continua caso já existam categorias
     }
 
-    // 5. Insere slides padrão na Home caso a tabela esteja vazia
+    // 5. Insere slides padrão na Home caso a tabela esteja vazia ou atualiza para as imagens panorâmicas oficiais
     try {
         $slidesCountStmt = $pdo->query('SELECT COUNT(*) FROM `home_slides`');
         if ((int)$slidesCountStmt->fetchColumn() === 0) {
@@ -544,8 +544,8 @@ function ensureCmsTablesExist(PDO $pdo): void
                  '#contato', 
                  'Conheça nossos serviços', 
                  '#servicos', 
-                 '/images/hero-executive-1.jpg', 
-                 'Executivo corporativo internacional em terno azul marinho', 
+                 '/images/hero-slide-01.png', 
+                 'Composição executiva corporativa Angel Consultancy & Network com executivo internacional', 
                  '[{\"label\":\"Clientes atendidos na Europa\",\"value\":\"+500\"},{\"label\":\"Satisfação dos clientes\",\"value\":\"99%\"},{\"label\":\"De experiência no mercado europeu\",\"value\":\"+10 anos\"}]', 
                  1, 
                  1),
@@ -558,8 +558,8 @@ function ensureCmsTablesExist(PDO $pdo): void
                  '#contato', 
                  'Conheça nossos serviços', 
                  '#servicos', 
-                 '/images/hero-consultant-2.jpg', 
-                 'Consultora financeira prestando atendimento executivo em escritório moderno', 
+                 '/images/hero-slide-02.png', 
+                 'Consultora executiva em terraço corporativo de Bruxelas', 
                  '[{\"label\":\"Conformidade nos processos\",\"value\":\"100%\"},{\"label\":\"Processos otimizados\",\"value\":\"+250\"},{\"label\":\"Sigilo profissional garantido\",\"value\":\"Total\"}]', 
                  2, 
                  1),
@@ -572,11 +572,16 @@ function ensureCmsTablesExist(PDO $pdo): void
                  '#contato', 
                  'Conheça nossos serviços', 
                  '#servicos', 
-                 '/images/hero-consultant-3.jpg', 
-                 'Reunião executiva internacional e consultoria corporativa', 
+                 '/images/hero-slide-03.png', 
+                 'Diretoria executiva em reunião corporativa com vista panorâmica europeia', 
                  '[{\"label\":\"Presença e alcance\",\"value\":\"Bélgica & UE\"},{\"label\":\"Soluções estruturadas\",\"value\":\"Sob Medida\"},{\"label\":\"Suporte consultivo\",\"value\":\"Dedicado\"}]', 
                  3, 
                  1)");
+        } else {
+            // Atualiza URLs legadas dos slides padrão para as imagens panorâmicas de alta fidelidade
+            $pdo->exec("UPDATE `home_slides` SET image_url = '/images/hero-slide-01.png' WHERE image_url LIKE '%hero-executive-1%'");
+            $pdo->exec("UPDATE `home_slides` SET image_url = '/images/hero-slide-02.png' WHERE image_url LIKE '%hero-consultant-2%'");
+            $pdo->exec("UPDATE `home_slides` SET image_url = '/images/hero-slide-03.png' WHERE image_url LIKE '%hero-consultant-3%'");
         }
     } catch (Throwable $e) {
         error_log('[Default Slides Init Error] ' . $e->getMessage());

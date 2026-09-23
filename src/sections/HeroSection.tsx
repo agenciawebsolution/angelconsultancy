@@ -41,8 +41,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
               ctaPrimaryLink: data.ctaPrimaryLink || '#contato',
               ctaSecondaryText: data.ctaSecondaryText || 'Conheça nossos serviços',
               ctaSecondaryLink: data.ctaSecondaryLink || '#servicos',
-              imageUrl: data.imageUrl || '/images/hero-executive-1.jpg',
-              imageAlt: data.imageAlt || 'Consultoria corporativa internacional',
+              imageUrl: data.imageUrl || '/images/hero-slide-01.png',
+              imageAlt: data.imageAlt || 'Composição corporativa Angel Consultancy & Network',
               sortOrder: 1,
               isActive: true,
             },
@@ -55,7 +55,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
   }, [data]);
 
   return (
-    <section id="inicio" className="relative pt-24 md:pt-32 lg:pt-36 overflow-hidden bg-[#F8FAFC]">
+    <section id="inicio" className="relative pt-20 md:pt-28 lg:pt-32 overflow-hidden bg-[#F8FAFC]">
       {/* Hero Carousel Slider */}
       <div className="w-full">
         <HeroSlider slides={slides} />
