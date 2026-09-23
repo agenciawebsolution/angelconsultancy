@@ -57,6 +57,10 @@ function getDbConnection(): PDO
         PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$charset} COLLATE utf8mb4_unicode_ci",
     ];
 
+    if (defined('PDO::MYSQL_ATTR_MULTI_STATEMENTS')) {
+        $options[PDO::MYSQL_ATTR_MULTI_STATEMENTS] = true;
+    }
+
     try {
         $pdo = new PDO($dsn, $user, $pass, $options);
         return $pdo;

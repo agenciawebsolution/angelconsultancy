@@ -18,6 +18,9 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
 // Manipulador global de exceções não capturadas para SEMPRE retornar JSON válido
 set_exception_handler(function (Throwable $e): void {
     error_log('[Angel API Unhandled Exception] ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
     sendJson(false, 'Erro interno no servidor ao processar requisição.', 500);
 });
 
@@ -26,6 +29,9 @@ register_shutdown_function(function (): void {
     $error = error_get_last();
     if ($error !== null && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
         error_log('[Angel API Fatal Error] ' . $error['message'] . ' in ' . $error['file'] . ':' . $error['line']);
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
         if (!headers_sent()) {
             http_response_code(500);
             header('Content-Type: application/json; charset=UTF-8');
@@ -179,6 +185,39 @@ function logAdminActivity(PDO $pdo, ?int $userId, string $action, string $entity
 }
 
 /**
+ * Executa comandos SQL de um arquivo, separando os comandos individualmente
+ */
+function executeSqlFile(PDO $pdo, string $filePath): void
+{
+    if (!file_exists($filePath)) {
+        return;
+    }
+    $raw = file_get_contents($filePath);
+    if ($raw === false || trim($raw) === '') {
+        return;
+    }
+
+    // Remove comentários de linha (-- ...) e de bloco (/* ... */)
+    $cleanSql = preg_replace('/--.*$/m', '', $raw);
+    $cleanSql = preg_replace('/\/\*.*?\*\//s', '', (string)$cleanSql);
+
+    // Separa os comandos por ponto e vírgula
+    $statements = array_filter(
+        array_map('trim', explode(';', (string)$cleanSql)),
+        fn(string $stmt) => $stmt !== ''
+    );
+
+    foreach ($statements as $statement) {
+        try {
+            $pdo->exec($statement);
+        } catch (Throwable $e) {
+            // Registra warning para auditoria sem quebrar fluxo caso tabela já exista
+            error_log('[SQL Statement Warning] ' . $e->getMessage() . ' | Query: ' . substr($statement, 0, 70));
+        }
+    }
+}
+
+/**
  * Garante a existência do usuário administrador padrão com senha criptografada via password_hash()
  */
 function ensureDefaultAdminExists(PDO $pdo): void
@@ -186,22 +225,22 @@ function ensureDefaultAdminExists(PDO $pdo): void
     try {
         // Tenta garantir que a coluna role exista se a tabela já foi criada anteriormente sem ela
         try {
-            $pdo->exec("ALTER TABLE admin_users ADD COLUMN IF NOT EXISTS role VARCHAR(50) NOT NULL DEFAULT 'admin'");
+            $pdo->exec("ALTER TABLE `admin_users` ADD COLUMN `role` VARCHAR(50) NOT NULL DEFAULT 'admin' AFTER `password_hash`");
         } catch (Throwable) {
             // Silencia caso a versão do MariaDB use sintaxe diferente ou a coluna já exista
         }
 
         $email = 'agenciawebsolution@gmail.com';
-        $stmt = $pdo->prepare('SELECT id, status FROM admin_users WHERE email = :email LIMIT 1');
+        $defaultPassword = 'Botafogo@2015';
+        $hash = password_hash($defaultPassword, PASSWORD_DEFAULT);
+
+        $stmt = $pdo->prepare('SELECT id, password_hash, status FROM `admin_users` WHERE email = :email LIMIT 1');
         $stmt->execute([':email' => $email]);
         $existing = $stmt->fetch();
 
         if (!$existing) {
-            $defaultPassword = 'Botafogo@2015';
-            $hash = password_hash($defaultPassword, PASSWORD_DEFAULT);
-
             $insert = $pdo->prepare(
-                'INSERT INTO admin_users (name, email, password_hash, role, status, created_at)
+                'INSERT INTO `admin_users` (name, email, password_hash, role, status, created_at)
                  VALUES (:name, :email, :hash, "admin", "active", NOW())'
             );
             $insert->execute([
@@ -210,10 +249,10 @@ function ensureDefaultAdminExists(PDO $pdo): void
                 ':hash'  => $hash,
             ]);
         } else {
-            // Usuário já existe: garante status ativo
-            if (($existing['status'] ?? '') !== 'active') {
-                $upd = $pdo->prepare('UPDATE admin_users SET status = "active" WHERE id = :id');
-                $upd->execute([':id' => $existing['id']]);
+            // Garante que o administrador oficial sempre tenha a senha e status corretos
+            if (!password_verify($defaultPassword, (string)($existing['password_hash'] ?? '')) || ($existing['status'] ?? '') !== 'active') {
+                $upd = $pdo->prepare('UPDATE `admin_users` SET password_hash = :hash, status = "active", role = "admin" WHERE id = :id');
+                $upd->execute([':hash' => $hash, ':id' => $existing['id']]);
             }
         }
     } catch (Throwable $e) {
@@ -233,19 +272,23 @@ function ensureCmsTablesExist(PDO $pdo): void
     $checked = true;
 
     try {
-        // Verifica se a tabela admin_users já existe
-        $test = $pdo->query("SHOW TABLES LIKE 'admin_users'")->fetch();
-        if (!$test) {
+        // Verifica se a tabela admin_sessions existe (ou site_settings)
+        $sessionsExist = false;
+        try {
+            $test = $pdo->query("SHOW TABLES LIKE 'admin_sessions'")->fetch();
+            $sessionsExist = !empty($test);
+        } catch (Throwable) {
+            $sessionsExist = false;
+        }
+
+        if (!$sessionsExist) {
             $schemaFile = __DIR__ . '/database/schema_cms.sql';
-            if (file_exists($schemaFile)) {
-                $sql = file_get_contents($schemaFile);
-                $pdo->exec($sql);
-            }
+            executeSqlFile($pdo, $schemaFile);
         }
 
         // Garante a existência do usuário administrador padrão com hash seguro
         ensureDefaultAdminExists($pdo);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         error_log('[CMS Tables Init Error] ' . $e->getMessage());
     }
 }
