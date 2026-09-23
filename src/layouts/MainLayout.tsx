@@ -2,7 +2,7 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { Header } from '../components/navigation/Header';
 import { FooterSection } from '../sections/FooterSection';
-import { WhatsAppButton } from '../components/common/WhatsAppButton';
+import { FloatingContactMenu } from '../components/common/FloatingContactMenu';
 import { ScrollToTop } from '../components/common/ScrollToTop';
 
 interface MainLayoutProps {
@@ -28,7 +28,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       </main>
 
       <FooterSection />
-      <WhatsAppButton />
+      <FloatingContactMenu />
     </div>
   );
 };

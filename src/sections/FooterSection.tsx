@@ -148,8 +148,22 @@ export const FooterSection: React.FC = () => {
 
         {/* Bottom Bar: Copyright, Legal Links, Scroll to top */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div>
-            © {new Date().getFullYear()} {settings.company_name || 'Angel Consultancy and Network'}. {footT.rightsReserved}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 text-center sm:text-left">
+            <span>
+              © {new Date().getFullYear()} {settings.company_name || 'Angel Consultancy and Network'}. {footT.rightsReserved}
+            </span>
+            <span className="hidden sm:inline text-slate-700">•</span>
+            <span>
+              Desenvolvido pela{' '}
+              <a
+                href="https://agenciawebsolution.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-400 hover:text-[#D4AF37] transition-colors font-semibold"
+              >
+                Agencia Web Solution
+              </a>
+            </span>
           </div>
 
           {/* Legal & Admin Links */}

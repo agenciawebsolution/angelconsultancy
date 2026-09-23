@@ -323,7 +323,8 @@ export const ContactSection: React.FC = () => {
           <div className="lg:col-span-7">
             <div 
               ref={formCardRef}
-              className={`bg-white p-7 sm:p-10 rounded-3xl border border-slate-200/90 shadow-soft-xl relative transition-all duration-300 ${
+              id="contact-form-card"
+              className={`bg-white p-7 sm:p-10 rounded-3xl border border-slate-200/90 shadow-soft-xl relative transition-all duration-500 ${
                 isSubmitted ? 'min-h-[520px] sm:min-h-[600px] flex flex-col justify-center' : ''
               }`}
             >
@@ -377,6 +378,7 @@ export const ContactSection: React.FC = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="sm:col-span-2">
                         <Input
+                          id="contact-form-name"
                           label={ct.fieldName}
                           required
                           placeholder={ct.placeholderName}
