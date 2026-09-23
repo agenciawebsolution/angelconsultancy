@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { mediaService } from '../../services/mediaService';
 import type { MediaItem } from '../../types/cms';
 import { 
@@ -18,7 +18,7 @@ export const MediaLibraryPage: React.FC = () => {
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [altText, setAltText] = useState('');
 
-  const loadMedia = async () => {
+  const loadMedia = useCallback(async () => {
     setLoading(true);
     try {
       const items = await mediaService.getMedia();
@@ -28,11 +28,18 @@ export const MediaLibraryPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadMedia();
-  }, []);
+    let ignore = false;
+    (async () => {
+      await loadMedia();
+      if (ignore) return;
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, [loadMedia]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

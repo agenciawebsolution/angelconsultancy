@@ -14,6 +14,7 @@ import { Input } from '../components/ui/Input';
 import { Textarea } from '../components/ui/Textarea';
 import { Button } from '../components/ui/Button';
 import { submitContact } from '../services/contactService';
+import { useLanguage } from '../i18n/LanguageContext';
 import type { 
   ContactFormData, 
   ProfileType, 
@@ -45,6 +46,9 @@ const preferenceOptions: MeetingPreference[] = [
 ];
 
 export const ContactSection: React.FC = () => {
+  const { translations } = useLanguage();
+  const ct = translations.contact;
+
   const formCardRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState<ContactFormData>({
     fullName: '',
@@ -61,6 +65,55 @@ export const ContactSection: React.FC = () => {
   const [serverError, setServerError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const getProfileLabel = (opt: ProfileType): string => {
+    switch (opt) {
+      case 'Pessoa física':
+        return ct.profiles.individual;
+      case 'Profissional liberal / autônomo':
+        return ct.profiles.freelancer;
+      case 'Associação / ONG':
+        return ct.profiles.association;
+      case 'Outro':
+        return ct.profiles.other;
+      default:
+        return opt;
+    }
+  };
+
+  const getServiceLabel = (srv: ServiceInterest): string => {
+    switch (srv) {
+      case 'Consultoria administrativa':
+        return ct.servicesList.adminConsulting;
+      case 'Organização de documentos':
+        return ct.servicesList.docOrganization;
+      case 'Apoio contábil e tributário':
+        return ct.servicesList.taxSupport;
+      case 'Associação / ONG':
+        return ct.servicesList.associationOng;
+      case 'Atividade profissional / autônomo':
+        return ct.servicesList.freelanceActivity;
+      case 'Declaração de imposto':
+        return ct.servicesList.taxReturn;
+      case 'Outro':
+        return ct.servicesList.other;
+      default:
+        return srv;
+    }
+  };
+
+  const getPreferenceLabel = (pref: MeetingPreference): string => {
+    switch (pref) {
+      case 'Presencial':
+        return ct.preferences.inPerson;
+      case 'Online':
+        return ct.preferences.online;
+      case 'Não tenho preferência':
+        return ct.preferences.noPreference;
+      default:
+        return pref;
+    }
+  };
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -188,10 +241,10 @@ export const ContactSection: React.FC = () => {
     <section id="contato" className="py-20 lg:py-28 bg-white relative overflow-hidden border-t border-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionTitle
-          tag="Vamos Conversar?"
+          tag={ct.tag}
           tagVariant="amber"
-          title="Estamos aqui para ajudar com calma e clareza"
-          subtitle="Preencha o formulário ou fale conosco diretamente pelos nossos canais oficiais."
+          title={ct.title}
+          subtitle={ct.subtitle}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
@@ -200,13 +253,13 @@ export const ContactSection: React.FC = () => {
             <div className="p-7 sm:p-8 rounded-3xl bg-slate-50 border border-slate-100 space-y-5">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-navy-50 text-brand-navy text-xs font-semibold">
                 <Sparkles className="w-3.5 h-3.5 text-brand-amber" />
-                <span>Atendimento Próximo</span>
+                <span>{ct.directContactTitle}</span>
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 leading-snug">
-                Entre em contato
+                {ct.tag}
               </h3>
               <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                Se você procura apoio confiável, acessível e acolhedor para colocar suas questões administrativas ou financeiras em ordem, ficarei muito feliz em ajudar. Vamos conversar e encontrar juntos o caminho mais simples e seguro para você, sua associação ou sua atividade profissional.
+                {ct.directContactSubtitle}
               </p>
             </div>
 
@@ -214,14 +267,16 @@ export const ContactSection: React.FC = () => {
             <div className="space-y-4">
               {/* Phone / WhatsApp */}
               <a
-                href="tel:+32492319741"
+                href="https://wa.me/32492319741"
+                target="_blank"
+                rel="noreferrer"
                 className="group flex items-center gap-4 p-5 rounded-2xl bg-white border border-slate-100 shadow-soft-sm hover:border-brand-navy-200 hover:shadow-soft-md transition-all duration-200"
               >
                 <div className="w-12 h-12 rounded-xl bg-brand-navy-50 text-brand-navy group-hover:bg-brand-navy group-hover:text-white flex items-center justify-center flex-shrink-0 transition-colors duration-200">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Telefone / WhatsApp</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{ct.whatsappButton}</p>
                   <p className="text-base font-bold text-slate-900 group-hover:text-brand-navy transition-colors">
                     +32 492 319 741
                   </p>
@@ -250,9 +305,9 @@ export const ContactSection: React.FC = () => {
                   <MapPin className="w-5 h-5 text-brand-amber-600" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Localização & Formato</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{ct.fieldPreference}</p>
                   <p className="text-sm font-semibold text-slate-800">
-                    Bélgica — Atendimento Presencial ou Online
+                    Bélgica — {ct.preferences.inPerson} / {ct.preferences.online}
                   </p>
                 </div>
               </div>
@@ -282,15 +337,18 @@ export const ContactSection: React.FC = () => {
                     </div>
                     <div className="space-y-2">
                       <h4 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-                        Solicitação enviada com sucesso!
+                        {ct.successTitle}
                       </h4>
                       <p className="text-slate-600 text-sm sm:text-base max-w-md mx-auto leading-relaxed">
-                        Muito obrigado pelo seu contato. Recebemos seus dados e entraremos em contato o mais breve possível para conversar sobre a melhor solução para sua situação.
+                        {ct.successMessage}
+                      </p>
+                      <p className="text-slate-400 text-xs mt-2">
+                        {ct.successNote}
                       </p>
                     </div>
                     <div className="pt-2">
                       <Button variant="outline" onClick={resetForm} className="min-w-[200px]">
-                        Enviar outra mensagem
+                        {ct.sendAnother}
                       </Button>
                     </div>
                   </motion.div>
@@ -303,10 +361,10 @@ export const ContactSection: React.FC = () => {
                   >
                     <div className="border-b border-slate-200/80 pb-4 mb-2">
                       <h3 className="text-xl font-bold text-slate-900">
-                        Como podemos ajudar?
+                        {ct.formTitle}
                       </h3>
                       <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                        Preencha o formulário abaixo e conte-nos brevemente o que você precisa. Entraremos em contato para conversar sobre a melhor solução para sua situação.
+                        {ct.formSubtitle}
                       </p>
                     </div>
 
@@ -314,9 +372,9 @@ export const ContactSection: React.FC = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="sm:col-span-2">
                         <Input
-                          label="Nome completo"
+                          label={ct.fieldName}
                           required
-                          placeholder="Digite seu nome completo"
+                          placeholder={ct.placeholderName}
                           value={formData.fullName}
                           error={errors.fullName}
                           onChange={(e) => {
@@ -328,10 +386,10 @@ export const ContactSection: React.FC = () => {
 
                       <div>
                         <Input
-                          label="E-mail"
+                          label={ct.fieldEmail}
                           type="email"
                           required
-                          placeholder="seuemail@exemplo.com"
+                          placeholder={ct.placeholderEmail}
                           value={formData.email}
                           error={errors.email}
                           onChange={(e) => {
@@ -343,10 +401,10 @@ export const ContactSection: React.FC = () => {
 
                       <div>
                         <Input
-                          label="Telefone / WhatsApp"
+                          label={ct.fieldPhone}
                           type="tel"
                           required
-                          placeholder="+32 000 000 000"
+                          placeholder={ct.placeholderPhone}
                           value={formData.phone}
                           error={errors.phone}
                           onChange={(e) => {
@@ -360,7 +418,7 @@ export const ContactSection: React.FC = () => {
                     {/* Profile Type: Radio group */}
                     <div className="space-y-2">
                       <label className="block text-sm font-semibold text-slate-700">
-                        Você é: <span className="text-brand-amber-700 font-bold">*</span>
+                        {ct.fieldProfile}
                       </label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                         {profileOptions.map((option) => (
@@ -383,7 +441,7 @@ export const ContactSection: React.FC = () => {
                               }}
                               className="accent-brand-navy w-4 h-4"
                             />
-                            <span>{option}</span>
+                            <span>{getProfileLabel(option)}</span>
                           </label>
                         ))}
                       </div>
@@ -395,7 +453,7 @@ export const ContactSection: React.FC = () => {
                     {/* Services checkboxes */}
                     <div className="space-y-2">
                       <label className="block text-sm font-semibold text-slate-700">
-                        Em que podemos ajudar? <span className="text-brand-amber-700 font-bold">*</span>
+                        {ct.fieldServices}
                       </label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
                         {serviceOptions.map((option) => {
@@ -416,7 +474,7 @@ export const ContactSection: React.FC = () => {
                                 onChange={() => handleCheckboxChange(option)}
                                 className="accent-brand-navy w-4 h-4 rounded flex-shrink-0 mt-0.5"
                               />
-                              <span className="leading-snug text-slate-800">{option}</span>
+                              <span className="leading-snug text-slate-800">{getServiceLabel(option)}</span>
                             </label>
                           );
                         })}
@@ -428,9 +486,9 @@ export const ContactSection: React.FC = () => {
 
                     {/* Message textarea */}
                     <Textarea
-                      label="Mensagem"
+                      label={ct.fieldMessage}
                       required
-                      placeholder="Conte-nos brevemente o que você precisa ou qual a sua situação atual..."
+                      placeholder={ct.placeholderMessage}
                       rows={4}
                       value={formData.message}
                       error={errors.message}
@@ -443,7 +501,7 @@ export const ContactSection: React.FC = () => {
                     {/* Meeting preference */}
                     <div className="space-y-2">
                       <label className="block text-sm font-semibold text-slate-700">
-                        Preferência de atendimento: <span className="text-brand-amber-700 font-bold">*</span>
+                        {ct.fieldPreference}
                       </label>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                         {preferenceOptions.map((option) => (
@@ -466,7 +524,7 @@ export const ContactSection: React.FC = () => {
                               }}
                               className="accent-brand-navy w-4 h-4 flex-shrink-0"
                             />
-                            <span>{option}</span>
+                            <span>{getPreferenceLabel(option)}</span>
                           </label>
                         ))}
                       </div>
@@ -488,9 +546,7 @@ export const ContactSection: React.FC = () => {
                           className="accent-brand-navy w-4 h-4 rounded mt-0.5 flex-shrink-0"
                         />
                         <span className="leading-normal">
-                          Autorizo o uso dos dados fornecidos para que a{' '}
-                          <strong className="text-slate-800 font-semibold">Angel Consultancy and Network</strong>{' '}
-                          possa entrar em contato comigo sobre minha solicitação.{' '}
+                          {ct.consentText}{' '}
                           <span className="text-brand-amber-700 font-bold">*</span>
                         </span>
                       </label>
@@ -519,7 +575,7 @@ export const ContactSection: React.FC = () => {
                         disabled={isSubmitting}
                         icon={<Send className="w-4 h-4" />}
                       >
-                        {isSubmitting ? 'Enviando solicitação...' : 'Enviar solicitação'}
+                        {isSubmitting ? ct.submittingButton : ct.submitButton}
                       </Button>
                     </div>
                   </motion.form>

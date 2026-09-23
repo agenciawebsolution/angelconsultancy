@@ -52,7 +52,14 @@ export const ContactsPage: React.FC = () => {
   }, [page, search, statusFilter, searchParams]);
 
   useEffect(() => {
-    fetchContacts();
+    let ignore = false;
+    (async () => {
+      await fetchContacts();
+      if (ignore) return;
+    })();
+    return () => {
+      ignore = true;
+    };
   }, [fetchContacts]);
 
   const handleStatusChange = async (id: number, newStatus: ContactMessage['status']) => {

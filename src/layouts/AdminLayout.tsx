@@ -17,8 +17,7 @@ import {
   X, 
   ChevronLeft, 
   ChevronRight, 
-  ExternalLink,
-  Shield
+  ExternalLink
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -187,18 +186,72 @@ export const AdminLayout: React.FC = () => {
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Topbar */}
           <header className="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between z-10 shadow-soft-xs">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 min-w-0">
               <button
                 onClick={() => setIsMobileOpen(true)}
-                className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 lg:hidden"
+                className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 lg:hidden flex-shrink-0"
                 aria-label="Abrir menu lateral"
               >
                 <Menu className="w-5 h-5" />
               </button>
-              <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                <Shield className="w-4 h-4 text-brand-navy" />
-                <span className="hidden sm:inline">Ambiente Administrativo Seguro</span>
-              </div>
+
+              {/* Breadcrumbs Navigation */}
+              <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs overflow-hidden">
+                {(() => {
+                  const p = location.pathname;
+                  let crumbs: { label: string; path?: string }[] = [{ label: 'Painel', path: '/admin/dashboard' }];
+                  if (p.startsWith('/admin/conteudo')) {
+                    crumbs.push({ label: 'Conteúdo' }, { label: 'Página Inicial' });
+                  } else if (p.startsWith('/admin/paginas')) {
+                    crumbs.push({ label: 'Conteúdo' }, { label: 'Páginas' });
+                  } else if (p === '/admin/blog/novo') {
+                    crumbs.push({ label: 'Blog', path: '/admin/blog' }, { label: 'Novo Artigo' });
+                  } else if (p.startsWith('/admin/blog/categorias') || p.startsWith('/admin/categorias')) {
+                    crumbs.push({ label: 'Blog', path: '/admin/blog' }, { label: 'Categorias' });
+                  } else if (p.startsWith('/admin/blog/') && p !== '/admin/blog') {
+                    crumbs.push({ label: 'Blog', path: '/admin/blog' }, { label: 'Editar Artigo' });
+                  } else if (p.startsWith('/admin/blog')) {
+                    crumbs.push({ label: 'Blog', path: '/admin/blog' }, { label: 'Todos os Artigos' });
+                  } else if (p.startsWith('/admin/media')) {
+                    crumbs.push({ label: 'Arquivos' }, { label: 'Biblioteca de Mídia' });
+                  } else if (p.startsWith('/admin/contatos')) {
+                    crumbs.push({ label: 'Atendimento' }, { label: 'Mensagens' });
+                  } else if (p.startsWith('/admin/seo')) {
+                    crumbs.push({ label: 'Configurações' }, { label: 'SEO' });
+                  } else if (p.startsWith('/admin/configuracoes')) {
+                    crumbs.push({ label: 'Configurações' }, { label: 'Dados da Empresa' });
+                  } else if (p.startsWith('/admin/usuarios')) {
+                    crumbs.push({ label: 'Configurações' }, { label: 'Usuários Admin' });
+                  } else {
+                    crumbs.push({ label: 'Visão Geral' });
+                  }
+
+                  return crumbs.map((crumb, idx) => {
+                    const isLast = idx === crumbs.length - 1;
+                    return (
+                      <React.Fragment key={idx}>
+                        {idx > 0 && <ChevronRight className="w-3.5 h-3.5 text-slate-300 flex-shrink-0" />}
+                        {crumb.path && !isLast ? (
+                          <NavLink
+                            to={crumb.path}
+                            className="text-slate-500 hover:text-brand-navy font-medium truncate hidden sm:inline"
+                          >
+                            {crumb.label}
+                          </NavLink>
+                        ) : (
+                          <span
+                            className={`truncate ${
+                              isLast ? 'text-slate-900 font-bold' : 'text-slate-500 font-medium hidden sm:inline'
+                            }`}
+                          >
+                            {crumb.label}
+                          </span>
+                        )}
+                      </React.Fragment>
+                    );
+                  });
+                })()}
+              </nav>
             </div>
 
             {/* Right: User Profile & Actions */}

@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/Button';
 import { Save, Check, Loader2 } from 'lucide-react';
 
 export const HomeContentPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'hero' | 'intro' | 'services' | 'audience' | 'methodology'>('hero');
+  const [activeTab, setActiveTab] = useState<'hero' | 'intro' | 'services' | 'audience' | 'methodology' | 'contact' | 'footer'>('hero');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -49,6 +49,21 @@ export const HomeContentPage: React.FC = () => {
     subtitle: 'Acreditamos em um processo humano onde você é ouvido com atenção e participa ativamente de cada escolha.',
   });
 
+  const [contactHeader, setContactHeader] = useState({
+    tag: 'Fale Conosco',
+    title: 'Estamos prontos para ouvir e ajudar você',
+    subtitle: 'Preencha o formulário abaixo com suas dúvidas ou necessidades. Responderemos com brevidade, clareza e dedicação.',
+    directContactTitle: 'Atendimento Próximo & Personalizado',
+    directContactSubtitle: 'Quer falar diretamente conosco antes de enviar os detalhes? Utilize nossos canais de contato direto.',
+    supportMessage: 'Atendimento presencial em toda a Bélgica e sessões digitais para sua máxima comodidade.',
+  });
+
+  const [footerContent, setFooterContent] = useState({
+    description: 'Orientação clara, acessível e verdadeira para indivíduos, autônomos e associações. Cuidamos do seu mundo burocrático e administrativo com acolhimento.',
+    registeredText: 'Bélgica / Registrada e em conformidade',
+    copyrightText: 'Angel Consultancy and Network. Todos os direitos reservados.',
+  });
+
   useEffect(() => {
     sectionsService
       .getPageSections('home')
@@ -58,6 +73,8 @@ export const HomeContentPage: React.FC = () => {
         if (sections.services) setServicesHeader((prev) => ({ ...prev, ...sections.services }));
         if (sections.audience) setAudienceHeader((prev) => ({ ...prev, ...sections.audience }));
         if (sections.methodology) setMethodologyHeader((prev) => ({ ...prev, ...sections.methodology }));
+        if (sections.contact) setContactHeader((prev) => ({ ...prev, ...sections.contact }));
+        if (sections.footer) setFooterContent((prev) => ({ ...prev, ...sections.footer }));
       })
       .finally(() => setLoading(false));
   }, []);
@@ -112,6 +129,8 @@ export const HomeContentPage: React.FC = () => {
           { id: 'services', label: '3. Serviços' },
           { id: 'audience', label: '4. Público Atendido' },
           { id: 'methodology', label: '5. Como Trabalhamos' },
+          { id: 'contact', label: '6. Contato' },
+          { id: 'footer', label: '7. Rodapé' },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -459,6 +478,136 @@ export const HomeContentPage: React.FC = () => {
               icon={<Save className="w-4 h-4" />}
             >
               {saving ? 'Salvando...' : 'Salvar Metodologia'}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 6: CONTATO */}
+      {activeTab === 'contact' && (
+        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-soft-sm space-y-6">
+          <div className="border-b border-slate-100 pb-4">
+            <h3 className="text-base font-bold text-slate-900">Seção de Contato & Atendimento</h3>
+            <p className="text-xs text-slate-500">Textos do cabeçalho da seção de contato e do box lateral explicativo.</p>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Tag Superior</label>
+              <input
+                type="text"
+                value={contactHeader.tag}
+                onChange={(e) => setContactHeader({ ...contactHeader, tag: e.target.value })}
+                className="w-full p-2.5 text-sm rounded-xl border border-slate-200"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Título Principal</label>
+              <input
+                type="text"
+                value={contactHeader.title}
+                onChange={(e) => setContactHeader({ ...contactHeader, title: e.target.value })}
+                className="w-full p-2.5 text-sm rounded-xl border border-slate-200"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Subtítulo</label>
+              <textarea
+                rows={2}
+                value={contactHeader.subtitle}
+                onChange={(e) => setContactHeader({ ...contactHeader, subtitle: e.target.value })}
+                className="w-full p-2.5 text-sm rounded-xl border border-slate-200"
+              />
+            </div>
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
+              <p className="text-xs font-bold text-slate-900 uppercase tracking-wider">Card Lateral de Apoio</p>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">Título do Card</label>
+                <input
+                  type="text"
+                  value={contactHeader.directContactTitle}
+                  onChange={(e) => setContactHeader({ ...contactHeader, directContactTitle: e.target.value })}
+                  className="w-full p-2 text-sm rounded-xl border border-slate-200 bg-white"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">Subtítulo / Descrição do Card</label>
+                <textarea
+                  rows={2}
+                  value={contactHeader.directContactSubtitle}
+                  onChange={(e) => setContactHeader({ ...contactHeader, directContactSubtitle: e.target.value })}
+                  className="w-full p-2 text-sm rounded-xl border border-slate-200 bg-white"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">Mensagem de Apoio / Modalidades</label>
+                <input
+                  type="text"
+                  value={contactHeader.supportMessage}
+                  onChange={(e) => setContactHeader({ ...contactHeader, supportMessage: e.target.value })}
+                  className="w-full p-2 text-sm rounded-xl border border-slate-200 bg-white"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-slate-100 flex justify-end">
+            <Button
+              disabled={saving}
+              onClick={() => handleSave('contact', contactHeader)}
+              icon={<Save className="w-4 h-4" />}
+            >
+              {saving ? 'Salvando...' : 'Salvar Contato'}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 7: RODAPÉ */}
+      {activeTab === 'footer' && (
+        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-soft-sm space-y-6">
+          <div className="border-b border-slate-100 pb-4">
+            <h3 className="text-base font-bold text-slate-900">Seção Rodapé (Footer)</h3>
+            <p className="text-xs text-slate-500">Textos institucionais exibidos no rodapé do site.</p>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Descrição Curta Institucional</label>
+              <textarea
+                rows={3}
+                value={footerContent.description}
+                onChange={(e) => setFooterContent({ ...footerContent, description: e.target.value })}
+                className="w-full p-2.5 text-sm rounded-xl border border-slate-200"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Texto de Registro / Conformidade</label>
+              <input
+                type="text"
+                value={footerContent.registeredText}
+                onChange={(e) => setFooterContent({ ...footerContent, registeredText: e.target.value })}
+                className="w-full p-2.5 text-sm rounded-xl border border-slate-200"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Texto de Copyright</label>
+              <input
+                type="text"
+                value={footerContent.copyrightText}
+                onChange={(e) => setFooterContent({ ...footerContent, copyrightText: e.target.value })}
+                className="w-full p-2.5 text-sm rounded-xl border border-slate-200"
+              />
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-slate-100 flex justify-end">
+            <Button
+              disabled={saving}
+              onClick={() => handleSave('footer', footerContent)}
+              icon={<Save className="w-4 h-4" />}
+            >
+              {saving ? 'Salvando...' : 'Salvar Rodapé'}
             </Button>
           </div>
         </div>

@@ -12,14 +12,22 @@ export const CustomPage: React.FC = () => {
 
   useEffect(() => {
     if (!slug) return;
-    setLoading(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
+    let ignore = false;
     pagesService
       .getPageBySlug(slug)
-      .then((res) => setPage(res))
+      .then((res) => {
+        if (!ignore) setPage(res);
+      })
       .catch(console.error)
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!ignore) setLoading(false);
+      });
+
+    return () => {
+      ignore = true;
+    };
   }, [slug]);
 
   if (loading) {

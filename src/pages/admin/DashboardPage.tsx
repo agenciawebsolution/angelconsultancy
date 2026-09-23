@@ -10,7 +10,11 @@ import {
   ArrowRight, 
   Loader2, 
   ExternalLink,
-  Plus
+  Plus,
+  PlusCircle,
+  Search,
+  Image as ImageIcon,
+  Sparkles
 } from 'lucide-react';
 import { dashboardService, type DashboardDataResponse } from '../../services/dashboardService';
 
@@ -118,6 +122,82 @@ export const DashboardPage: React.FC = () => {
             <ExternalLink className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Ver Site</span>
           </a>
+        </div>
+      </div>
+
+      {/* Quick Actions Bar */}
+      <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-soft-xs space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-brand-amber" />
+            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Ações Rápidas</h2>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          <Link
+            to="/admin/blog/novo"
+            className="flex items-center gap-2.5 p-3 rounded-2xl bg-brand-navy-50/50 hover:bg-brand-navy hover:text-white text-brand-navy border border-brand-navy-100/60 transition-all duration-150 group"
+          >
+            <div className="w-8 h-8 rounded-xl bg-white group-hover:bg-white/20 flex items-center justify-center flex-shrink-0 shadow-soft-xs">
+              <PlusCircle className="w-4 h-4 group-hover:text-white text-brand-navy" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold leading-tight truncate">Nova Publicação</p>
+              <p className="text-[10px] text-slate-400 group-hover:text-slate-200 leading-tight">Novo artigo</p>
+            </div>
+          </Link>
+
+          <Link
+            to="/admin/contatos"
+            className="flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 hover:bg-brand-navy hover:text-white text-slate-700 border border-slate-200/60 transition-all duration-150 group"
+          >
+            <div className="w-8 h-8 rounded-xl bg-white group-hover:bg-white/20 flex items-center justify-center flex-shrink-0 shadow-soft-xs">
+              <Mail className="w-4 h-4 group-hover:text-white text-brand-navy" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold leading-tight truncate">Ver Mensagens</p>
+              <p className="text-[10px] text-slate-400 group-hover:text-slate-200 leading-tight">Leads & contatos</p>
+            </div>
+          </Link>
+
+          <Link
+            to="/admin/conteudo"
+            className="flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 hover:bg-brand-navy hover:text-white text-slate-700 border border-slate-200/60 transition-all duration-150 group"
+          >
+            <div className="w-8 h-8 rounded-xl bg-white group-hover:bg-white/20 flex items-center justify-center flex-shrink-0 shadow-soft-xs">
+              <FileEdit className="w-4 h-4 group-hover:text-white text-brand-navy" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold leading-tight truncate">Editar Conteúdo</p>
+              <p className="text-[10px] text-slate-400 group-hover:text-slate-200 leading-tight">Home & seções</p>
+            </div>
+          </Link>
+
+          <Link
+            to="/admin/seo"
+            className="flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 hover:bg-brand-navy hover:text-white text-slate-700 border border-slate-200/60 transition-all duration-150 group"
+          >
+            <div className="w-8 h-8 rounded-xl bg-white group-hover:bg-white/20 flex items-center justify-center flex-shrink-0 shadow-soft-xs">
+              <Search className="w-4 h-4 group-hover:text-white text-brand-navy" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold leading-tight truncate">SEO & Metatags</p>
+              <p className="text-[10px] text-slate-400 group-hover:text-slate-200 leading-tight">Google & Analytics</p>
+            </div>
+          </Link>
+
+          <Link
+            to="/admin/media"
+            className="flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 hover:bg-brand-navy hover:text-white text-slate-700 border border-slate-200/60 transition-all duration-150 group col-span-2 sm:col-span-1"
+          >
+            <div className="w-8 h-8 rounded-xl bg-white group-hover:bg-white/20 flex items-center justify-center flex-shrink-0 shadow-soft-xs">
+              <ImageIcon className="w-4 h-4 group-hover:text-white text-brand-navy" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold leading-tight truncate">Biblioteca de Mídia</p>
+              <p className="text-[10px] text-slate-400 group-hover:text-slate-200 leading-tight">Imagens & uploads</p>
+            </div>
+          </Link>
         </div>
       </div>
 

@@ -5,8 +5,12 @@ import type { BlogPost, BlogCategory } from '../types/cms';
 import { DynamicHead } from '../components/common/DynamicHead';
 import { SectionTitle } from '../components/ui/SectionTitle';
 import { Calendar, User, ArrowRight, Search, BookOpen, Loader2 } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const BlogPage: React.FC = () => {
+  const { translations, language } = useLanguage();
+  const blogT = translations.blog;
+
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [categories, setCategories] = useState<BlogCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +20,8 @@ export const BlogPage: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    setLoading(true);
+    let active = true;
+
     Promise.all([
       blogService.getPublishedPosts({
         page,
@@ -27,27 +32,35 @@ export const BlogPage: React.FC = () => {
       blogService.getCategories(),
     ])
       .then(([resPosts, resCats]) => {
+        if (!active) return;
         setPosts(resPosts.posts || []);
         setTotalPages(resPosts.totalPages || 1);
         setCategories(resCats);
+        setLoading(false);
       })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        console.error(err);
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, [page, selectedCategory, search]);
 
   return (
     <div className="pt-28 sm:pt-32 pb-20 lg:pb-28 bg-[#FAFBFD] min-h-screen">
       <DynamicHead
-        title="Blog & Orientações"
-        description="Artigos, dicas práticas e orientações sobre organização administrativa, fiscal e contábil na Bélgica."
+        title={blogT.title}
+        description={blogT.subtitle}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <SectionTitle
-          tag="Nosso Blog"
+          tag="Blog"
           tagVariant="blue"
-          title="Conhecimento claro para descomplicar sua rotina"
-          subtitle="Acompanhe nossas publicações com explicações simples, artigos práticos e novidades relevantes."
+          title={blogT.title}
+          subtitle={blogT.subtitle}
         />
 
         {/* Filter and Search Bar */}
@@ -65,7 +78,7 @@ export const BlogPage: React.FC = () => {
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
               }`}
             >
-              Todos os Assuntos
+              {blogT.allCategories}
             </button>
 
             {categories.map((cat) => (
@@ -91,7 +104,7 @@ export const BlogPage: React.FC = () => {
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Buscar no blog..."
+              placeholder={blogT.searchPlaceholder}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -111,10 +124,7 @@ export const BlogPage: React.FC = () => {
           <div className="py-20 text-center space-y-4 bg-white rounded-3xl border border-slate-100 p-8">
             <BookOpen className="w-12 h-12 text-slate-300 mx-auto" />
             <div className="space-y-1">
-              <p className="text-base font-bold text-slate-800">Nenhum artigo publicado no momento</p>
-              <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                Em breve publicaremos novidades e orientações detalhadas aqui.
-              </p>
+              <p className="text-base font-bold text-slate-800">{blogT.noArticlesFound}</p>
             </div>
           </div>
         ) : (
@@ -151,7 +161,7 @@ export const BlogPage: React.FC = () => {
                     <div className="flex items-center gap-3 text-xs text-slate-400">
                       <span className="flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5" />
-                        {post.published_at ? new Date(post.published_at).toLocaleDateString('pt-BR') : ''}
+                        {post.published_at ? new Date(post.published_at).toLocaleDateString(language) : ''}
                       </span>
                       <span>•</span>
                       <span className="flex items-center gap-1.5 truncate">
@@ -180,7 +190,7 @@ export const BlogPage: React.FC = () => {
                     to={`/blog/${post.slug}`}
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-navy group-hover:text-brand-navy-700 group-hover:translate-x-1 transition-all"
                   >
-                    <span>Ler artigo completo</span>
+                    <span>{blogT.readMore}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>

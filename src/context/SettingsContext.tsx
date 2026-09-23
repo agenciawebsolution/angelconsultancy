@@ -26,7 +26,14 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   useEffect(() => {
-    load();
+    let ignore = false;
+    (async () => {
+      await load();
+      if (ignore) return;
+    })();
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   return (

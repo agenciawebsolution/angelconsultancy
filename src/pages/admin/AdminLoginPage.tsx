@@ -9,7 +9,7 @@ export const AdminLoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [isSetupMode, setIsSetupMode] = useState(setupRequired);
+  const isSetupMode = Boolean(setupRequired);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,12 +24,6 @@ export const AdminLoginPage: React.FC = () => {
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, location]);
-
-  React.useEffect(() => {
-    if (setupRequired) {
-      setIsSetupMode(true);
-    }
-  }, [setupRequired]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

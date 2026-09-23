@@ -1,11 +1,15 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Phone, Mail, MapPin, ArrowUp, Lock } from 'lucide-react';
-import { navItems } from '../lib/constants';
 import { useSettings } from '../context/SettingsContext';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const FooterSection: React.FC = () => {
   const { settings } = useSettings();
+  const { translations } = useLanguage();
+  const footT = translations.footer;
+  const navT = translations.nav;
+
   const location = useLocation();
   const isHome = location.pathname === '/';
 
@@ -15,8 +19,18 @@ export const FooterSection: React.FC = () => {
 
   const phone = settings.company_phone || '+32 492 319 741';
   const email = settings.company_email || 'info@angel-consultancy.be';
-  const locationText = settings.company_location || 'Bélgica (Atendimento Presencial e Online)';
+  const locationText = settings.company_location || footT.attendanceText;
   const phoneClean = phone.replace(/[^0-9+]/g, '');
+
+  const navItems = [
+    { label: navT.home, href: '#inicio' },
+    { label: navT.about, href: '#quem-somos' },
+    { label: navT.services, href: '#servicos' },
+    { label: navT.audience, href: '#publico' },
+    { label: navT.methodology, href: '#metodo' },
+    { label: navT.contact, href: '#contato' },
+    { label: navT.blog, href: '/blog' },
+  ];
 
   return (
     <footer className="bg-[#0A162B] text-slate-300 relative overflow-hidden border-t border-slate-800">
@@ -45,17 +59,17 @@ export const FooterSection: React.FC = () => {
               </Link>
             )}
             <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
-              {settings.company_description || 'Assistência humana, simples e confiável para sua organização financeira e administrativa. Cuidado, transparência e clareza para você, sua associação ou seu negócio.'}
+              {settings.company_description || footT.description}
             </p>
             <div className="text-xs text-slate-500 font-medium">
-              {settings.company_name || 'Angel Consultancy and Network'} • Registrada na Bélgica
+              {settings.company_name || 'Angel Consultancy and Network'} • {footT.registered}
             </div>
           </div>
 
           {/* Quick Nav Links */}
           <div className="lg:col-span-3 space-y-4">
             <p className="text-xs font-bold text-white uppercase tracking-widest">
-              Navegação
+              {footT.navTitle}
             </p>
             <ul className="space-y-2.5 text-sm">
               {navItems.map((item) => {
@@ -97,7 +111,7 @@ export const FooterSection: React.FC = () => {
           {/* Direct Contacts & Operating Area */}
           <div className="lg:col-span-4 space-y-4">
             <p className="text-xs font-bold text-white uppercase tracking-widest">
-              Canais Oficiais
+              {footT.contactTitle}
             </p>
             <ul className="space-y-3 text-sm">
               <li>
@@ -135,7 +149,7 @@ export const FooterSection: React.FC = () => {
         {/* Bottom Bar: Copyright, Legal Links, Scroll to top */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
-            © {new Date().getFullYear()} {settings.company_name || 'Angel Consultancy and Network'}. Todos os direitos reservados.
+            © {new Date().getFullYear()} {settings.company_name || 'Angel Consultancy and Network'}. {footT.rightsReserved}
           </div>
 
           {/* Legal & Admin Links */}
@@ -146,7 +160,7 @@ export const FooterSection: React.FC = () => {
               title="Acesso Administrativo"
             >
               <Lock className="w-3 h-3" />
-              <span>Painel</span>
+              <span>{footT.adminAccess}</span>
             </Link>
             <span className="text-slate-700">•</span>
             <button

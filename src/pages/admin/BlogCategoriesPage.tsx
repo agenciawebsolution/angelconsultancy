@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { blogService } from '../../services/blogService';
 import type { BlogCategory } from '../../types/cms';
@@ -14,7 +14,7 @@ export const BlogCategoriesPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     setLoading(true);
     try {
       const data = await blogService.getCategories();
@@ -24,11 +24,18 @@ export const BlogCategoriesPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadCategories();
-  }, []);
+    let ignore = false;
+    (async () => {
+      await loadCategories();
+      if (ignore) return;
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, [loadCategories]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();

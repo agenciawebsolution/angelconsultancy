@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { blogService } from '../../services/blogService';
 import type { BlogPost, BlogCategory } from '../../types/cms';
@@ -15,7 +15,7 @@ export const BlogAdminPage: React.FC = () => {
   const [, setTotalPages] = useState(1);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     setLoading(true);
     try {
       const [resPosts, cats] = await Promise.all([
@@ -36,11 +36,18 @@ export const BlogAdminPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, search, statusFilter, categoryFilter]);
 
   useEffect(() => {
-    loadPosts();
-  }, [page, search, statusFilter, categoryFilter]);
+    let ignore = false;
+    (async () => {
+      await loadPosts();
+      if (ignore) return;
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, [loadPosts]);
 
   const handleDelete = async (id: number) => {
     if (!window.confirm('Tem certeza de que deseja excluir este artigo?')) return;

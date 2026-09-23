@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Quote, Sparkles, Heart, Compass, ShieldCheck } from 'lucide-react';
 import { fadeInUp, staggerContainer } from '../lib/animations';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export interface IntroSectionData {
   tag?: string;
@@ -17,6 +18,9 @@ interface IntroSectionProps {
 }
 
 export const IntroSection: React.FC<IntroSectionProps> = ({ data }) => {
+  const { translations } = useLanguage();
+  const introT = translations.intro;
+
   return (
     <section id="sobre" className="py-20 lg:py-28 bg-white relative overflow-hidden border-y border-slate-100">
       {/* Decorative subtle background accents */}
@@ -35,36 +39,28 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ data }) => {
           <motion.div variants={fadeInUp} className="lg:col-span-6 space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-amber-soft text-brand-amber-800 text-xs sm:text-sm font-semibold border border-brand-amber-200">
               <Sparkles className="w-4 h-4 text-brand-amber" />
-              <span>{data?.tag || 'Nossa Missão e Propósito'}</span>
+              <span>{data?.tag || introT.tag}</span>
             </div>
 
             <div className="relative pl-6 sm:pl-8 border-l-4 border-brand-navy space-y-4">
               <Quote className="w-10 h-10 text-brand-navy/15 absolute -top-4 -left-3 rotate-180 -z-10" />
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 leading-snug">
-                {data?.quoteTitle || '“Acreditamos que qualquer pessoa merece acesso a orientação clara, acessível e verdadeira.”'}
+                {data?.quoteTitle || introT.quoteTitle}
               </h2>
             </div>
 
             <div className="space-y-4 text-slate-600 text-base sm:text-lg leading-relaxed pt-2">
-              {data?.paragraph1 ? (
-                <p>{data.paragraph1}</p>
-              ) : (
-                <p>
-                  Na <strong className="text-brand-navy font-semibold">Angel Consultancy</strong>, acreditamos que qualquer pessoa — seja um indivíduo, um profissional liberal, autônomo, uma associação ou ONGs — merece acesso a orientação clara, acessível e verdadeira.
-                </p>
-              )}
-              <p>
-                {data?.paragraph2 || 'Trabalhamos para que você entenda cada passo, se sinta seguro nas suas decisões e tenha um suporte que acolhe suas necessidades reais. Nosso objetivo é tornar o mundo administrativo menos complicado e muito mais leve.'}
-              </p>
+              <p>{data?.paragraph1 || introT.paragraph1}</p>
+              <p>{data?.paragraph2 || introT.paragraph2}</p>
             </div>
 
             {/* Quote banner for "O que fazemos por você" */}
             <div className="p-5 sm:p-6 rounded-2xl bg-brand-navy-50/80 border border-brand-navy-100">
               <p className="text-xs uppercase tracking-wider font-bold text-brand-navy mb-1.5">
-                {data?.boxTitle || 'O que fazemos por você'}
+                {data?.boxTitle || introT.boxTitle}
               </p>
               <p className="text-slate-700 font-medium text-sm sm:text-base leading-relaxed">
-                {data?.boxText || 'Oferecemos acompanhamento contínuo e personalizado, sempre explicado com calma, sem pressa e sem linguagem técnica desnecessária.'}
+                {data?.boxText || introT.boxText}
               </p>
             </div>
           </motion.div>

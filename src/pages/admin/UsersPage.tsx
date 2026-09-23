@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { usersService } from '../../services/usersService';
 import type { AdminUser } from '../../types/cms';
 import { useAuth } from '../../context/AuthContext';
@@ -22,7 +22,7 @@ export const UsersPage: React.FC = () => {
     confirmPassword: '',
   });
 
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     setLoading(true);
     try {
       const list = await usersService.getUsers();
@@ -32,11 +32,18 @@ export const UsersPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadUsers();
-  }, []);
+    let ignore = false;
+    (async () => {
+      await loadUsers();
+      if (ignore) return;
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, [loadUsers]);
 
   const openCreateModal = () => {
     setEditingUser(null);

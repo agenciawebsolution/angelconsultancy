@@ -55,7 +55,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    checkAuth();
+    let ignore = false;
+    (async () => {
+      await checkAuth();
+      if (ignore) return;
+    })();
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const login = async (email: string, pass: string) => {

@@ -2,35 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Sliders, MessageCircle, HeartHandshake, ShieldCheck } from 'lucide-react';
 import { SectionTitle } from '../components/ui/SectionTitle';
-import type { MethodologyStep } from '../types';
 import { fadeInUp, staggerContainer } from '../lib/animations';
-
-const stepsData: MethodologyStep[] = [
-  {
-    number: '01',
-    title: 'No seu próprio ritmo',
-    description: 'Explicamos cada passo com calma e no seu ritmo, para que nada fique confuso ou apressado.',
-    icon: 'clock',
-  },
-  {
-    number: '02',
-    title: 'Adaptado a você',
-    description: 'Adaptamos tudo ao seu nível de conhecimento, respeitando sua bagagem e esclarecendo cada dúvida.',
-    icon: 'sliders',
-  },
-  {
-    number: '03',
-    title: 'Linguagem simples e humana',
-    description: 'Evitamos termos técnicos, preferindo uma linguagem simples e acessível em cada orientação.',
-    icon: 'message',
-  },
-  {
-    number: '04',
-    title: 'Contato próximo e contínuo',
-    description: 'Mantemos contato próximo para que você nunca se sinta sozinho durante todo o processo.',
-    icon: 'heartHandshake',
-  },
-];
+import { useLanguage } from '../i18n/LanguageContext';
 
 export interface MethodologySectionData {
   tag?: string;
@@ -43,29 +16,24 @@ interface MethodologySectionProps {
 }
 
 export const MethodologySection: React.FC<MethodologySectionProps> = ({ data }) => {
-  const getStepIcon = (icon: string) => {
-    switch (icon) {
-      case 'clock':
-        return <Clock className="w-6 h-6 text-brand-navy" />;
-      case 'sliders':
-        return <Sliders className="w-6 h-6 text-brand-amber-600" />;
-      case 'message':
-        return <MessageCircle className="w-6 h-6 text-brand-navy" />;
-      case 'heartHandshake':
-        return <HeartHandshake className="w-6 h-6 text-brand-amber-600" />;
-      default:
-        return <Clock className="w-6 h-6 text-brand-navy" />;
-    }
-  };
+  const { translations } = useLanguage();
+  const methT = translations.methodology;
+
+  const stepIcons = [
+    <Clock className="w-6 h-6 text-brand-navy" key="0" />,
+    <Sliders className="w-6 h-6 text-brand-amber-600" key="1" />,
+    <MessageCircle className="w-6 h-6 text-brand-navy" key="2" />,
+    <HeartHandshake className="w-6 h-6 text-brand-amber-600" key="3" />,
+  ];
 
   return (
-    <section id="como-trabalhamos" className="py-20 lg:py-28 bg-[#FAFBFD] relative overflow-hidden">
+    <section id="metodo" className="py-20 lg:py-28 bg-[#FAFBFD] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionTitle
-          tag={data?.tag || "Nosso Jeito de Trabalhar"}
+          tag={data?.tag || methT.tag}
           tagVariant="blue"
-          title={data?.title || "Acolhimento, paciência e comunicação transparente"}
-          subtitle={data?.subtitle || "Acreditamos em um processo humano onde você é ouvido com atenção e participa ativamente de cada escolha."}
+          title={data?.title || methT.title}
+          subtitle={data?.subtitle || methT.subtitle}
         />
 
         {/* Timeline / Sequential Steps */}
@@ -80,9 +48,9 @@ export const MethodologySection: React.FC<MethodologySectionProps> = ({ data }) 
           <div className="hidden lg:block absolute top-1/2 left-8 right-8 h-0.5 bg-slate-200/80 -translate-y-12 -z-0" />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 relative z-10">
-            {stepsData.map((step) => (
+            {methT.steps.map((step, index) => (
               <motion.div
-                key={step.number}
+                key={step.step}
                 variants={fadeInUp}
                 className="group relative bg-white rounded-3xl p-7 border border-slate-100 shadow-soft-sm hover:shadow-soft-lg hover:border-brand-navy-200 transition-all duration-300 flex flex-col justify-between"
               >
@@ -90,10 +58,10 @@ export const MethodologySection: React.FC<MethodologySectionProps> = ({ data }) 
                   {/* Step indicator & Icon */}
                   <div className="flex items-center justify-between mb-5">
                     <div className="w-13 h-13 rounded-2xl bg-slate-50 group-hover:bg-brand-navy-50 text-slate-800 group-hover:text-brand-navy flex items-center justify-center transition-colors duration-300 border border-slate-100 p-3">
-                      {getStepIcon(step.icon)}
+                      {stepIcons[index % stepIcons.length]}
                     </div>
                     <span className="text-2xl font-black text-slate-200 group-hover:text-brand-amber transition-colors duration-300">
-                      {step.number}
+                      {step.step}
                     </span>
                   </div>
 
@@ -102,7 +70,7 @@ export const MethodologySection: React.FC<MethodologySectionProps> = ({ data }) 
                     {step.title}
                   </h3>
 
-                  {/* Description strictly from client text */}
+                  {/* Description */}
                   <p className="text-sm text-slate-600 leading-relaxed">
                     {step.description}
                   </p>
@@ -110,14 +78,14 @@ export const MethodologySection: React.FC<MethodologySectionProps> = ({ data }) 
 
                 <div className="mt-6 pt-4 border-t border-slate-100 flex items-center gap-2 text-xs font-semibold text-slate-400">
                   <span className="w-1.5 h-1.5 rounded-full bg-brand-navy" />
-                  <span>Etapa {step.number}</span>
+                  <span>{step.step}</span>
                 </div>
               </motion.div>
             ))}
           </div>
         </motion.div>
 
-        {/* Closing Purpose Banner strictly based on client doc */}
+        {/* Closing Purpose Banner */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -133,10 +101,10 @@ export const MethodologySection: React.FC<MethodologySectionProps> = ({ data }) 
               <ShieldCheck className="w-5 h-5" />
             </div>
             <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-              Nosso Propósito
+              {methT.closingAuthor}
             </h3>
             <p className="text-slate-200 text-base sm:text-lg leading-relaxed font-normal max-w-xl mx-auto">
-              “Fazer com que você entenda, participe e se sinta seguro em todas as decisões.”
+              {methT.closingQuote}
             </p>
           </div>
         </motion.div>

@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles, CheckCircle2, ShieldCheck, HeartHandshake } from 'lucide-react';
 import { heroFadeInUp, heroStaggerContainer } from '../lib/animations';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export interface HeroSectionData {
   badge?: string;
@@ -20,6 +21,9 @@ interface HeroSectionProps {
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
+  const { translations } = useLanguage();
+  const heroT = translations.hero;
+
   return (
     <section id="inicio" className="relative pt-24 sm:pt-28 lg:pt-32 pb-14 sm:pb-16 lg:pb-20 overflow-hidden flex items-center">
       {/* Subtle organic background glows */}
@@ -38,7 +42,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
             {/* Tag Badge */}
             <motion.div variants={heroFadeInUp} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-navy-50 border border-brand-navy-100 text-brand-navy text-xs sm:text-sm font-semibold">
               <Sparkles className="w-4 h-4 text-brand-amber" />
-              <span>{data?.badge || 'Angel Consultancy and Network'}</span>
+              <span>{data?.badge || heroT.badge}</span>
             </motion.div>
 
             {/* Main Headline */}
@@ -50,22 +54,22 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
                 data.title
               ) : (
                 <>
-                  Assistência humana, simples e confiável para sua{' '}
+                  {heroT.titlePart1}
                   <span className="relative inline-block text-brand-navy">
-                    organização financeira
+                    {heroT.titleHighlight}
                     <span className="absolute bottom-1 left-0 w-full h-[6px] bg-brand-amber/30 rounded-full -z-10" />
-                  </span>{' '}
-                  e administrativa.
+                  </span>
+                  {heroT.titlePart2}
                 </>
               )}
             </motion.h1>
 
-            {/* Subtitle strictly from client doc */}
+            {/* Subtitle */}
             <motion.p 
               variants={heroFadeInUp}
               className="text-base sm:text-lg lg:text-xl text-slate-600 leading-relaxed max-w-2xl font-normal"
             >
-              {data?.subtitle || 'Apoio humano, simples e confiável para você, sua organização financeira e administrativa. Orientação clara, acessível e verdadeira para tornar o seu mundo administrativo muito mais leve.'}
+              {data?.subtitle || heroT.subtitle}
             </motion.p>
 
             {/* CTAs */}
@@ -74,30 +78,30 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
                 href={data?.ctaPrimaryLink || '#contato'}
                 className="inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3.5 sm:py-4 rounded-xl bg-brand-navy hover:bg-brand-navy-700 text-white font-semibold text-base shadow-soft-md hover:shadow-soft-lg transition-all duration-200 active:scale-[0.98]"
               >
-                <span>{data?.ctaPrimaryText || 'Fale conosco'}</span>
+                <span>{data?.ctaPrimaryText || heroT.ctaPrimary}</span>
                 <ArrowRight className="w-4 h-4" />
               </a>
               <a
                 href={data?.ctaSecondaryLink || '#servicos'}
                 className="inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3.5 sm:py-4 rounded-xl border border-slate-200 hover:border-slate-300 bg-white/90 hover:bg-slate-50 text-slate-700 font-semibold text-base transition-all duration-200 shadow-soft-sm"
               >
-                <span>{data?.ctaSecondaryText || 'Conheça nossos serviços'}</span>
+                <span>{data?.ctaSecondaryText || heroT.ctaSecondary}</span>
               </a>
             </motion.div>
 
-            {/* Trust highlights directly from company ethos */}
+            {/* Trust highlights */}
             <motion.div variants={heroFadeInUp} className="pt-3 sm:pt-4 border-t border-slate-200/80 flex flex-wrap gap-y-2 gap-x-6 text-xs sm:text-sm text-slate-600 font-medium">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-brand-navy flex-shrink-0" />
-                <span>Orientação clara e sem pressa</span>
+                <span>{heroT.trustClear}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-brand-amber-600 flex-shrink-0" />
-                <span>Sem linguagem técnica desnecessária</span>
+                <span>{heroT.trustNoJargon}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-brand-navy flex-shrink-0" />
-                <span>Acompanhamento próximo</span>
+                <span>{heroT.trustClose}</span>
               </div>
             </motion.div>
           </motion.div>
@@ -115,11 +119,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
               <div className="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-brand-navy/10 via-brand-amber/10 to-brand-blue-soft/30 blur-lg -z-10" />
               
               <div className="relative rounded-3xl overflow-hidden shadow-soft-xl border border-slate-100 bg-white p-2.5 sm:p-3">
-                {/* High quality photography depicting warm consultation / personal guidance */}
                 <div className="relative rounded-2xl overflow-hidden aspect-[4/5] bg-slate-100">
                   <img
                     src={data?.imageUrl || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1000&q=80"}
-                    alt={data?.imageAlt || "Consultora prestando orientação atenciosa e próxima"}
+                    alt={data?.imageAlt || heroT.imgCaptionText}
                     className="w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105"
                     loading="eager"
                   />
@@ -130,10 +133,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
                   {/* Inside image caption */}
                   <div className="absolute bottom-0 inset-x-0 p-5 text-white">
                     <p className="text-xs uppercase tracking-wider font-semibold text-brand-amber-300 mb-1">
-                      Apoio Humano e Verdadeiro
+                      {heroT.imgCaptionTag}
                     </p>
                     <p className="text-sm sm:text-base font-medium text-slate-100 leading-snug">
-                      Tornamos o mundo administrativo menos complicado e muito mais leve.
+                      {heroT.imgCaptionText}
                     </p>
                   </div>
                 </div>
@@ -144,8 +147,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
                     <HeartHandshake className="w-4 h-4 sm:w-5 sm:h-5 text-brand-navy" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-slate-900 whitespace-nowrap">Atendimento acolhedor</p>
-                    <p className="text-[10px] sm:text-[11px] text-slate-500 whitespace-nowrap">No seu próprio ritmo</p>
+                    <p className="text-xs font-bold text-slate-900 whitespace-nowrap">{heroT.pillWarmTitle}</p>
+                    <p className="text-[10px] sm:text-[11px] text-slate-500 whitespace-nowrap">{heroT.pillWarmSub}</p>
                   </div>
                 </div>
 
@@ -155,8 +158,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
                     <ShieldCheck className="w-4 h-4 text-brand-amber-600" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-slate-900 whitespace-nowrap">Decisões seguras</p>
-                    <p className="text-[10px] sm:text-[11px] text-slate-500 whitespace-nowrap">Clareza a cada passo</p>
+                    <p className="text-xs font-bold text-slate-900 whitespace-nowrap">{heroT.pillSafeTitle}</p>
+                    <p className="text-[10px] sm:text-[11px] text-slate-500 whitespace-nowrap">{heroT.pillSafeSub}</p>
                   </div>
                 </div>
               </div>

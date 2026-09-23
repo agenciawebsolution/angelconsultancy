@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { SettingsProvider } from './context/SettingsContext';
+import { LanguageProvider } from './i18n/LanguageContext';
 import { ProtectedRoute } from './components/admin/ProtectedRoute';
 import { MainLayout } from './layouts/MainLayout';
 import { AdminLayout } from './layouts/AdminLayout';
@@ -30,47 +31,51 @@ import { UsersPage } from './pages/admin/UsersPage';
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <SettingsProvider>
-          <Routes>
-            {/* Rotas Públicas */}
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/blog" element={<BlogPage />} />
-              <Route path="/blog/:slug" element={<BlogPostPage />} />
-              <Route path="/pagina/:slug" element={<CustomPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Route>
+      <LanguageProvider>
+        <AuthProvider>
+          <SettingsProvider>
+            <Routes>
+              {/* Rotas Públicas */}
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/blog" element={<BlogPage />} />
+                <Route path="/blog/:slug" element={<BlogPostPage />} />
+                <Route path="/pagina/:slug" element={<CustomPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Route>
 
-            {/* Login / Setup Administrativo */}
-            <Route path="/admin/login" element={<AdminLoginPage />} />
+              {/* Login / Setup Administrativo */}
+              <Route path="/admin/login" element={<AdminLoginPage />} />
 
-            {/* Painel Administrativo Protegido */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <AdminLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<Navigate to="/admin/dashboard" replace />} />
-              <Route path="dashboard" element={<DashboardPage />} />
-              <Route path="contatos" element={<ContactsPage />} />
-              <Route path="conteudo/home" element={<HomeContentPage />} />
-              <Route path="paginas" element={<PagesAdminPage />} />
-              <Route path="blog" element={<BlogAdminPage />} />
-              <Route path="blog/novo" element={<BlogEditPage />} />
-              <Route path="blog/:id" element={<BlogEditPage />} />
-              <Route path="blog/categorias" element={<BlogCategoriesPage />} />
-              <Route path="media" element={<MediaLibraryPage />} />
-              <Route path="seo" element={<SeoSettingsPage />} />
-              <Route path="configuracoes" element={<CompanySettingsPage />} />
-              <Route path="usuarios" element={<UsersPage />} />
-            </Route>
-          </Routes>
-        </SettingsProvider>
-      </AuthProvider>
+              {/* Painel Administrativo Protegido */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <AdminLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                <Route path="dashboard" element={<DashboardPage />} />
+                <Route path="contatos" element={<ContactsPage />} />
+                <Route path="conteudo" element={<HomeContentPage />} />
+                <Route path="conteudo/home" element={<HomeContentPage />} />
+                <Route path="paginas" element={<PagesAdminPage />} />
+                <Route path="blog" element={<BlogAdminPage />} />
+                <Route path="blog/novo" element={<BlogEditPage />} />
+                <Route path="blog/:id" element={<BlogEditPage />} />
+                <Route path="categorias" element={<BlogCategoriesPage />} />
+                <Route path="blog/categorias" element={<BlogCategoriesPage />} />
+                <Route path="media" element={<MediaLibraryPage />} />
+                <Route path="seo" element={<SeoSettingsPage />} />
+                <Route path="configuracoes" element={<CompanySettingsPage />} />
+                <Route path="usuarios" element={<UsersPage />} />
+              </Route>
+            </Routes>
+          </SettingsProvider>
+        </AuthProvider>
+      </LanguageProvider>
     </BrowserRouter>
   );
 };

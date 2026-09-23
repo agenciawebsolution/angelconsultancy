@@ -19,10 +19,10 @@ export function setStoredToken(token: string | null): void {
 }
 
 interface RequestOptions extends RequestInit {
-  data?: any;
+  data?: unknown;
 }
 
-export async function apiRequest<T = any>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+export async function apiRequest<T = unknown>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const token = getStoredToken();
   const headers = new Headers(options.headers || {});
 
@@ -50,7 +50,7 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestOpti
   const contentType = response.headers.get('content-type') || '';
   const isJson = contentType.includes('application/json');
 
-  let responseData: any;
+  let responseData: unknown;
   if (isJson) {
     responseData = await response.json();
   } else {
@@ -59,8 +59,9 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestOpti
   }
 
   if (!response.ok) {
-    const errorMessage = responseData?.message || `Erro de conexão (${response.status})`;
-    const error = new Error(errorMessage) as Error & { status?: number; data?: any };
+    const errorObj = responseData as { message?: string } | undefined;
+    const errorMessage = errorObj?.message || `Erro de conexão (${response.status})`;
+    const error = new Error(errorMessage) as Error & { status?: number; data?: unknown };
     error.status = response.status;
     error.data = responseData;
     throw error;

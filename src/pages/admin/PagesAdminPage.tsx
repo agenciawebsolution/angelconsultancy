@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { pagesService } from '../../services/pagesService';
 import type { CmsPage } from '../../types/cms';
 import { Button } from '../../components/ui/Button';
@@ -16,14 +16,16 @@ export const PagesAdminPage: React.FC = () => {
     title: '',
     slug: '',
     content: '',
+    featured_image: '',
     status: 'published' as 'published' | 'draft',
     sort_order: 0,
     meta_title: '',
     meta_description: '',
     canonical_url: '',
+    robots: 'index, follow',
   });
 
-  const loadPages = async () => {
+  const loadPages = useCallback(async () => {
     setLoading(true);
     try {
       const data = await pagesService.getPages();
@@ -33,11 +35,18 @@ export const PagesAdminPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadPages();
-  }, []);
+    let ignore = false;
+    (async () => {
+      await loadPages();
+      if (ignore) return;
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, [loadPages]);
 
   const openCreateModal = () => {
     setEditingPage(null);
@@ -45,11 +54,13 @@ export const PagesAdminPage: React.FC = () => {
       title: '',
       slug: '',
       content: '',
+      featured_image: '',
       status: 'published',
       sort_order: 0,
       meta_title: '',
       meta_description: '',
       canonical_url: '',
+      robots: 'index, follow',
     });
     setIsModalOpen(true);
   };
@@ -60,13 +71,29 @@ export const PagesAdminPage: React.FC = () => {
       title: page.title,
       slug: page.slug,
       content: page.content,
+      featured_image: page.featured_image || '',
       status: page.status,
       sort_order: page.sort_order,
       meta_title: page.meta_title || '',
       meta_description: page.meta_description || '',
       canonical_url: page.canonical_url || '',
+      robots: page.robots || 'index, follow',
     });
     setIsModalOpen(true);
+  };
+
+  const handleToggleStatus = async (page: CmsPage) => {
+    const nextStatus = page.status === 'published' ? 'draft' : 'published';
+    try {
+      await pagesService.updatePage(page.id, { ...page, status: nextStatus });
+      setPages((prev) =>
+        prev.map((p) => (p.id === page.id ? { ...p, status: nextStatus } : p))
+      );
+      setFeedback(`Status da página alterado para ${nextStatus === 'published' ? 'Publicada' : 'Rascunho'}.`);
+      setTimeout(() => setFeedback(null), 3000);
+    } catch (err: any) {
+      alert(err?.message || 'Erro ao alterar status da página');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -153,13 +180,18 @@ export const PagesAdminPage: React.FC = () => {
                   <td className="py-3.5 px-6 font-bold text-slate-900">{p.title}</td>
                   <td className="py-3.5 px-4 text-slate-500 font-mono">/pagina/{p.slug}</td>
                   <td className="py-3.5 px-4">
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        p.status === 'published' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
+                    <button
+                      type="button"
+                      onClick={() => handleToggleStatus(p)}
+                      title="Clique para alternar status da página"
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold cursor-pointer transition-transform hover:scale-105 ${
+                        p.status === 'published'
+                          ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                       }`}
                     >
-                      {p.status === 'published' ? 'Publicada' : 'Rascunho'}
-                    </span>
+                      {p.status === 'published' ? '● Publicada' : '○ Rascunho'}
+                    </button>
                   </td>
                   <td className="py-3.5 px-4 text-slate-500">{p.sort_order}</td>
                   <td className="py-3.5 px-4 text-right space-x-2">
@@ -250,6 +282,17 @@ export const PagesAdminPage: React.FC = () => {
                 />
               </div>
 
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1">Imagem de Destaque (URL opcional)</label>
+                <input
+                  type="text"
+                  value={form.featured_image}
+                  onChange={(e) => setForm({ ...form, featured_image: e.target.value })}
+                  placeholder="/uploads/nome-da-imagem.jpg ou https://..."
+                  className="w-full p-2.5 rounded-xl border border-slate-200 text-xs"
+                />
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1">Status</label>
@@ -293,6 +336,28 @@ export const PagesAdminPage: React.FC = () => {
                     onChange={(e) => setForm({ ...form, meta_description: e.target.value })}
                     className="w-full p-2 rounded-xl border border-slate-200 text-xs bg-white"
                   />
+                </div>
+                <div>
+                  <label className="block text-slate-600 mb-1">URL Canônica (opcional)</label>
+                  <input
+                    type="text"
+                    value={form.canonical_url}
+                    onChange={(e) => setForm({ ...form, canonical_url: e.target.value })}
+                    placeholder="https://..."
+                    className="w-full p-2 rounded-xl border border-slate-200 text-xs bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-600 mb-1">Robots (Indexação)</label>
+                  <select
+                    value={form.robots}
+                    onChange={(e) => setForm({ ...form, robots: e.target.value })}
+                    className="w-full p-2 rounded-xl border border-slate-200 text-xs bg-white"
+                  >
+                    <option value="index, follow">index, follow (Padrão - Permitir indexação e links)</option>
+                    <option value="noindex, follow">noindex, follow (Ocultar dos motores de busca)</option>
+                    <option value="noindex, nofollow">noindex, nofollow (Desativar rastreamento completo)</option>
+                  </select>
                 </div>
               </div>
 

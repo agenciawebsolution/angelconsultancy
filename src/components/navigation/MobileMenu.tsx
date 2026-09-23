@@ -5,6 +5,8 @@ import type { Variants } from 'framer-motion';
 import { X, Phone, Mail, ArrowRight } from 'lucide-react';
 import type { NavItem } from '../../types';
 import { useScrollLock } from '../../hooks/useScrollLock';
+import { LanguageSelector } from '../common/LanguageSelector';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -52,6 +54,7 @@ const itemVariants: Variants = {
 
 export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, navItems }) => {
   const location = useLocation();
+  const { translations } = useLanguage();
   const isHome = location.pathname === '/';
 
   // Lock body scroll while drawer is open
@@ -137,7 +140,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, navItem
               {/* Navigation Links with staggered entrance */}
               <nav className="p-5">
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 px-3">
-                  Navegação
+                  {translations.footer.navTitle}
                 </p>
                 <motion.ul className="space-y-1">
                   {navItems.map((item) => {
@@ -219,6 +222,11 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, navItem
                   })}
                 </motion.ul>
               </nav>
+
+              {/* Language Selector in Mobile Drawer */}
+              <div className="px-8 pb-4">
+                <LanguageSelector variant="mobile" />
+              </div>
             </div>
 
             {/* Bottom Drawer CTA & Direct Contacts */}
@@ -229,7 +237,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, navItem
                   onClick={onClose}
                   className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-brand-navy hover:bg-brand-navy-700 text-white text-sm font-semibold shadow-soft-sm transition-all duration-200 active:scale-[0.98]"
                 >
-                  <span>Fale conosco</span>
+                  <span>{translations.nav.ctaButton}</span>
                   <ArrowRight className="w-4 h-4" />
                 </a>
               ) : (
@@ -238,7 +246,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, navItem
                   onClick={onClose}
                   className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-brand-navy hover:bg-brand-navy-700 text-white text-sm font-semibold shadow-soft-sm transition-all duration-200 active:scale-[0.98]"
                 >
-                  <span>Fale conosco</span>
+                  <span>{translations.nav.ctaButton}</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               )}
