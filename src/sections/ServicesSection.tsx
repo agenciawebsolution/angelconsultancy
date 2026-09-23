@@ -116,7 +116,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ data }) => {
                 </a>
 
                 <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-[#D4AF37] transition-colors">
-                  Bélgica & UE
+                  {servT.locationTag || 'Bélgica & UE'}
                 </span>
               </div>
             </motion.div>

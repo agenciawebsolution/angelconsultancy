@@ -12,6 +12,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import type { HomeSlide } from '../../types/slide';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 export interface HeroSliderProps {
   slides?: HomeSlide[];
@@ -19,22 +20,24 @@ export interface HeroSliderProps {
 
 export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) => {
   const shouldReduceMotion = useReducedMotion();
+  const { language, translations } = useLanguage();
+  const heroT = translations.hero;
 
-  // Curated premium default slides matching the exact reference
+  // Curated premium default slides synchronized with global translation dictionary
   const defaultSlides: HomeSlide[] = [
     {
       id: 1,
-      badge: 'ANGEL CONSULTANCY AND NETWORK',
-      title: 'Assistência humana,',
-      highlightText: 'simples e confiável',
-      subtitle: 'Apoio humano, simples e confiável para você, sua organização financeira e administrativa. Orientação clara, acessível e verdadeira para tornar o seu mundo administrativo muito mais leve.',
-      ctaPrimaryText: 'Fale conosco',
+      badge: heroT.slides[0]?.badge || 'ANGEL CONSULTANCY AND NETWORK',
+      title: heroT.slides[0]?.title || 'Assistência humana,',
+      highlightText: heroT.slides[0]?.highlightText || 'simples e confiável',
+      subtitle: heroT.slides[0]?.subtitle || 'Apoio humano, simples e confiável para você, sua organização financeira e administrativa. Orientação clara, acessível e verdadeira para tornar o seu mundo administrativo muito mais leve.',
+      ctaPrimaryText: heroT.slides[0]?.ctaPrimaryText || heroT.ctaPrimary,
       ctaPrimaryLink: '#contato',
-      ctaSecondaryText: 'Conheça nossos serviços',
+      ctaSecondaryText: heroT.slides[0]?.ctaSecondaryText || heroT.ctaSecondary,
       ctaSecondaryLink: '#servicos',
       imageUrl: '/images/hero-slide-01.png',
       imageAlt: 'Composição executiva corporativa Angel Consultancy & Network com executivo internacional',
-      stats: [
+      stats: heroT.slides[0]?.stats || [
         { label: 'Clientes atendidos na Europa', value: '+500' },
         { label: 'Satisfação dos clientes', value: '99%' },
         { label: 'De experiência no mercado europeu', value: '+10 anos' },
@@ -50,17 +53,17 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
     },
     {
       id: 2,
-      badge: 'ORGANIZAÇÃO & CONFORMIDADE',
-      title: 'Simplifique sua Gestão Administrativa e',
-      highlightText: 'Tributária na Europa',
-      subtitle: 'Elimine burocracias e tenha controle total sobre suas finanças, declarações e rotinas operacionais com atendimento sob medida.',
-      ctaPrimaryText: 'Fale conosco',
+      badge: heroT.slides[1]?.badge || 'ORGANIZAÇÃO & CONFORMIDADE',
+      title: heroT.slides[1]?.title || 'Simplifique sua Gestão Administrativa e',
+      highlightText: heroT.slides[1]?.highlightText || 'Tributária na Europa',
+      subtitle: heroT.slides[1]?.subtitle || 'Elimine burocracias e tenha controle total sobre suas finanças, declarações e rotinas operacionais com atendimento sob medida.',
+      ctaPrimaryText: heroT.slides[1]?.ctaPrimaryText || heroT.ctaPrimary,
       ctaPrimaryLink: '#contato',
-      ctaSecondaryText: 'Conheça nossos serviços',
+      ctaSecondaryText: heroT.slides[1]?.ctaSecondaryText || heroT.ctaSecondary,
       ctaSecondaryLink: '#servicos',
       imageUrl: '/images/hero-slide-02.png',
       imageAlt: 'Consultora executiva em terraço corporativo de Bruxelas',
-      stats: [
+      stats: heroT.slides[1]?.stats || [
         { label: 'Conformidade nos processos', value: '100%' },
         { label: 'Processos otimizados', value: '+250' },
         { label: 'Sigilo profissional garantido', value: 'Total' },
@@ -76,17 +79,17 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
     },
     {
       id: 3,
-      badge: 'NETWORKING & EXPANSÃO',
-      title: 'Conexões Estratégicas para o seu Crescimento',
-      highlightText: 'Sem Fronteiras',
-      subtitle: 'Estruturamos sua presença e expandimos suas oportunidades no mercado europeu com governança sólida e visão de futuro.',
-      ctaPrimaryText: 'Fale conosco',
+      badge: heroT.slides[2]?.badge || 'NETWORKING & EXPANSÃO',
+      title: heroT.slides[2]?.title || 'Conexões Estratégicas para o seu Crescimento',
+      highlightText: heroT.slides[2]?.highlightText || 'Sem Fronteiras',
+      subtitle: heroT.slides[2]?.subtitle || 'Estruturamos sua presença e expandimos suas oportunidades no mercado europeu com governança sólida e visão de futuro.',
+      ctaPrimaryText: heroT.slides[2]?.ctaPrimaryText || heroT.ctaPrimary,
       ctaPrimaryLink: '#contato',
-      ctaSecondaryText: 'Conheça nossos serviços',
+      ctaSecondaryText: heroT.slides[2]?.ctaSecondaryText || heroT.ctaSecondary,
       ctaSecondaryLink: '#servicos',
       imageUrl: '/images/hero-slide-03.png',
       imageAlt: 'Diretoria executiva em reunião corporativa com vista panorâmica europeia',
-      stats: [
+      stats: heroT.slides[2]?.stats || [
         { label: 'Presença e alcance', value: 'Bélgica & UE' },
         { label: 'Soluções estruturadas', value: 'Sob Medida' },
         { label: 'Suporte consultivo', value: 'Dedicado' },
@@ -116,6 +119,30 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
 
   const totalSlides = slidesToRender.length;
   const currentSlide = slidesToRender[currentIndex] || slidesToRender[0];
+
+  // Localized active slide texts based on current language
+  const localizedSlide = heroT.slides?.[currentIndex];
+  const slideBadge = (language !== 'pt-BR' && localizedSlide?.badge)
+    ? localizedSlide.badge
+    : (currentSlide.badge || localizedSlide?.badge || 'ANGEL CONSULTANCY AND NETWORK');
+  const slideTitle = (language !== 'pt-BR' && localizedSlide?.title)
+    ? localizedSlide.title
+    : (currentSlide.title || localizedSlide?.title || '');
+  const slideHighlightText = (language !== 'pt-BR' && localizedSlide?.highlightText !== undefined)
+    ? localizedSlide.highlightText
+    : (currentSlide.highlightText ?? localizedSlide?.highlightText ?? '');
+  const slideSubtitle = (language !== 'pt-BR' && localizedSlide?.subtitle)
+    ? localizedSlide.subtitle
+    : (currentSlide.subtitle || localizedSlide?.subtitle || '');
+  const slideCtaPrimaryText = (language !== 'pt-BR' && localizedSlide?.ctaPrimaryText)
+    ? localizedSlide.ctaPrimaryText
+    : (currentSlide.ctaPrimaryText || localizedSlide?.ctaPrimaryText || heroT.ctaPrimary);
+  const slideCtaSecondaryText = (language !== 'pt-BR' && localizedSlide?.ctaSecondaryText)
+    ? localizedSlide.ctaSecondaryText
+    : (currentSlide.ctaSecondaryText || localizedSlide?.ctaSecondaryText || heroT.ctaSecondary);
+  const slideStats = (language !== 'pt-BR' && localizedSlide?.stats && localizedSlide.stats.length > 0)
+    ? localizedSlide.stats
+    : (currentSlide.stats && currentSlide.stats.length > 0 ? currentSlide.stats : localizedSlide?.stats || []);
 
   const nextSlide = useCallback(() => {
     setDirection(1);
@@ -215,7 +242,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
       onTouchEnd={handleTouchEnd}
       role="region"
       aria-roledescription="carousel"
-      aria-label="Destaques Principais"
+      aria-label={heroT.aria.sliderRegion}
     >
       {/* ========================================================= */}
       {/* 1. Full-Bleed Panoramic Background Image Composition      */}
@@ -234,7 +261,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
             <div className="block lg:hidden w-full h-full overflow-hidden">
               <img
                 src={currentSlide.imageUrl}
-                alt={currentSlide.imageAlt || currentSlide.title}
+                alt={currentSlide.imageAlt || slideTitle}
                 style={{
                   objectPosition: `${currentSlide.mobilePositionX ?? 65}% ${currentSlide.mobilePositionY ?? 50}%`,
                   transform: `scale(${(currentSlide.mobileZoom ?? 110) / 100})`,
@@ -249,7 +276,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
             <div className="hidden lg:block w-full h-full overflow-hidden">
               <img
                 src={currentSlide.imageUrl}
-                alt={currentSlide.imageAlt || currentSlide.title}
+                alt={currentSlide.imageAlt || slideTitle}
                 style={{
                   objectPosition: `${currentSlide.desktopPositionX ?? 75}% ${currentSlide.desktopPositionY ?? 50}%`,
                   transform: `scale(${(currentSlide.desktopZoom ?? 100) / 100})`,
@@ -262,23 +289,23 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
           </motion.div>
         </AnimatePresence>
 
-        {/* Subtle Editorial Gradient Overlay for Perfect Typography Readability */}
-        {/* Mobile: Localized soft gradient ONLY behind text on the left; crystal clear on the right over the executive */}
+        {/* Enhanced Editorial Gradient Overlay for Perfect Typography Readability */}
+        {/* Mobile: Strong opacity in text zone (0-55%), smooth taper to 75%, 100% transparent on the right to keep executive crisp */}
         <div 
           className="block lg:hidden absolute inset-0 pointer-events-none"
           style={{
-            background: 'linear-gradient(95deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.76) 48%, rgba(255,255,255,0.12) 72%, rgba(255,255,255,0) 100%)',
+            background: 'linear-gradient(95deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.88) 55%, rgba(255,255,255,0.25) 75%, rgba(255,255,255,0) 100%)',
           }}
         />
 
         {/* Desktop: Gentle linear gradient from solid white on the left to crystal clear on the right */}
-        <div className="hidden lg:block absolute inset-0 bg-gradient-to-r from-white via-white/85 via-35% lg:via-white/50 lg:via-45% to-transparent" />
+        <div className="hidden lg:block absolute inset-0 bg-gradient-to-r from-white via-white/95 via-35% lg:via-white/70 lg:via-48% to-transparent" />
       </div>
 
-      {/* Floating Circular Carousel Arrows on Outer Edges (Scaled down & safely positioned on mobile) */}
+      {/* Floating Circular Carousel Arrows on Outer Edges */}
       <button
         onClick={prevSlide}
-        aria-label="Slide anterior"
+        aria-label={heroT.aria.prevSlide}
         className="absolute left-1.5 sm:left-4 lg:left-6 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full bg-white/85 sm:bg-white/90 hover:bg-white shadow-soft-md sm:shadow-soft-lg text-[#0A162B] flex items-center justify-center border border-slate-200/80 z-30 transition-all hover:scale-105 active:scale-95 group focus:outline-none focus:ring-2 focus:ring-[#0A162B]"
       >
         <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700 group-hover:text-[#0A162B] transition-colors" />
@@ -286,7 +313,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
 
       <button
         onClick={nextSlide}
-        aria-label="Próximo slide"
+        aria-label={heroT.aria.nextSlide}
         className="absolute right-1.5 sm:right-4 lg:right-6 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full bg-white/85 sm:bg-white/90 hover:bg-white shadow-soft-md sm:shadow-soft-lg text-[#0A162B] flex items-center justify-center border border-slate-200/80 z-30 transition-all hover:scale-105 active:scale-95 group focus:outline-none focus:ring-2 focus:ring-[#0A162B]"
       >
         <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700 group-hover:text-[#0A162B] transition-colors" />
@@ -300,10 +327,10 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
         </div>
         <div>
           <p className="text-xs sm:text-sm font-bold text-[#0A162B] leading-tight">
-            Atendimento seguro
+            {heroT.floatingCards.secureServiceTitle}
           </p>
           <p className="text-[10px] sm:text-xs text-slate-500 font-medium mt-0.5">
-            Clareza em cada passo
+            {heroT.floatingCards.secureServiceSub}
           </p>
         </div>
       </div>
@@ -315,10 +342,10 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
         </div>
         <div>
           <p className="text-xs sm:text-sm font-bold text-[#0A162B] leading-tight">
-            Decisões seguras
+            {heroT.floatingCards.confidentDecisionsTitle}
           </p>
           <p className="text-[10px] sm:text-xs text-slate-500 font-medium mt-0.5">
-            Confidencialidade e rigor
+            {heroT.floatingCards.confidentDecisionsSub}
           </p>
         </div>
       </div>
@@ -326,7 +353,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
       {/* Scroll Explorer Indicator (Bottom Right) */}
       <div className="hidden sm:flex absolute bottom-6 right-6 xl:right-12 items-center gap-2 text-slate-600 text-xs font-semibold z-20 bg-white/85 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-200/60 shadow-soft-xs">
         <MousePointer2 className="w-3.5 h-3.5 text-[#D4AF37] animate-pulse" />
-        <span>Scroll para explorar</span>
+        <span>{heroT.scrollIndicator}</span>
       </div>
 
       {/* ========================================================= */}
@@ -351,32 +378,34 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
                 <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-white/95 backdrop-blur-sm border border-slate-200/90 shadow-soft-xs text-[10px] sm:text-xs font-bold tracking-wide max-w-full">
                   <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#D4AF37] flex-shrink-0" />
                   <span className="text-[#D4AF37] font-extrabold uppercase">
-                    {currentSlide.badge ? currentSlide.badge.split('AND')[0].trim() : 'ANGEL CONSULTANCY'}
+                    {slideBadge ? slideBadge.split('AND')[0].trim() : 'ANGEL CONSULTANCY'}
                   </span>
                   <span className="text-[#0A162B] font-extrabold uppercase">
-                    {currentSlide.badge && currentSlide.badge.includes('AND') ? 'AND ' + currentSlide.badge.split('AND')[1].trim() : 'AND NETWORK'}
+                    {slideBadge && slideBadge.includes('AND') ? 'AND ' + slideBadge.split('AND')[1].trim() : 'AND NETWORK'}
                   </span>
                 </div>
               </div>
 
               {/* 2. Headline with High-End Proportions */}
               <h1 className="text-[28px] min-[380px]:text-[32px] sm:text-4xl lg:text-[2.65rem] xl:text-[3.15rem] font-extrabold tracking-tight text-[#0A162B] leading-[1.02] sm:leading-[1.12]">
-                {currentSlide.title}{' '}
-                {currentSlide.highlightText && (
+                {slideTitle}{' '}
+                {slideHighlightText && (
                   <span className="text-[#1D5BD8] inline-block font-extrabold">
-                    {currentSlide.highlightText}
+                    {slideHighlightText}
                   </span>
                 )}
-                {currentIndex === 0 && !currentSlide.title.includes('administrativa') && (
+                {currentIndex === 0 && (
                   <span className="hidden sm:inline lg:block text-[#0A162B]">
-                    {' '}para sua organização financeira e administrativa.
+                    {language === 'pt-BR' && ' para sua organização financeira e administrativa.'}
+                    {language === 'en' && ' for your financial and administrative organization.'}
+                    {language === 'fr' && ' pour votre organisation financière et administrative.'}
                   </span>
                 )}
               </h1>
 
-              {/* 3. Editorial Description */}
-              <p className="text-[14px] min-[380px]:text-[15px] sm:text-base lg:text-[1.025rem] text-[#475569] leading-snug sm:leading-relaxed max-w-[270px] min-[390px]:max-w-[300px] sm:max-w-[480px] lg:max-w-[520px] font-normal line-clamp-3 sm:line-clamp-none">
-                {currentSlide.subtitle}
+              {/* 3. Editorial Description with Improved High Contrast */}
+              <p className="text-[14px] min-[380px]:text-[15px] sm:text-base lg:text-[1.025rem] text-slate-800 font-medium leading-snug sm:leading-relaxed max-w-[270px] min-[390px]:max-w-[300px] sm:max-w-[480px] lg:max-w-[520px] line-clamp-3 sm:line-clamp-none drop-shadow-[0_1px_2px_rgba(255,255,255,0.85)]">
+                {slideSubtitle}
               </p>
 
               {/* 4. Two Pill CTAs */}
@@ -385,16 +414,16 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
                   href={currentSlide.ctaPrimaryLink || '#contato'}
                   className="inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:px-8 sm:py-4 rounded-full bg-[#0A162B] hover:bg-[#102D55] text-white font-bold text-xs sm:text-base shadow-soft-md hover:shadow-soft-lg transition-all duration-200 active:scale-[0.98] group"
                 >
-                  <span>{currentSlide.ctaPrimaryText || 'Fale conosco'}</span>
+                  <span>{slideCtaPrimaryText}</span>
                   <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#D4AF37] transition-transform duration-200 group-hover:translate-x-1" />
                 </a>
 
-                {currentSlide.ctaSecondaryText && (
+                {slideCtaSecondaryText && (
                   <a
                     href={currentSlide.ctaSecondaryLink || '#servicos'}
                     className="inline-flex items-center justify-center gap-1.5 px-4 py-2 sm:px-7 sm:py-4 rounded-full bg-white/95 hover:bg-white border border-[#2563EB]/80 text-[#1D5BD8] font-bold text-xs sm:text-base transition-all duration-200 shadow-soft-xs hover:shadow-soft-sm active:scale-[0.98]"
                   >
-                    <span>{currentSlide.ctaSecondaryText}</span>
+                    <span>{slideCtaSecondaryText}</span>
                   </a>
                 )}
               </div>
@@ -403,11 +432,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
               <div className="pt-3 sm:pt-6 border-t border-slate-200/80">
                 {/* Mobile: horizontal scrollable pills strip with zero text clipping */}
                 <div className="flex sm:hidden items-center gap-2 overflow-x-auto no-scrollbar py-1 -mx-1 px-1">
-                  {(currentSlide.stats && currentSlide.stats.length > 0 ? currentSlide.stats : [
-                    { label: 'Clientes atendidos na Europa', value: '+500' },
-                    { label: 'Satisfação dos clientes', value: '99%' },
-                    { label: 'De experiência no mercado europeu', value: '+10 anos' },
-                  ]).map((stat, i) => (
+                  {slideStats.map((stat, i) => (
                     <div
                       key={i}
                       className="flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-soft-xs"
@@ -417,7 +442,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
                       </div>
                       <div className="flex items-baseline gap-1">
                         <span className="text-xs font-black text-[#0A162B] leading-none">{stat.value}</span>
-                        <span className="text-[10px] font-medium text-slate-600 whitespace-nowrap leading-none">{stat.label}</span>
+                        <span className="text-[10px] font-medium text-slate-700 whitespace-nowrap leading-none">{stat.label}</span>
                       </div>
                     </div>
                   ))}
@@ -425,11 +450,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
 
                 {/* Desktop / Tablet: standard 3-column grid */}
                 <div className="hidden sm:grid sm:grid-cols-3 gap-3 sm:gap-4 max-w-xl">
-                  {(currentSlide.stats && currentSlide.stats.length > 0 ? currentSlide.stats : [
-                    { label: 'Clientes atendidos na Europa', value: '+500' },
-                    { label: 'Satisfação dos clientes', value: '99%' },
-                    { label: 'De experiência no mercado europeu', value: '+10 anos' },
-                  ]).map((stat, i) => (
+                  {slideStats.map((stat, i) => (
                     <div key={i} className="flex items-start gap-2.5 sm:gap-3">
                       <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-slate-200/80 shadow-soft-xs flex items-center justify-center flex-shrink-0 mt-0.5">
                         {metricIcons[i % metricIcons.length]}
@@ -457,7 +478,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ slides: propSlides }) =>
                     <button
                       key={s.id || idx}
                       onClick={() => goToSlide(idx)}
-                      aria-label={`Ir para slide ${idx + 1}`}
+                      aria-label={`${heroT.aria.goToSlide} ${idx + 1}`}
                       className="flex items-center gap-2 sm:gap-3 group focus:outline-none"
                     >
                       <span

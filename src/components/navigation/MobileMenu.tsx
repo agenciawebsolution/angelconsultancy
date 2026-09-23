@@ -112,7 +112,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, navItem
             exit="closed"
             role="dialog"
             aria-modal="true"
-            aria-label="Menu principal de navegação"
+            aria-label={translations.common.menuNavAria || "Menu principal de navegação"}
             className="relative z-10 w-[82vw] max-w-[380px] min-w-[280px] h-full bg-white shadow-2xl flex flex-col justify-between overflow-y-auto border-l border-slate-100"
           >
             {/* Header / Top bar inside drawer */}
@@ -130,7 +130,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, navItem
                 <button
                   type="button"
                   onClick={onClose}
-                  aria-label="Fechar menu"
+                  aria-label={translations.common.menuCloseAria || "Fechar menu"}
                   className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-brand-navy"
                 >
                   <X className="w-5 h-5" />

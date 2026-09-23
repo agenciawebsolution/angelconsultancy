@@ -95,7 +95,7 @@ export const Header: React.FC = () => {
                 <a 
                   href="#inicio" 
                   className="flex items-center gap-3 transition-opacity duration-200 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy rounded-lg p-1"
-                  aria-label="Angel Consultancy - Ir para o início"
+                  aria-label={translations.common.logoHomeAria || "Angel Consultancy - Ir para o início"}
                 >
                   <img 
                     src="/logo.png" 
@@ -108,7 +108,7 @@ export const Header: React.FC = () => {
                 <Link 
                   to="/" 
                   className="flex items-center gap-3 transition-opacity duration-200 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy rounded-lg p-1"
-                  aria-label="Angel Consultancy - Ir para a página inicial"
+                  aria-label={translations.common.logoHomeAria || "Angel Consultancy - Ir para o início"}
                 >
                   <img 
                     src="/logo.png" 
@@ -208,7 +208,7 @@ export const Header: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsMobileMenuOpen(true)}
-                  aria-label="Abrir menu de navegação"
+                  aria-label={translations.common.menuOpenAria || "Abrir menu de navegação"}
                   aria-expanded={isMobileMenuOpen}
                   className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-brand-navy"
                 >

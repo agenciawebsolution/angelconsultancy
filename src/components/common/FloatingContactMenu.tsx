@@ -5,13 +5,16 @@ import {
   Mail, 
   Phone, 
   X, 
-  ArrowRight,
-  Sparkles
+  ArrowRight, 
+  Sparkles 
 } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 export const FloatingContactMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const { translations } = useLanguage();
+  const fm = translations.floatingMenu;
 
   // Close on click outside or Escape key
   useEffect(() => {
@@ -110,7 +113,7 @@ export const FloatingContactMenu: React.FC = () => {
   return (
     <aside 
       ref={menuRef}
-      aria-label="Canais de contato direto"
+      aria-label={fm.ariaRegion}
       className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end"
     >
       {/* ========================================================= */}
@@ -121,7 +124,7 @@ export const FloatingContactMenu: React.FC = () => {
           <motion.div
             id="floating-contact-menu"
             role="menu"
-            aria-label="Opções de atendimento direto"
+            aria-label={fm.ariaMenu}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -132,9 +135,9 @@ export const FloatingContactMenu: React.FC = () => {
             <div className="px-3 py-1.5 rounded-xl bg-[#0A162B]/95 backdrop-blur-md border border-[#D4AF37]/30 text-white shadow-soft-sm flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#F3E5AB]">
                 <Sparkles className="w-3 h-3 text-[#D4AF37]" />
-                <span>Atendimento Angel Consultancy</span>
+                <span>{fm.headerTitle}</span>
               </div>
-              <span className="text-[10px] text-slate-400 font-medium">Bélgica & UE</span>
+              <span className="text-[10px] text-slate-400 font-medium">{fm.headerRegion}</span>
             </div>
 
             {/* 1. WhatsApp Option */}
@@ -148,7 +151,7 @@ export const FloatingContactMenu: React.FC = () => {
               target="_blank"
               rel="noopener noreferrer"
               role="menuitem"
-              aria-label="Conversar no WhatsApp com +32 492 319 741"
+              aria-label={fm.whatsappAria}
               onClick={() => setIsOpen(false)}
               className="group p-3 rounded-2xl bg-white hover:bg-slate-50/90 border border-slate-200/90 shadow-soft-lg hover:shadow-soft-xl flex items-center justify-between gap-3 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366]"
             >
@@ -158,7 +161,7 @@ export const FloatingContactMenu: React.FC = () => {
                 </div>
                 <div className="truncate">
                   <p className="text-xs font-bold text-[#0A162B] group-hover:text-[#1D5BD8] transition-colors leading-tight">
-                    Conversar no WhatsApp
+                    {fm.whatsappTitle}
                   </p>
                   <p className="text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
                     +32 492 319 741
@@ -177,7 +180,7 @@ export const FloatingContactMenu: React.FC = () => {
               animate="visible"
               exit="exit"
               role="menuitem"
-              aria-label="Enviar um e-mail pelo formulário de contato"
+              aria-label={fm.emailAria}
               onClick={handleEmailFormClick}
               className="group p-3 rounded-2xl bg-white hover:bg-slate-50/90 border border-slate-200/90 shadow-soft-lg hover:shadow-soft-xl flex items-center justify-between gap-3 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] text-left w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D5BD8]"
             >
@@ -187,10 +190,10 @@ export const FloatingContactMenu: React.FC = () => {
                 </div>
                 <div className="truncate">
                   <p className="text-xs font-bold text-[#0A162B] group-hover:text-[#1D5BD8] transition-colors leading-tight">
-                    Enviar um e-mail
+                    {fm.emailTitle}
                   </p>
                   <p className="text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
-                    Preencher formulário no site
+                    {fm.emailSubtitle}
                   </p>
                 </div>
               </div>
@@ -206,7 +209,7 @@ export const FloatingContactMenu: React.FC = () => {
               exit="exit"
               href="tel:+32492319741"
               role="menuitem"
-              aria-label="Telefonar para +32 492 319 741"
+              aria-label={fm.phoneAria}
               onClick={() => setIsOpen(false)}
               className="group p-3 rounded-2xl bg-white hover:bg-slate-50/90 border border-slate-200/90 shadow-soft-lg hover:shadow-soft-xl flex items-center justify-between gap-3 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]"
             >
@@ -216,7 +219,7 @@ export const FloatingContactMenu: React.FC = () => {
                 </div>
                 <div className="truncate">
                   <p className="text-xs font-bold text-[#0A162B] group-hover:text-[#1D5BD8] transition-colors leading-tight">
-                    Telefonar
+                    {fm.phoneTitle}
                   </p>
                   <p className="text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
                     +32 492 319 741
@@ -238,7 +241,7 @@ export const FloatingContactMenu: React.FC = () => {
         aria-expanded={isOpen}
         aria-haspopup="true"
         aria-controls="floating-contact-menu"
-        aria-label={isOpen ? "Fechar canais de contato" : "Fale Conosco — Canais de atendimento Angel Consultancy"}
+        aria-label={isOpen ? fm.triggerAriaClose : fm.triggerAriaOpen}
         className={`group flex items-center gap-2.5 px-4 py-3 sm:px-5 sm:py-3.5 rounded-full text-white font-bold text-xs uppercase tracking-wider shadow-soft-xl hover:shadow-2xl transition-all duration-300 active:scale-95 border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#1D5BD8] ${
           isOpen
             ? 'bg-[#0A162B] border-[#D4AF37] text-white'
@@ -263,7 +266,7 @@ export const FloatingContactMenu: React.FC = () => {
 
         {/* Button Label */}
         <span className="text-xs font-extrabold tracking-wide">
-          {isOpen ? 'Fechar' : 'Fale Conosco'}
+          {isOpen ? fm.triggerClose : fm.triggerOpen}
         </span>
       </button>
     </aside>

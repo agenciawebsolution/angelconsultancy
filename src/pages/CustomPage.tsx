@@ -4,11 +4,14 @@ import { pagesService } from '../services/pagesService';
 import type { CmsPage } from '../types/cms';
 import { DynamicHead } from '../components/common/DynamicHead';
 import { Loader2, FileText, ArrowLeft } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const CustomPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [page, setPage] = useState<CmsPage | null>(null);
   const [loading, setLoading] = useState(true);
+  const { translations } = useLanguage();
+  const c = translations.common;
 
   useEffect(() => {
     if (!slug) return;
@@ -42,16 +45,16 @@ export const CustomPage: React.FC = () => {
     return (
       <div className="pt-36 pb-32 max-w-xl mx-auto px-4 text-center space-y-4">
         <FileText className="w-12 h-12 text-slate-300 mx-auto" />
-        <h1 className="text-2xl font-bold text-slate-900">Página não encontrada</h1>
+        <h1 className="text-2xl font-bold text-slate-900">{c.pageNotFound}</h1>
         <p className="text-sm text-slate-500">
-          A página que você está procurando não existe ou foi despublicada.
+          {c.pageNotFoundDesc}
         </p>
         <Link
           to="/"
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-navy text-white text-xs font-semibold"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Voltar para o Início</span>
+          <span>{c.backToHome}</span>
         </Link>
       </div>
     );
@@ -73,7 +76,7 @@ export const CustomPage: React.FC = () => {
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-brand-navy"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Voltar ao Início</span>
+            <span>{c.backToHome}</span>
           </Link>
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
             {page.title}

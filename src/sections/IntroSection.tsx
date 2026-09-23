@@ -21,35 +21,11 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ data }) => {
   const { translations } = useLanguage();
   const introT = translations.intro;
 
-  const valueCards = [
-    {
-      icon: <Heart className="w-5 h-5 text-[#1D5BD8]" />,
-      title: 'Acolhimento Real',
-      desc: 'Um suporte atencioso que compreende suas necessidades práticas e respeita o seu tempo, sem julgamentos.',
-      badge: 'Humano',
-      accentColor: '#1D5BD8',
-    },
-    {
-      icon: <Compass className="w-5 h-5 text-[#D4AF37]" />,
-      title: 'Linguagem Simples',
-      desc: 'Explicamos tudo com clareza, evitando jargões ou termos técnicos para que você entenda cada detalhe com segurança.',
-      badge: 'Transparência',
-      accentColor: '#D4AF37',
-    },
-    {
-      icon: <ShieldCheck className="w-5 h-5 text-[#0A162B]" />,
-      title: 'Decisões Seguras',
-      desc: 'Orientação sólida e verdadeira para que você tenha tranquilidade em todas as suas obrigações e escolhas.',
-      badge: 'Conformidade',
-      accentColor: '#0A162B',
-    },
-    {
-      icon: <Sparkles className="w-5 h-5 text-[#D4AF37]" />,
-      title: 'Vida Mais Leve',
-      desc: 'Transformamos burocracias e papeladas acumuladas em rotinas simples, organizadas e previsíveis.',
-      badge: 'Liberdade',
-      accentColor: '#D4AF37',
-    },
+  const cardMeta = [
+    { icon: <Heart className="w-5 h-5 text-[#1D5BD8]" /> },
+    { icon: <Compass className="w-5 h-5 text-[#D4AF37]" /> },
+    { icon: <ShieldCheck className="w-5 h-5 text-[#0A162B]" /> },
+    { icon: <Sparkles className="w-5 h-5 text-[#D4AF37]" /> },
   ];
 
   return (
@@ -80,7 +56,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ data }) => {
               <Quote className="w-12 h-12 text-[#0A162B]/10 absolute -top-4 -left-3 rotate-180 -z-10" />
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0A162B] leading-tight tracking-tight">
                 {data?.quoteTitle || introT.quoteTitle}{' '}
-                <span className="text-[#1D5BD8] inline">com clareza e solidez europeia.</span>
+                <span className="text-[#1D5BD8] inline">{introT.clarityAccent}</span>
               </h2>
             </div>
 
@@ -101,7 +77,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ data }) => {
                 {data?.boxText || introT.boxText}
               </p>
               <div className="mt-4 pt-4 border-t border-slate-200/60 flex items-center gap-2 text-xs font-bold text-[#1D5BD8]">
-                <span>Atendimento presencial na Bélgica e online para toda a Europa</span>
+                <span>{introT.locationNote}</span>
                 <ArrowRight className="w-3.5 h-3.5 text-[#D4AF37] group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
@@ -109,7 +85,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ data }) => {
 
           {/* Right Column: 4 Luxury Value Cards */}
           <motion.div variants={fadeInUp} className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-            {valueCards.map((card, idx) => (
+            {(introT.valueCards || []).map((card, idx) => (
               <div
                 key={idx}
                 className="group relative p-6 sm:p-7 rounded-3xl bg-white border border-slate-200/90 shadow-soft-sm hover:shadow-soft-xl hover:border-slate-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
@@ -118,7 +94,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ data }) => {
                   {/* Top Bar inside Card */}
                   <div className="flex items-center justify-between mb-5">
                     <div className="w-12 h-12 rounded-2xl bg-[#F6F8FC] group-hover:bg-[#0A162B] group-hover:text-white flex items-center justify-center transition-all duration-300 border border-slate-200/80 shadow-soft-xs">
-                      {card.icon}
+                      {cardMeta[idx % cardMeta.length].icon}
                     </div>
                     <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-[#D4AF37] transition-colors">
                       {card.badge}
@@ -139,7 +115,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ data }) => {
                 {/* Bottom subtle check indicator */}
                 <div className="mt-5 pt-3.5 border-t border-slate-100 flex items-center gap-2 text-[11px] font-semibold text-slate-500">
                   <CheckCircle2 className="w-3.5 h-3.5 text-[#D4AF37]" />
-                  <span>Compromisso Angel Consultancy</span>
+                  <span>{introT.commitment}</span>
                 </div>
               </div>
             ))}

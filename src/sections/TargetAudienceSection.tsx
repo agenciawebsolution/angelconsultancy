@@ -91,13 +91,13 @@ export const TargetAudienceSection: React.FC<TargetAudienceSectionProps> = ({ da
               <div className="mt-6 pt-4 border-t border-slate-200/70 flex items-center justify-between">
                 <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
                   <ShieldCheck className="w-3.5 h-3.5 text-[#1D5BD8]" />
-                  Sob medida
+                  {audT.customTag || 'Sob medida'}
                 </span>
                 <a
                   href="#contato"
                   className="inline-flex items-center gap-1 text-xs font-bold text-[#0A162B] group-hover:text-[#1D5BD8] transition-colors"
                 >
-                  <span>Conversar</span>
+                  <span>{audT.talkButton || 'Conversar'}</span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#D4AF37] group-hover:translate-x-1 transition-transform" />
                 </a>
               </div>

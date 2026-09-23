@@ -4,61 +4,14 @@ import { HeartHandshake, Target, ShieldCheck, Globe } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
 
 export const DifferentialsBar: React.FC = () => {
-  const { language } = useLanguage();
+  const { translations } = useLanguage();
+  const diffItems = translations.differentials?.items || [];
 
-  const differentials = [
-    {
-      icon: <HeartHandshake className="w-5 h-5 text-[#D4AF37]" />,
-      title: {
-        'pt-BR': 'Atendimento personalizado',
-        'en': 'Personalized service',
-        'fr': 'Service personnalisé',
-      }[language] || 'Atendimento personalizado',
-      subtitle: {
-        'pt-BR': 'Pessoas reais, soluções reais.',
-        'en': 'Real people, real solutions.',
-        'fr': 'Des personnes réelles, des solutions réelles.',
-      }[language] || 'Pessoas reais, soluções reais.',
-    },
-    {
-      icon: <Target className="w-5 h-5 text-[#D4AF37]" />,
-      title: {
-        'pt-BR': 'Foco em resultados',
-        'en': 'Focus on results',
-        'fr': 'Axé sur les résultats',
-      }[language] || 'Foco em resultados',
-      subtitle: {
-        'pt-BR': 'Mais organização, mais liberdade.',
-        'en': 'More organization, more freedom.',
-        'fr': 'Plus d\'organisation, plus de liberté.',
-      }[language] || 'Mais organização, mais liberdade.',
-    },
-    {
-      icon: <ShieldCheck className="w-5 h-5 text-[#D4AF37]" />,
-      title: {
-        'pt-BR': 'Segurança e confidencialidade',
-        'en': 'Security and confidentiality',
-        'fr': 'Sécurité et confidentialité',
-      }[language] || 'Segurança e confidencialidade',
-      subtitle: {
-        'pt-BR': 'Seus dados sempre protegidos.',
-        'en': 'Your data always protected.',
-        'fr': 'Vos données toujours protégées.',
-      }[language] || 'Seus dados sempre protegidos.',
-    },
-    {
-      icon: <Globe className="w-5 h-5 text-[#D4AF37]" />,
-      title: {
-        'pt-BR': 'Atuação internacional',
-        'en': 'International presence',
-        'fr': 'Présence internationale',
-      }[language] || 'Atuação internacional',
-      subtitle: {
-        'pt-BR': 'Apoiando você na Europa.',
-        'en': 'Supporting you in Europe.',
-        'fr': 'Vous soutenir en Europe.',
-      }[language] || 'Apoiando você na Europa.',
-    },
+  const icons = [
+    <HeartHandshake className="w-5 h-5 text-[#D4AF37]" key="0" />,
+    <Target className="w-5 h-5 text-[#D4AF37]" key="1" />,
+    <ShieldCheck className="w-5 h-5 text-[#D4AF37]" key="2" />,
+    <Globe className="w-5 h-5 text-[#D4AF37]" key="3" />,
   ];
 
   return (
@@ -67,33 +20,35 @@ export const DifferentialsBar: React.FC = () => {
       <div className="absolute -top-24 left-1/3 w-96 h-48 bg-[#D4AF37]/10 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-24 right-1/4 w-96 h-48 bg-[#1D5BD8]/10 blur-3xl pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 sm:py-9 relative z-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-0">
-          {differentials.map((item, index) => (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-7 lg:py-9 relative z-10">
+        {/* On mobile/tablet (< 1024px): Horizontal swipeable track with snap
+            On desktop (>= 1024px): Standard 4-column balanced grid */}
+        <div className="flex lg:grid lg:grid-cols-4 overflow-x-auto lg:overflow-visible no-scrollbar snap-x snap-mandatory gap-3.5 sm:gap-4 lg:gap-0 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 py-1">
+          {diffItems.map((item, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-40px' }}
               transition={{ duration: 0.4, delay: index * 0.08, ease: 'easeOut' }}
-              className={`flex items-center gap-4 px-3 lg:px-6 py-2 group cursor-default transition-all duration-300 rounded-2xl hover:bg-white/[0.04] ${
-                index < differentials.length - 1 ? 'lg:border-r lg:border-white/10' : ''
+              className={`flex-shrink-0 min-w-[260px] sm:min-w-[280px] lg:min-w-0 snap-center flex items-center gap-3.5 sm:gap-4 px-4 lg:px-6 py-3 lg:py-2 group cursor-default transition-all duration-300 rounded-2xl bg-white/[0.03] lg:bg-transparent border border-white/5 lg:border-none hover:bg-white/[0.06] ${
+                index < diffItems.length - 1 ? 'lg:border-r lg:border-white/10' : ''
               }`}
             >
               {/* Circular Gold Icon Frame with Soft Glow on Hover */}
-              <div className="relative w-12 h-12 rounded-full border border-[#D4AF37]/50 bg-white/[0.04] group-hover:bg-[#D4AF37]/15 group-hover:border-[#D4AF37] group-hover:scale-105 flex items-center justify-center flex-shrink-0 transition-all duration-300 shadow-soft-xs">
+              <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-[#D4AF37]/50 bg-white/[0.04] group-hover:bg-[#D4AF37]/15 group-hover:border-[#D4AF37] group-hover:scale-105 flex items-center justify-center flex-shrink-0 transition-all duration-300 shadow-soft-xs">
                 <div className="transition-transform duration-300 group-hover:rotate-6">
-                  {item.icon}
+                  {icons[index % icons.length]}
                 </div>
                 <div className="absolute inset-0 rounded-full bg-[#D4AF37]/0 group-hover:bg-[#D4AF37]/10 blur-sm transition-all duration-300" />
               </div>
 
               {/* Text Content */}
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <h4 className="text-sm sm:text-base font-bold text-white group-hover:text-[#F3E5AB] transition-colors leading-snug">
                   {item.title}
                 </h4>
-                <p className="text-xs sm:text-[13px] text-slate-300 mt-0.5 leading-tight font-normal">
+                <p className="text-xs sm:text-[13px] text-slate-300 mt-0.5 leading-snug font-normal">
                   {item.subtitle}
                 </p>
                 {/* Micro accent gold line on hover */}

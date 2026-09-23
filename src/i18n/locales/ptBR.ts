@@ -12,7 +12,7 @@ export const ptBR: TranslationSchema = {
     ctaButton: 'Fale conosco',
   },
   hero: {
-    badge: 'Angel Consultancy and Network',
+    badge: 'ANGEL CONSULTANCY AND NETWORK',
     titlePart1: 'Assistência humana, simples e confiável para sua ',
     titleHighlight: 'organização financeira',
     titlePart2: ' e administrativa.',
@@ -28,6 +28,80 @@ export const ptBR: TranslationSchema = {
     pillWarmSub: 'No seu próprio ritmo',
     pillSafeTitle: 'Decisões seguras',
     pillSafeSub: 'Clareza a cada passo',
+    slides: [
+      {
+        badge: 'ANGEL CONSULTANCY AND NETWORK',
+        title: 'Assistência humana,',
+        highlightText: 'simples e confiável',
+        subtitle: 'Apoio humano, simples e confiável para você, sua organização financeira e administrativa. Orientação clara, acessível e verdadeira para tornar o seu mundo administrativo muito mais leve.',
+        ctaPrimaryText: 'Fale conosco',
+        ctaSecondaryText: 'Conheça nossos serviços',
+        stats: [
+          { label: 'Clientes atendidos na Europa', value: '+500' },
+          { label: 'Satisfação dos clientes', value: '99%' },
+          { label: 'De experiência no mercado europeu', value: '+10 anos' },
+        ],
+      },
+      {
+        badge: 'ORGANIZAÇÃO & CONFORMIDADE',
+        title: 'Simplifique sua Gestão Administrativa e',
+        highlightText: 'Tributária na Europa',
+        subtitle: 'Elimine burocracias e tenha controle total sobre suas finanças, declarações e rotinas operacionais com atendimento sob medida.',
+        ctaPrimaryText: 'Fale conosco',
+        ctaSecondaryText: 'Conheça nossos serviços',
+        stats: [
+          { label: 'Conformidade nos processos', value: '100%' },
+          { label: 'Processos otimizados', value: '+250' },
+          { label: 'Sigilo profissional garantido', value: 'Total' },
+        ],
+      },
+      {
+        badge: 'NETWORKING & EXPANSÃO',
+        title: 'Conexões Estratégicas para o seu Crescimento',
+        highlightText: 'Sem Fronteiras',
+        subtitle: 'Estruturamos sua presença e expandimos suas oportunidades no mercado europeu com governança sólida e visão de futuro.',
+        ctaPrimaryText: 'Fale conosco',
+        ctaSecondaryText: 'Conheça nossos serviços',
+        stats: [
+          { label: 'Presença e alcance', value: 'Bélgica & UE' },
+          { label: 'Soluções estruturadas', value: 'Sob Medida' },
+          { label: 'Suporte consultivo', value: 'Dedicado' },
+        ],
+      },
+    ],
+    floatingCards: {
+      secureServiceTitle: 'Atendimento seguro',
+      secureServiceSub: 'Clareza em cada passo',
+      confidentDecisionsTitle: 'Decisões seguras',
+      confidentDecisionsSub: 'Confidencialidade e rigor',
+    },
+    scrollIndicator: 'Scroll para explorar',
+    aria: {
+      sliderRegion: 'Destaques Principais',
+      prevSlide: 'Slide anterior',
+      nextSlide: 'Próximo slide',
+      goToSlide: 'Ir para o slide',
+    },
+  },
+  differentials: {
+    items: [
+      {
+        title: 'Atendimento personalizado',
+        subtitle: 'Pessoas reais, soluções reais.',
+      },
+      {
+        title: 'Foco em resultados',
+        subtitle: 'Mais organização, mais liberdade.',
+      },
+      {
+        title: 'Segurança e confidencialidade',
+        subtitle: 'Seus dados sempre protegidos.',
+      },
+      {
+        title: 'Atuação internacional',
+        subtitle: 'Apoiando você na Europa.',
+      },
+    ],
   },
   intro: {
     tag: 'Nossa Missão e Propósito',
@@ -37,11 +111,37 @@ export const ptBR: TranslationSchema = {
     boxTitle: 'O que fazemos por você',
     boxText: 'Oferecemos acompanhamento contínuo e personalizado, sempre explicado com calma, sem pressa e sem linguagem técnica desnecessária.',
     badgeText: 'Atendimento Próximo & Personalizado',
+    clarityAccent: 'com clareza e solidez europeia.',
+    locationNote: 'Atendimento presencial na Bélgica e online para toda a Europa',
+    commitment: 'Compromisso Angel Consultancy',
+    valueCards: [
+      {
+        title: 'Acolhimento Real',
+        desc: 'Um suporte atencioso que compreende suas necessidades práticas e respeita o seu tempo, sem julgamentos.',
+        badge: 'Humano',
+      },
+      {
+        title: 'Linguagem Simples',
+        desc: 'Explicamos tudo com clareza, evitando jargões ou termos técnicos para que você entenda cada detalhe com segurança.',
+        badge: 'Transparência',
+      },
+      {
+        title: 'Decisões Seguras',
+        desc: 'Orientação sólida e verdadeira para que você tenha tranquilidade em todas as suas obrigações e escolhas.',
+        badge: 'Conformidade',
+      },
+      {
+        title: 'Vida Mais Leve',
+        desc: 'Transformamos burocracias e papeladas acumuladas em rotinas simples, organizadas e previsíveis.',
+        badge: 'Liberdade',
+      },
+    ],
   },
   services: {
     tag: 'Nossos Serviços',
     title: 'Soluções estruturadas para suas necessidades reais',
     subtitle: 'Acompanhamento contínuo e personalizado, com explicações claras e sem complicações burocráticas.',
+    locationTag: 'Bélgica & UE',
     items: [
       {
         title: 'Consultoria Administrativa & Organização',
@@ -110,6 +210,8 @@ export const ptBR: TranslationSchema = {
     tag: 'Público Atendido',
     title: 'Para quem é o nosso trabalho',
     subtitle: 'Atendimento focado em quem precisa de apoio verdadeiro, descomplicado e seguro no dia a dia.',
+    customTag: 'Sob medida',
+    talkButton: 'Conversar',
     items: [
       {
         title: 'Pessoas Físicas e Famílias',
@@ -153,6 +255,9 @@ export const ptBR: TranslationSchema = {
     tag: 'Nosso Jeito de Trabalhar',
     title: 'Acolhimento, paciência e comunicação transparente',
     subtitle: 'Acreditamos em um processo humano onde você é ouvido com atenção e participa ativamente de cada escolha.',
+    stepLabel: 'Etapa',
+    phaseLabel: 'Fase',
+    ctaBannerButton: 'Fale Conosco e Inicie seu Atendimento',
     steps: [
       {
         step: '01',
@@ -226,6 +331,39 @@ export const ptBR: TranslationSchema = {
     directContactTitle: 'Canais Diretos de Atendimento',
     directContactSubtitle: 'Se preferir conversar imediatamente, estamos à disposição:',
     whatsappButton: 'Conversar no WhatsApp',
+    alertTitle: 'Aviso',
+    validation: {
+      errNameRequired: 'Por favor, informe seu nome completo.',
+      errNameMin: 'O nome deve ter no mínimo 3 caracteres.',
+      errEmailRequired: 'Por favor, informe seu e-mail.',
+      errEmailInvalid: 'Por favor, informe um endereço de e-mail válido.',
+      errPhoneRequired: 'Por favor, informe seu telefone ou WhatsApp.',
+      errPhoneInvalid: 'Por favor, informe um número de telefone válido com código de área.',
+      errProfileRequired: 'Selecione qual perfil melhor descreve você.',
+      errServicesRequired: 'Selecione pelo menos um assunto de interesse.',
+      errMessageRequired: 'Por favor, escreva uma breve mensagem sobre o que você precisa.',
+      errMessageMin: 'Por favor, detalhe um pouco mais sua necessidade (mínimo 10 caracteres).',
+      errPreferenceRequired: 'Selecione sua preferência de atendimento.',
+      errConsentRequired: 'É necessário autorizar o uso dos dados para entrarmos em contato.',
+      errServerFallback: 'Não foi possível registrar seu contato no momento. Por favor, tente novamente mais tarde ou fale conosco pelo WhatsApp ou e-mail.',
+    },
+  },
+  floatingMenu: {
+    headerTitle: 'Atendimento Angel Consultancy',
+    headerRegion: 'Bélgica & UE',
+    whatsappTitle: 'Conversar no WhatsApp',
+    whatsappAria: 'Conversar no WhatsApp com +32 492 319 741',
+    emailTitle: 'Enviar um e-mail',
+    emailSubtitle: 'Preencher formulário no site',
+    emailAria: 'Enviar um e-mail pelo formulário de contato',
+    phoneTitle: 'Telefonar',
+    phoneAria: 'Telefonar para +32 492 319 741',
+    triggerOpen: 'Fale Conosco',
+    triggerClose: 'Fechar',
+    triggerAriaOpen: 'Fale Conosco — Canais de atendimento Angel Consultancy',
+    triggerAriaClose: 'Fechar canais de contato',
+    ariaMenu: 'Opções de atendimento direto',
+    ariaRegion: 'Canais de contato direto',
   },
   footer: {
     description: 'Assistência humana, simples e confiável para sua organização financeira e administrativa. Cuidado, transparência e clareza para você, sua associação ou seu negócio.',
@@ -238,6 +376,10 @@ export const ptBR: TranslationSchema = {
     privacyPolicy: 'Política de Privacidade',
     termsOfUse: 'Termos de Uso',
     adminAccess: 'Acesso Restrito',
+    developedBy: 'Desenvolvido pela',
+    backToTop: 'Voltar ao topo',
+    backToTopAria: 'Voltar ao topo da página',
+    adminAccessTitle: 'Acesso Administrativo',
   },
   blog: {
     title: 'Blog & Conteúdo Informativo',
@@ -264,5 +406,15 @@ export const ptBR: TranslationSchema = {
     confirm: 'Confirmar',
     delete: 'Excluir',
     edit: 'Editar',
+    skipToContent: 'Pular para o conteúdo principal',
+    pageNotFound: 'Página não encontrada',
+    pageNotFoundDesc: 'O link que você acessou pode ter sido alterado ou não está mais disponível.',
+    backToHome: 'Voltar para o Início',
+    selectLanguage: 'Selecione o Idioma',
+    selectLanguageAria: 'Selecionar idioma',
+    menuOpenAria: 'Abrir menu de navegação',
+    menuCloseAria: 'Fechar menu',
+    menuNavAria: 'Menu principal de navegação',
+    logoHomeAria: 'Angel Consultancy - Ir para o início',
   },
 };

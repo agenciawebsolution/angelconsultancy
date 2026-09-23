@@ -117,45 +117,46 @@ export const ContactSection: React.FC = () => {
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
+    const v = ct.validation;
 
     if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Por favor, informe seu nome completo.';
+      newErrors.fullName = v.errNameRequired;
     } else if (formData.fullName.trim().length < 3) {
-      newErrors.fullName = 'O nome deve ter no mínimo 3 caracteres.';
+      newErrors.fullName = v.errNameMin;
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Por favor, informe seu e-mail.';
+      newErrors.email = v.errEmailRequired;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      newErrors.email = 'Por favor, informe um endereço de e-mail válido.';
+      newErrors.email = v.errEmailInvalid;
     }
 
     if (!formData.phone.trim()) {
-      newErrors.phone = 'Por favor, informe seu telefone ou WhatsApp.';
+      newErrors.phone = v.errPhoneRequired;
     } else if (formData.phone.replace(/\D/g, '').length < 7) {
-      newErrors.phone = 'Por favor, informe um número de telefone válido com DDD/código.';
+      newErrors.phone = v.errPhoneInvalid;
     }
 
     if (!formData.profileType) {
-      newErrors.profileType = 'Selecione qual perfil melhor descreve você.';
+      newErrors.profileType = v.errProfileRequired;
     }
 
     if (formData.services.length === 0) {
-      newErrors.services = 'Selecione pelo menos um assunto de interesse.';
+      newErrors.services = v.errServicesRequired;
     }
 
     if (!formData.message.trim()) {
-      newErrors.message = 'Por favor, escreva uma breve mensagem sobre o que você precisa.';
+      newErrors.message = v.errMessageRequired;
     } else if (formData.message.trim().length < 10) {
-      newErrors.message = 'Por favor, detalhe um pouco mais sua necessidade (mínimo 10 caracteres).';
+      newErrors.message = v.errMessageMin;
     }
 
     if (!formData.meetingPreference) {
-      newErrors.meetingPreference = 'Selecione sua preferência de atendimento.';
+      newErrors.meetingPreference = v.errPreferenceRequired;
     }
 
     if (!formData.consentAccepted) {
-      newErrors.consentAccepted = 'É necessário autorizar o uso dos dados para entrarmos em contato.';
+      newErrors.consentAccepted = v.errConsentRequired;
     }
 
     setErrors(newErrors);
@@ -192,9 +193,7 @@ export const ContactSection: React.FC = () => {
         }
       }
     } catch {
-      setServerError(
-        'Não foi possível registrar seu contato no momento. Por favor, tente novamente mais tarde ou fale conosco pelo WhatsApp ou e-mail.'
-      );
+      setServerError(ct.validation.errServerFallback);
     } finally {
       setIsSubmitting(false);
     }
@@ -567,7 +566,7 @@ export const ContactSection: React.FC = () => {
                       <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm flex items-start gap-3">
                         <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="font-semibold text-rose-900">Aviso</p>
+                          <p className="font-semibold text-rose-900">{ct.alertTitle || 'Aviso'}</p>
                           <p className="mt-0.5 text-rose-700 leading-relaxed">{serverError}</p>
                         </div>
                       </div>

@@ -11,6 +11,21 @@ export interface NavTranslations {
   ctaButton: string;
 }
 
+export interface HeroSlideStat {
+  label: string;
+  value: string;
+}
+
+export interface HeroSlideTranslation {
+  badge: string;
+  title: string;
+  highlightText: string;
+  subtitle: string;
+  ctaPrimaryText: string;
+  ctaSecondaryText: string;
+  stats: HeroSlideStat[];
+}
+
 export interface HeroTranslations {
   badge: string;
   titlePart1: string;
@@ -28,6 +43,36 @@ export interface HeroTranslations {
   pillWarmSub: string;
   pillSafeTitle: string;
   pillSafeSub: string;
+  // Multi-slide translations & interactive micro-cards
+  slides: HeroSlideTranslation[];
+  floatingCards: {
+    secureServiceTitle: string;
+    secureServiceSub: string;
+    confidentDecisionsTitle: string;
+    confidentDecisionsSub: string;
+  };
+  scrollIndicator: string;
+  aria: {
+    sliderRegion: string;
+    prevSlide: string;
+    nextSlide: string;
+    goToSlide: string;
+  };
+}
+
+export interface DifferentialItemTranslation {
+  title: string;
+  subtitle: string;
+}
+
+export interface DifferentialsTranslations {
+  items: DifferentialItemTranslation[];
+}
+
+export interface ValueCardTranslation {
+  title: string;
+  desc: string;
+  badge: string;
 }
 
 export interface IntroTranslations {
@@ -38,12 +83,17 @@ export interface IntroTranslations {
   boxTitle: string;
   boxText: string;
   badgeText: string;
+  clarityAccent: string;
+  locationNote: string;
+  commitment: string;
+  valueCards: ValueCardTranslation[];
 }
 
 export interface ServicesTranslations {
   tag: string;
   title: string;
   subtitle: string;
+  locationTag: string;
   items: {
     title: string;
     description: string;
@@ -56,6 +106,8 @@ export interface AudienceTranslations {
   tag: string;
   title: string;
   subtitle: string;
+  customTag: string;
+  talkButton: string;
   items: {
     title: string;
     description: string;
@@ -67,6 +119,9 @@ export interface MethodologyTranslations {
   tag: string;
   title: string;
   subtitle: string;
+  stepLabel: string;
+  phaseLabel: string;
+  ctaBannerButton: string;
   steps: {
     step: string;
     title: string;
@@ -74,6 +129,22 @@ export interface MethodologyTranslations {
   }[];
   closingQuote: string;
   closingAuthor: string;
+}
+
+export interface ContactValidationTranslations {
+  errNameRequired: string;
+  errNameMin: string;
+  errEmailRequired: string;
+  errEmailInvalid: string;
+  errPhoneRequired: string;
+  errPhoneInvalid: string;
+  errProfileRequired: string;
+  errServicesRequired: string;
+  errMessageRequired: string;
+  errMessageMin: string;
+  errPreferenceRequired: string;
+  errConsentRequired: string;
+  errServerFallback: string;
 }
 
 export interface ContactTranslations {
@@ -124,6 +195,26 @@ export interface ContactTranslations {
   directContactTitle: string;
   directContactSubtitle: string;
   whatsappButton: string;
+  alertTitle: string;
+  validation: ContactValidationTranslations;
+}
+
+export interface FloatingMenuTranslations {
+  headerTitle: string;
+  headerRegion: string;
+  whatsappTitle: string;
+  whatsappAria: string;
+  emailTitle: string;
+  emailSubtitle: string;
+  emailAria: string;
+  phoneTitle: string;
+  phoneAria: string;
+  triggerOpen: string;
+  triggerClose: string;
+  triggerAriaOpen: string;
+  triggerAriaClose: string;
+  ariaMenu: string;
+  ariaRegion: string;
 }
 
 export interface FooterTranslations {
@@ -137,6 +228,10 @@ export interface FooterTranslations {
   privacyPolicy: string;
   termsOfUse: string;
   adminAccess: string;
+  developedBy: string;
+  backToTop: string;
+  backToTopAria: string;
+  adminAccessTitle: string;
 }
 
 export interface BlogTranslations {
@@ -156,24 +251,38 @@ export interface BlogTranslations {
   notFoundSubtitle: string;
 }
 
+export interface CommonTranslations {
+  loading: string;
+  close: string;
+  back: string;
+  save: string;
+  cancel: string;
+  confirm: string;
+  delete: string;
+  edit: string;
+  skipToContent: string;
+  pageNotFound: string;
+  pageNotFoundDesc: string;
+  backToHome: string;
+  selectLanguage: string;
+  selectLanguageAria: string;
+  menuOpenAria: string;
+  menuCloseAria: string;
+  menuNavAria: string;
+  logoHomeAria: string;
+}
+
 export interface TranslationSchema {
   nav: NavTranslations;
   hero: HeroTranslations;
+  differentials: DifferentialsTranslations;
   intro: IntroTranslations;
   services: ServicesTranslations;
   audience: AudienceTranslations;
   methodology: MethodologyTranslations;
   contact: ContactTranslations;
+  floatingMenu: FloatingMenuTranslations;
   footer: FooterTranslations;
   blog: BlogTranslations;
-  common: {
-    loading: string;
-    close: string;
-    back: string;
-    save: string;
-    cancel: string;
-    confirm: string;
-    delete: string;
-    edit: string;
-  };
+  common: CommonTranslations;
 }

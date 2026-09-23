@@ -92,10 +92,10 @@ export const MethodologySection: React.FC<MethodologySectionProps> = ({ data }) 
                 <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-semibold text-slate-400">
                   <span className="flex items-center gap-1.5 text-slate-300">
                     <span className="w-2 h-2 rounded-full bg-[#D4AF37]" />
-                    Etapa {index + 1}
+                    {methT.stepLabel || 'Etapa'} {index + 1}
                   </span>
                   <span className="text-[11px] font-mono text-[#D4AF37]">
-                    Fase {index + 1}/4
+                    {methT.phaseLabel || 'Fase'} {index + 1}/4
                   </span>
                 </div>
               </motion.div>
@@ -128,7 +128,7 @@ export const MethodologySection: React.FC<MethodologySectionProps> = ({ data }) 
                 href="#contato"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-[#0A162B] font-bold text-xs sm:text-sm hover:bg-slate-100 transition-all shadow-soft-sm active:scale-95"
               >
-                <span>Fale Conosco e Inicie seu Atendimento</span>
+                <span>{methT.ctaBannerButton || 'Fale Conosco e Inicie seu Atendimento'}</span>
                 <ArrowRight className="w-4 h-4 text-[#D4AF37]" />
               </a>
             </div>

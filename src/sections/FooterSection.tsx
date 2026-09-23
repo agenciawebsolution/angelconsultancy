@@ -154,7 +154,7 @@ export const FooterSection: React.FC = () => {
             </span>
             <span className="hidden sm:inline text-slate-700">•</span>
             <span>
-              Desenvolvido pela{' '}
+              {footT.developedBy || 'Desenvolvido pela'}{' '}
               <a
                 href="https://agenciawebsolution.com"
                 target="_blank"
@@ -171,7 +171,7 @@ export const FooterSection: React.FC = () => {
             <Link
               to="/admin/login"
               className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-300 transition-colors"
-              title="Acesso Administrativo"
+              title={footT.adminAccessTitle || footT.adminAccess}
             >
               <Lock className="w-3 h-3" />
               <span>{footT.adminAccess}</span>
@@ -181,9 +181,9 @@ export const FooterSection: React.FC = () => {
               type="button"
               onClick={scrollToTop}
               className="inline-flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors"
-              aria-label="Voltar ao topo da página"
+              aria-label={footT.backToTopAria || footT.backToTop}
             >
-              <span>Voltar ao topo</span>
+              <span>{footT.backToTop || 'Voltar ao topo'}</span>
               <ArrowUp className="w-3.5 h-3.5" />
             </button>
           </div>

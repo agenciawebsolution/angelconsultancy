@@ -21,7 +21,7 @@ interface LanguageSelectorProps {
 }
 
 export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ variant = 'header' }) => {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, translations } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -84,7 +84,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ variant = 'h
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="true"
         aria-expanded={isOpen}
-        aria-label="Selecionar idioma"
+        aria-label={translations.common.selectLanguageAria || "Selecionar idioma"}
         className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200/80 bg-white/90 hover:bg-white text-slate-700 hover:text-brand-navy text-xs font-semibold shadow-soft-xs transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-brand-navy"
       >
         <span className="text-sm leading-none" role="img" aria-hidden="true">
@@ -101,7 +101,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ variant = 'h
       {isOpen && (
         <div className="absolute right-0 mt-2 w-44 rounded-2xl bg-white shadow-soft-xl border border-slate-100 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
           <div className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100/80 mb-1">
-            Selecione o Idioma
+            {translations.common.selectLanguage || "Selecione o Idioma"}
           </div>
           {languages.map((lang) => {
             const isSelected = lang.code === language;
