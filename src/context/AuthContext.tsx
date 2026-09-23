@@ -7,9 +7,7 @@ interface AuthContextType {
   user: AdminUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  setupRequired: boolean;
   login: (email: string, pass: string) => Promise<void>;
-  setupInitialAdmin: (name: string, email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
 }
@@ -19,25 +17,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [setupRequired, setSetupRequired] = useState(false);
 
   const checkAuth = async () => {
     try {
       const res = await authService.checkSession();
-      if (res.setup_required) {
-        setSetupRequired(true);
-        setUser(null);
-      } else if (res.authenticated && res.user) {
+      if (res.authenticated && res.user) {
         setUser(res.user);
-        setSetupRequired(false);
       } else {
-        // Se houver token armazenado localmente em modo DEV
+        // Se houver token de teste em modo DEV
         const token = getStoredToken();
         if (import.meta.env.DEV && token && token.startsWith('mock_dev')) {
           setUser({
             id: 1,
-            name: 'Administrador (Preview Local)',
-            email: 'admin@angel-consultancy.be',
+            name: 'Agencia Web Solution',
+            email: 'agenciawebsolution@gmail.com',
             status: 'active',
             last_login_at: new Date().toISOString(),
             created_at: new Date().toISOString(),
@@ -45,7 +38,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else {
           setUser(null);
         }
-        setSetupRequired(false);
       }
     } catch {
       setUser(null);
@@ -72,14 +64,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const setupInitialAdmin = async (name: string, email: string, pass: string) => {
-    const res = await authService.setupInitialAdmin(name, email, pass);
-    if (res.user) {
-      setUser(res.user);
-      setSetupRequired(false);
-    }
-  };
-
   const logout = async () => {
     await authService.logout();
     setUser(null);
@@ -91,9 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         isAuthenticated: !!user,
         isLoading,
-        setupRequired,
         login,
-        setupInitialAdmin,
         logout,
         refresh: checkAuth,
       }}

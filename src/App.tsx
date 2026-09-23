@@ -44,7 +44,7 @@ export const App: React.FC = () => {
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
 
-              {/* Login / Setup Administrativo */}
+              {/* Login Administrativo */}
               <Route path="/admin/login" element={<AdminLoginPage />} />
 
               {/* Painel Administrativo Protegido */}

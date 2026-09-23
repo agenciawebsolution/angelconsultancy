@@ -47,20 +47,46 @@ export async function apiRequest<T = unknown>(endpoint: string, options: Request
     credentials: 'include',
   });
 
+  let responseText = '';
+  try {
+    responseText = await response.text();
+  } catch {
+    throw new Error('Não foi possível conectar ao servidor.');
+  }
+
   const contentType = response.headers.get('content-type') || '';
   const isJson = contentType.includes('application/json');
 
   let responseData: unknown;
-  if (isJson) {
-    responseData = await response.json();
+  const trimmed = responseText.trim();
+
+  if (!trimmed) {
+    if (!response.ok) {
+      const error = new Error(`O servidor retornou uma resposta vazia (${response.status}).`) as Error & { status?: number };
+      error.status = response.status;
+      throw error;
+    }
+    responseData = { success: true };
+  } else if (isJson) {
+    try {
+      responseData = JSON.parse(trimmed);
+    } catch {
+      const error = new Error('O servidor retornou uma resposta inválida.') as Error & { status?: number; data?: unknown };
+      error.status = response.status;
+      error.data = trimmed;
+      throw error;
+    }
   } else {
-    const text = await response.text();
-    responseData = { message: text };
+    try {
+      responseData = JSON.parse(trimmed);
+    } catch {
+      responseData = { message: trimmed };
+    }
   }
 
   if (!response.ok) {
-    const errorObj = responseData as { message?: string } | undefined;
-    const errorMessage = errorObj?.message || `Erro de conexão (${response.status})`;
+    const errorObj = responseData as { message?: string; error?: string } | undefined;
+    const errorMessage = errorObj?.error || errorObj?.message || `Erro de conexão (${response.status})`;
     const error = new Error(errorMessage) as Error & { status?: number; data?: unknown };
     error.status = response.status;
     error.data = responseData;

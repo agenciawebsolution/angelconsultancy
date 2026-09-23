@@ -18,25 +18,13 @@ try {
 
 $action = $_GET['action'] ?? ($_SERVER['REQUEST_METHOD'] === 'POST' ? 'login' : 'check');
 
-// 1. CHECAGEM DE SESSÃO / SETUP
+// 1. CHECAGEM DE SESSÃO ATIVA
 if ($action === 'check') {
     try {
-        $countStmt = $pdo->query('SELECT COUNT(*) FROM admin_users');
-        $totalAdmins = (int)$countStmt->fetchColumn();
-
-        if ($totalAdmins === 0) {
-            sendJson(true, [
-                'authenticated'  => false,
-                'setup_required' => true,
-                'message'        => 'Nenhum administrador cadastrado. Setup inicial necessário.',
-            ]);
-        }
-
         $user = getAuthenticatedUser($pdo);
         if ($user) {
             sendJson(true, [
-                'authenticated'  => true,
-                'setup_required' => false,
+                'authenticated' => true,
                 'user' => [
                     'id'    => (int)$user['id'],
                     'name'  => $user['name'],
@@ -44,95 +32,17 @@ if ($action === 'check') {
                 ],
             ]);
         } else {
-            sendJson(false, [
-                'authenticated'  => false,
-                'setup_required' => false,
-                'message'        => 'Sessão não autenticada.',
-            ], 401);
+            sendJson(true, [
+                'authenticated' => false,
+                'message'       => 'Sessão não autenticada.',
+            ]);
         }
     } catch (Throwable $e) {
         sendJson(false, 'Erro ao verificar sessão administrativa.', 500);
     }
 }
 
-// 2. SETUP DO PRIMEIRO ADMINISTRADOR (Bloqueado se já existir qualquer admin)
-if ($action === 'setup') {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        sendJson(false, 'Método HTTP não permitido.', 405);
-    }
-
-    $countStmt = $pdo->query('SELECT COUNT(*) FROM admin_users');
-    if ((int)$countStmt->fetchColumn() > 0) {
-        sendJson(false, 'O setup inicial já foi concluído anteriormente. Acesso bloqueado.', 403);
-    }
-
-    $data = getJsonInput();
-    $name     = trim((string)($data['name'] ?? ''));
-    $email    = strtolower(trim((string)($data['email'] ?? '')));
-    $password = (string)($data['password'] ?? '');
-
-    if (mb_strlen($name) < 3) {
-        sendJson(false, 'O nome deve ter no mínimo 3 caracteres.', 422);
-    }
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        sendJson(false, 'Informe um endereço de e-mail válido.', 422);
-    }
-    if (strlen($password) < 8) {
-        sendJson(false, 'A senha deve ter no mínimo 8 caracteres.', 422);
-    }
-
-    $hash = password_hash($password, PASSWORD_DEFAULT);
-
-    $stmt = $pdo->prepare(
-        'INSERT INTO admin_users (name, email, password_hash, status, last_login_at)
-         VALUES (:name, :email, :hash, "active", NOW())'
-    );
-    $stmt->execute([
-        ':name'  => $name,
-        ':email' => $email,
-        ':hash'  => $hash,
-    ]);
-
-    $userId = (int)$pdo->lastInsertId();
-    $token = bin2hex(random_bytes(32));
-    $expires = date('Y-m-d H:i:s', strtotime('+7 days'));
-
-    $sessStmt = $pdo->prepare(
-        'INSERT INTO admin_sessions (admin_user_id, token, ip_address, user_agent, expires_at)
-         VALUES (:uid, :token, :ip, :ua, :exp)'
-    );
-    $sessStmt->execute([
-        ':uid'   => $userId,
-        ':token' => $token,
-        ':ip'    => $_SERVER['REMOTE_ADDR'] ?? null,
-        ':ua'    => substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255),
-        ':exp'   => $expires,
-    ]);
-
-    // Cookie seguro
-    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
-    setcookie('angel_admin_token', $token, [
-        'expires'  => time() + 7 * 86400,
-        'path'     => '/',
-        'secure'   => $isHttps,
-        'httponly' => true,
-        'samesite' => 'Lax',
-    ]);
-
-    logAdminActivity($pdo, $userId, 'setup', 'admin_users', $userId, 'Setup do primeiro administrador realizado');
-
-    sendJson(true, [
-        'message' => 'Primeiro administrador configurado com sucesso.',
-        'token'   => $token,
-        'user'    => [
-            'id'    => $userId,
-            'name'  => $name,
-            'email' => $email,
-        ],
-    ], 201);
-}
-
-// 3. LOGIN
+// 2. LOGIN
 if ($action === 'login') {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         sendJson(false, 'Método HTTP não permitido.', 405);

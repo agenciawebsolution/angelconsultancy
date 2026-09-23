@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `admin_users` (
   `name` VARCHAR(100) NOT NULL COMMENT 'Nome completo do administrador',
   `email` VARCHAR(191) NOT NULL UNIQUE COMMENT 'E-mail para login',
   `password_hash` VARCHAR(255) NOT NULL COMMENT 'Hash da senha gerado com password_hash()',
+  `role` VARCHAR(50) NOT NULL DEFAULT 'admin' COMMENT 'Nível de permissão administrativa',
   `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active' COMMENT 'Status de acesso',
   `last_login_at` DATETIME NULL COMMENT 'Data do último login bem-sucedido',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
