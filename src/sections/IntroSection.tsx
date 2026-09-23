@@ -22,7 +22,7 @@ export const IntroSection: React.FC<IntroSectionProps> = ({ data }) => {
   const introT = translations.intro;
 
   return (
-    <section id="sobre" className="py-20 lg:py-28 bg-white relative overflow-hidden border-y border-slate-100">
+    <section id="quem-somos" className="py-20 lg:py-28 bg-white relative overflow-hidden border-y border-slate-100">
       {/* Decorative subtle background accents */}
       <div className="absolute top-1/2 left-0 -translate-y-1/2 w-72 h-72 bg-brand-navy-50/50 rounded-full blur-3xl pointer-events-none -z-10" />
       <div className="absolute bottom-0 right-0 w-80 h-80 bg-brand-amber-50/60 rounded-full blur-3xl pointer-events-none -z-10" />

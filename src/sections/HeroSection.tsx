@@ -34,14 +34,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
           setSlides([
             {
               id: 1,
-              badge: data.badge || 'CONSULTORIA ESTRATÉGICA EUROPEIA',
+              badge: data.badge || 'ANGEL CONSULTANCY AND NETWORK',
               title: data.title,
               subtitle: data.subtitle,
-              ctaPrimaryText: data.ctaPrimaryText || 'Fale com um Especialista',
+              ctaPrimaryText: data.ctaPrimaryText || 'Fale conosco',
               ctaPrimaryLink: data.ctaPrimaryLink || '#contato',
-              ctaSecondaryText: data.ctaSecondaryText || 'Conheça Nossos Serviços',
+              ctaSecondaryText: data.ctaSecondaryText || 'Conheça nossos serviços',
               ctaSecondaryLink: data.ctaSecondaryLink || '#servicos',
-              imageUrl: data.imageUrl || 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1400&q=80',
+              imageUrl: data.imageUrl || '/images/hero-executive-1.jpg',
               imageAlt: data.imageAlt || 'Consultoria corporativa internacional',
               sortOrder: 1,
               isActive: true,
@@ -55,14 +55,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
   }, [data]);
 
   return (
-    <section id="inicio" className="relative pt-24 sm:pt-28 lg:pt-32 overflow-hidden bg-gradient-to-b from-[#F8FAFC] via-[#F1F5F9] to-white">
-      {/* Subtle luxury ambient glows */}
-      <div className="absolute top-0 right-0 -mr-24 -mt-24 w-[600px] h-[600px] rounded-full bg-blue-100/50 blur-3xl pointer-events-none -z-10" />
-      <div className="absolute top-1/2 left-0 -ml-28 w-[450px] h-[450px] rounded-full bg-amber-100/40 blur-3xl pointer-events-none -z-10" />
-      <div className="absolute top-12 left-1/3 w-[300px] h-[300px] rounded-full bg-indigo-50/60 blur-2xl pointer-events-none -z-10" />
-
+    <section id="inicio" className="relative pt-24 md:pt-32 lg:pt-36 overflow-hidden bg-[#F8FAFC]">
       {/* Hero Carousel Slider */}
-      <div className="w-full pb-8 sm:pb-12">
+      <div className="w-full">
         <HeroSlider slides={slides} />
       </div>
 

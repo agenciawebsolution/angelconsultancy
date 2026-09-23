@@ -27,7 +27,7 @@ export const TargetAudienceSection: React.FC<TargetAudienceSectionProps> = ({ da
   ];
 
   return (
-    <section id="publico" className="py-20 lg:py-28 bg-white relative border-b border-slate-100">
+    <section id="publico" className="py-20 lg:py-28 bg-[#F8FAFC] relative border-b border-slate-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionTitle
           tag={data?.tag || audT.tag}
