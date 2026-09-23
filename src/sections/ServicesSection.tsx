@@ -63,21 +63,21 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ data }) => {
               <div>
                 {/* Header card: Number & Icon */}
                 <div className="flex items-center justify-between mb-6">
-                  <div className="w-14 h-14 rounded-2xl bg-slate-50 group-hover:bg-brand-navy-50 text-slate-700 group-hover:text-brand-navy flex items-center justify-center transition-colors duration-300 border border-slate-100">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-50 group-hover:bg-[#0B1528] text-[#0B1528] group-hover:text-[#D4AF37] flex items-center justify-center transition-colors duration-300 border border-slate-100 group-hover:border-[#D4AF37]/30 shadow-soft-xs">
                     {icons[index % icons.length]}
                   </div>
-                  <span className="text-3xl font-black text-slate-200 group-hover:text-brand-navy-100 transition-colors duration-300 select-none">
+                  <span className="text-3xl font-black text-slate-200 group-hover:text-[#D4AF37]/30 transition-colors duration-300 select-none">
                     {`0${index + 1}`}
                   </span>
                 </div>
 
                 {/* Title */}
-                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 group-hover:text-brand-navy transition-colors duration-200 mb-3 leading-snug">
+                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 group-hover:text-[#0B1528] transition-colors duration-200 mb-3 leading-snug">
                   {service.title}
                 </h3>
 
                 {/* Subtitle / Description */}
-                <p className="text-sm sm:text-base text-slate-600 mb-6 leading-relaxed">
+                <p className="text-sm sm:text-base text-slate-600 mb-6 leading-relaxed font-normal">
                   {service.description}
                 </p>
 
@@ -100,10 +100,10 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ data }) => {
               <div className="mt-8 pt-6 border-t border-slate-100">
                 <a
                   href="#contato"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-brand-navy hover:text-brand-navy-700 group-hover:translate-x-1 transition-all duration-200"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-[#0B1528] hover:text-blue-800 group-hover:translate-x-1 transition-all duration-200"
                 >
                   <span>{servT.ctaButton}</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4 text-[#D4AF37]" />
                 </a>
               </div>
             </motion.div>

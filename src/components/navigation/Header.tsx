@@ -31,8 +31,8 @@ export const Header: React.FC = () => {
         className={cn(
           "fixed top-0 left-0 right-0 z-40 transition-all duration-300",
           isScrolled
-            ? "bg-white/90 backdrop-blur-md shadow-soft-sm py-3 border-b border-slate-200/60"
-            : "bg-white/40 backdrop-blur-xs py-5 border-b border-transparent"
+            ? "bg-white/95 backdrop-blur-md shadow-soft-md py-3 border-b border-slate-200/80"
+            : "bg-white/50 backdrop-blur-xs py-4 sm:py-5 border-b border-slate-100/50"
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -112,18 +112,18 @@ export const Header: React.FC = () => {
               {isHome ? (
                 <a
                   href="#contato"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-navy hover:bg-brand-navy-700 text-white text-sm font-semibold shadow-soft-sm hover:shadow-soft-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#0B1528] to-[#132342] hover:from-[#132342] hover:to-[#0B1528] text-white text-sm font-semibold border border-white/10 hover:border-[#D4AF37]/50 shadow-soft-sm hover:shadow-soft-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy active:scale-[0.98] group"
                 >
                   <span>{translations.nav.ctaButton}</span>
-                  <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                  <ArrowRight className="w-4 h-4 text-[#D4AF37] transition-transform duration-200 group-hover:translate-x-0.5" />
                 </a>
               ) : (
                 <Link
                   to="/#contato"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-navy hover:bg-brand-navy-700 text-white text-sm font-semibold shadow-soft-sm hover:shadow-soft-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#0B1528] to-[#132342] hover:from-[#132342] hover:to-[#0B1528] text-white text-sm font-semibold border border-white/10 hover:border-[#D4AF37]/50 shadow-soft-sm hover:shadow-soft-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy active:scale-[0.98] group"
                 >
                   <span>{translations.nav.ctaButton}</span>
-                  <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                  <ArrowRight className="w-4 h-4 text-[#D4AF37] transition-transform duration-200 group-hover:translate-x-0.5" />
                 </Link>
               )}
             </div>

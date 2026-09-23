@@ -374,6 +374,27 @@ function getCmsTableDefinitions(): array
             `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             INDEX `idx_setting_key` (`setting_key`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+        'home_slides' => "CREATE TABLE IF NOT EXISTS `home_slides` (
+            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `badge` VARCHAR(150) NULL,
+            `title` VARCHAR(255) NOT NULL,
+            `highlight_text` VARCHAR(150) NULL,
+            `subtitle` TEXT NULL,
+            `cta_primary_text` VARCHAR(100) NULL,
+            `cta_primary_link` VARCHAR(255) NULL,
+            `cta_secondary_text` VARCHAR(100) NULL,
+            `cta_secondary_link` VARCHAR(255) NULL,
+            `image_url` VARCHAR(500) NOT NULL,
+            `image_alt` VARCHAR(255) NULL,
+            `stats_json` TEXT NULL,
+            `sort_order` INT NOT NULL DEFAULT 0,
+            `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX `idx_slide_order` (`sort_order`),
+            INDEX `idx_slide_active` (`is_active`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
     ];
 }
 
@@ -507,6 +528,60 @@ function ensureCmsTablesExist(PDO $pdo): void
         // Continua caso já existam categorias
     }
 
-    // 5. Garante o usuário administrador padrão com hash seguro
+    // 5. Insere slides padrão na Home caso a tabela esteja vazia
+    try {
+        $slidesCountStmt = $pdo->query('SELECT COUNT(*) FROM `home_slides`');
+        if ((int)$slidesCountStmt->fetchColumn() === 0) {
+            $pdo->exec("INSERT IGNORE INTO `home_slides` 
+                (`id`, `badge`, `title`, `highlight_text`, `subtitle`, `cta_primary_text`, `cta_primary_link`, `cta_secondary_text`, `cta_secondary_link`, `image_url`, `image_alt`, `stats_json`, `sort_order`, `is_active`) 
+                VALUES
+                (1, 
+                 'CONSULTORIA ESTRATÉGICA EUROPEIA', 
+                 'Soluções Corporativas com Clareza, Segurança e', 
+                 'Alto Desempenho', 
+                 'Apoio administrativo, financeiro e consultoria estratégica internacional para pessoas físicas, autônomos e empresas na Bélgica e União Europeia.', 
+                 'Fale com um Especialista', 
+                 '#contato', 
+                 'Conheça Nossos Serviços', 
+                 '#servicos', 
+                 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1400&q=80', 
+                 'Executivo corporativo internacional em terno azul marinho em escritório envidraçado', 
+                 '[{\"label\":\"Anos de Atuação\",\"value\":\"+10\"},{\"label\":\"Atendimento\",\"value\":\"Multilíngue\"},{\"label\":\"Clientes Satisfeitos\",\"value\":\"100%\"}]', 
+                 1, 
+                 1),
+                (2, 
+                 'ORGANIZAÇÃO & CONFORMIDADE', 
+                 'Simplifique sua Gestão Administrativa e', 
+                 'Tributária na Europa', 
+                 'Elimine burocracias e tenha controle total sobre suas finanças, declarações e rotinas operacionais com atendimento sob medida.', 
+                 'Agendar Atendimento', 
+                 '#contato', 
+                 'Como Trabalhamos', 
+                 '#metodo', 
+                 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1400&q=80', 
+                 'Consultoria administrativa e financeira especializada', 
+                 '[{\"label\":\"Conformidade\",\"value\":\"Total\"},{\"label\":\"Processos\",\"value\":\"Otimizados\"},{\"label\":\"Sigilo\",\"value\":\"Garantido\"}]', 
+                 2, 
+                 1),
+                (3, 
+                 'NETWORKING & EXPANSÃO', 
+                 'Conexões Estratégicas para o seu Crescimento', 
+                 'Sem Fronteiras', 
+                 'Estruturamos sua presença e expandimos suas oportunidades no mercado europeu com governança sólida e visão de futuro.', 
+                 'Iniciar Parceria', 
+                 '#contato', 
+                 'Para Quem é', 
+                 '#publico', 
+                 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1400&q=80', 
+                 'Reunião executiva internacional e networking empresarial', 
+                 '[{\"label\":\"Presença\",\"value\":\"Internacional\"},{\"label\":\"Soluções\",\"value\":\"Sob Medida\"},{\"label\":\"Suporte\",\"value\":\"Dedicado\"}]', 
+                 3, 
+                 1)");
+        }
+    } catch (Throwable $e) {
+        error_log('[Default Slides Init Error] ' . $e->getMessage());
+    }
+
+    // 6. Garante o usuário administrador padrão com hash seguro
     ensureDefaultAdminExists($pdo);
 }

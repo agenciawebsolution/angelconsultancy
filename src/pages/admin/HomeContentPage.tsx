@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { sectionsService } from '../../services/sectionsService';
+import { SlidesManager } from '../../components/admin/SlidesManager';
 import { Button } from '../../components/ui/Button';
 import { Save, Check, Loader2 } from 'lucide-react';
 
 export const HomeContentPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'hero' | 'intro' | 'services' | 'audience' | 'methodology' | 'contact' | 'footer'>('hero');
+  const [activeTab, setActiveTab] = useState<'slides' | 'hero' | 'intro' | 'services' | 'audience' | 'methodology' | 'contact' | 'footer'>('slides');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -124,13 +125,14 @@ export const HomeContentPage: React.FC = () => {
       {/* Section Tabs */}
       <div className="flex flex-wrap gap-2 p-1.5 bg-white border border-slate-100 rounded-2xl shadow-soft-xs">
         {[
-          { id: 'hero', label: '1. Hero (Topo)' },
-          { id: 'intro', label: '2. Sobre & Missão' },
-          { id: 'services', label: '3. Serviços' },
-          { id: 'audience', label: '4. Público Atendido' },
-          { id: 'methodology', label: '5. Como Trabalhamos' },
-          { id: 'contact', label: '6. Contato' },
-          { id: 'footer', label: '7. Rodapé' },
+          { id: 'slides', label: '1. Slides da Home (Carrossel)' },
+          { id: 'hero', label: '2. Hero Geral (Fallback)' },
+          { id: 'intro', label: '3. Sobre & Missão' },
+          { id: 'services', label: '4. Serviços' },
+          { id: 'audience', label: '5. Público Atendido' },
+          { id: 'methodology', label: '6. Como Trabalhamos' },
+          { id: 'contact', label: '7. Contato' },
+          { id: 'footer', label: '8. Rodapé' },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -146,7 +148,10 @@ export const HomeContentPage: React.FC = () => {
         ))}
       </div>
 
-      {/* Tab 1: HERO */}
+      {/* Tab 0: SLIDES DA HOME (CARROSSEL DINÂMICO) */}
+      {activeTab === 'slides' && <SlidesManager />}
+
+      {/* Tab 1: HERO FALLBACK */}
       {activeTab === 'hero' && (
         <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-soft-sm space-y-6">
           <div className="border-b border-slate-100 pb-4">
