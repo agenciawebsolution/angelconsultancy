@@ -185,36 +185,156 @@ function logAdminActivity(PDO $pdo, ?int $userId, string $action, string $entity
 }
 
 /**
- * Executa comandos SQL de um arquivo, separando os comandos individualmente
+ * Verifica individualmente se uma tabela existe no banco de dados MariaDB
  */
-function executeSqlFile(PDO $pdo, string $filePath): void
+function checkTableExists(PDO $pdo, string $tableName): bool
 {
-    if (!file_exists($filePath)) {
-        return;
+    try {
+        $stmt = $pdo->prepare('SHOW TABLES LIKE :table');
+        $stmt->execute([':table' => $tableName]);
+        return (bool)$stmt->fetch();
+    } catch (Throwable) {
+        return false;
     }
-    $raw = file_get_contents($filePath);
-    if ($raw === false || trim($raw) === '') {
-        return;
-    }
+}
 
-    // Remove comentários de linha (-- ...) e de bloco (/* ... */)
-    $cleanSql = preg_replace('/--.*$/m', '', $raw);
-    $cleanSql = preg_replace('/\/\*.*?\*\//s', '', (string)$cleanSql);
+/**
+ * Retorna as definições DDL individuais para todas as tabelas do CMS
+ *
+ * @return array<string, string>
+ */
+function getCmsTableDefinitions(): array
+{
+    return [
+        'admin_users' => "CREATE TABLE IF NOT EXISTS `admin_users` (
+            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `name` VARCHAR(100) NOT NULL COMMENT 'Nome completo do administrador',
+            `email` VARCHAR(191) NOT NULL UNIQUE COMMENT 'E-mail para login',
+            `password_hash` VARCHAR(255) NOT NULL COMMENT 'Hash da senha gerado com password_hash()',
+            `role` VARCHAR(50) NOT NULL DEFAULT 'admin' COMMENT 'Nível de permissão administrativa',
+            `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active' COMMENT 'Status de acesso',
+            `last_login_at` DATETIME NULL COMMENT 'Data do último login bem-sucedido',
+            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX `idx_admin_email` (`email`),
+            INDEX `idx_admin_status` (`status`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
-    // Separa os comandos por ponto e vírgula
-    $statements = array_filter(
-        array_map('trim', explode(';', (string)$cleanSql)),
-        fn(string $stmt) => $stmt !== ''
-    );
+        'admin_sessions' => "CREATE TABLE IF NOT EXISTS `admin_sessions` (
+            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `admin_user_id` INT UNSIGNED NOT NULL,
+            `token` VARCHAR(64) NOT NULL UNIQUE COMMENT 'Token de sessão gerado criptograficamente',
+            `ip_address` VARCHAR(45) NULL,
+            `user_agent` VARCHAR(255) NULL,
+            `expires_at` DATETIME NOT NULL COMMENT 'Expiração da sessão',
+            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            INDEX `idx_session_token` (`token`),
+            INDEX `idx_session_expires` (`expires_at`),
+            CONSTRAINT `fk_session_user` FOREIGN KEY (`admin_user_id`) REFERENCES `admin_users`(`id`) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
-    foreach ($statements as $statement) {
-        try {
-            $pdo->exec($statement);
-        } catch (Throwable $e) {
-            // Registra warning para auditoria sem quebrar fluxo caso tabela já exista
-            error_log('[SQL Statement Warning] ' . $e->getMessage() . ' | Query: ' . substr($statement, 0, 70));
-        }
-    }
+        'admin_activity_log' => "CREATE TABLE IF NOT EXISTS `admin_activity_log` (
+            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `admin_user_id` INT UNSIGNED NULL,
+            `action` VARCHAR(50) NOT NULL COMMENT 'Tipo de ação (login, create, update, delete)',
+            `entity_type` VARCHAR(50) NOT NULL COMMENT 'Entidade afetada (contacts, blog, settings, users)',
+            `entity_id` INT UNSIGNED NULL,
+            `description` TEXT NOT NULL COMMENT 'Detalhes da ação',
+            `ip_address` VARCHAR(45) NULL,
+            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            INDEX `idx_activity_created` (`created_at`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+        'blog_categories' => "CREATE TABLE IF NOT EXISTS `blog_categories` (
+            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `name` VARCHAR(100) NOT NULL,
+            `slug` VARCHAR(120) NOT NULL UNIQUE,
+            `description` TEXT NULL,
+            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX `idx_cat_slug` (`slug`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+        'blog_posts' => "CREATE TABLE IF NOT EXISTS `blog_posts` (
+            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `category_id` INT UNSIGNED NULL,
+            `title` VARCHAR(255) NOT NULL,
+            `slug` VARCHAR(255) NOT NULL UNIQUE,
+            `excerpt` TEXT NULL,
+            `content` LONGTEXT NOT NULL,
+            `featured_image` VARCHAR(500) NULL,
+            `image_alt` VARCHAR(255) NULL,
+            `author_name` VARCHAR(100) NOT NULL DEFAULT 'Angel Consultancy',
+            `status` ENUM('draft', 'published') NOT NULL DEFAULT 'draft',
+            `published_at` DATETIME NULL,
+            `views_count` INT UNSIGNED NOT NULL DEFAULT 0,
+            `meta_title` VARCHAR(255) NULL,
+            `meta_description` TEXT NULL,
+            `focus_keyword` VARCHAR(100) NULL,
+            `canonical_url` VARCHAR(500) NULL,
+            `og_title` VARCHAR(255) NULL,
+            `og_description` TEXT NULL,
+            `og_image` VARCHAR(500) NULL,
+            `twitter_card` VARCHAR(50) DEFAULT 'summary_large_image',
+            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX `idx_post_slug` (`slug`),
+            INDEX `idx_post_status` (`status`),
+            INDEX `idx_post_published` (`published_at`),
+            CONSTRAINT `fk_post_category` FOREIGN KEY (`category_id`) REFERENCES `blog_categories`(`id`) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+        'pages' => "CREATE TABLE IF NOT EXISTS `pages` (
+            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `title` VARCHAR(255) NOT NULL,
+            `slug` VARCHAR(120) NOT NULL UNIQUE,
+            `content` LONGTEXT NOT NULL,
+            `featured_image` VARCHAR(500) NULL,
+            `status` ENUM('draft', 'published') NOT NULL DEFAULT 'published',
+            `sort_order` INT NOT NULL DEFAULT 0,
+            `meta_title` VARCHAR(255) NULL,
+            `meta_description` TEXT NULL,
+            `canonical_url` VARCHAR(500) NULL,
+            `robots` VARCHAR(50) DEFAULT 'index, follow',
+            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX `idx_page_slug` (`slug`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+        'page_sections' => "CREATE TABLE IF NOT EXISTS `page_sections` (
+            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `page_slug` VARCHAR(100) NOT NULL DEFAULT 'home',
+            `section_key` VARCHAR(50) NOT NULL,
+            `content_json` LONGTEXT NOT NULL,
+            `sort_order` INT NOT NULL DEFAULT 0,
+            `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            UNIQUE KEY `idx_page_section` (`page_slug`, `section_key`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+        'media' => "CREATE TABLE IF NOT EXISTS `media` (
+            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `filename` VARCHAR(255) NOT NULL,
+            `original_name` VARCHAR(255) NOT NULL,
+            `path` VARCHAR(500) NOT NULL,
+            `mime_type` VARCHAR(100) NOT NULL,
+            `size` INT UNSIGNED NOT NULL,
+            `alt_text` VARCHAR(255) NULL,
+            `title` VARCHAR(255) NULL,
+            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            INDEX `idx_media_created` (`created_at`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+        'site_settings' => "CREATE TABLE IF NOT EXISTS `site_settings` (
+            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `setting_key` VARCHAR(100) NOT NULL UNIQUE,
+            `setting_value` LONGTEXT NULL,
+            `setting_type` VARCHAR(30) NOT NULL DEFAULT 'text',
+            `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX `idx_setting_key` (`setting_key`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+    ];
 }
 
 /**
@@ -223,18 +343,11 @@ function executeSqlFile(PDO $pdo, string $filePath): void
 function ensureDefaultAdminExists(PDO $pdo): void
 {
     try {
-        // Tenta garantir que a coluna role exista se a tabela já foi criada anteriormente sem ela
-        try {
-            $pdo->exec("ALTER TABLE `admin_users` ADD COLUMN `role` VARCHAR(50) NOT NULL DEFAULT 'admin' AFTER `password_hash`");
-        } catch (Throwable) {
-            // Silencia caso a versão do MariaDB use sintaxe diferente ou a coluna já exista
-        }
-
         $email = 'agenciawebsolution@gmail.com';
         $defaultPassword = 'Botafogo@2015';
         $hash = password_hash($defaultPassword, PASSWORD_DEFAULT);
 
-        $stmt = $pdo->prepare('SELECT id, password_hash, status FROM `admin_users` WHERE email = :email LIMIT 1');
+        $stmt = $pdo->prepare('SELECT id, password_hash, role, status FROM `admin_users` WHERE email = :email LIMIT 1');
         $stmt->execute([':email' => $email]);
         $existing = $stmt->fetch();
 
@@ -250,9 +363,27 @@ function ensureDefaultAdminExists(PDO $pdo): void
             ]);
         } else {
             // Garante que o administrador oficial sempre tenha a senha e status corretos
-            if (!password_verify($defaultPassword, (string)($existing['password_hash'] ?? '')) || ($existing['status'] ?? '') !== 'active') {
-                $upd = $pdo->prepare('UPDATE `admin_users` SET password_hash = :hash, status = "active", role = "admin" WHERE id = :id');
-                $upd->execute([':hash' => $hash, ':id' => $existing['id']]);
+            $needsUpdate = false;
+            if (!password_verify($defaultPassword, (string)($existing['password_hash'] ?? ''))) {
+                $needsUpdate = true;
+            }
+            if (($existing['status'] ?? '') !== 'active') {
+                $needsUpdate = true;
+            }
+            if (($existing['role'] ?? '') !== 'admin') {
+                $needsUpdate = true;
+            }
+
+            if ($needsUpdate) {
+                $upd = $pdo->prepare(
+                    'UPDATE `admin_users` 
+                     SET password_hash = :hash, status = "active", role = "admin" 
+                     WHERE id = :id'
+                );
+                $upd->execute([
+                    ':hash' => $hash,
+                    ':id'   => $existing['id'],
+                ]);
             }
         }
     } catch (Throwable $e) {
@@ -261,33 +392,85 @@ function ensureDefaultAdminExists(PDO $pdo): void
 }
 
 /**
- * Inicialização automática das tabelas CMS caso ainda não existam no MariaDB
+ * Inicialização individual e idempotente de TODAS as tabelas CMS no MariaDB
  */
 function ensureCmsTablesExist(PDO $pdo): void
 {
-    static $checked = false;
-    if ($checked) {
+    static $executed = false;
+    if ($executed) {
         return;
     }
-    $checked = true;
+    $executed = true;
 
     try {
-        // Verifica se a tabela admin_sessions existe (ou site_settings)
-        $sessionsExist = false;
+        $tables = getCmsTableDefinitions();
+
+        // 1. Cria cada tabela individualmente se estiver ausente
+        foreach ($tables as $tableName => $createSql) {
+            if (!checkTableExists($pdo, $tableName)) {
+                try {
+                    $pdo->exec($createSql);
+                } catch (Throwable $e) {
+                    error_log("[CMS Table Create Error] Falha ao criar tabela {$tableName}: " . $e->getMessage());
+                }
+            }
+        }
+
+        // 2. Garante a coluna role na tabela admin_users caso a tabela já existisse sem ela
         try {
-            $test = $pdo->query("SHOW TABLES LIKE 'admin_sessions'")->fetch();
-            $sessionsExist = !empty($test);
+            $colStmt = $pdo->query("SHOW COLUMNS FROM `admin_users` LIKE 'role'");
+            if (!$colStmt || !$colStmt->fetch()) {
+                $pdo->exec("ALTER TABLE `admin_users` ADD COLUMN `role` VARCHAR(50) NOT NULL DEFAULT 'admin' AFTER `password_hash`");
+            }
+        } catch (Throwable $e) {
+            // Coluna já existe ou variação sintática permitida
+        }
+
+        // 3. Views de compatibilidade caso o ambiente faça referência com prefixo angel_consultancy_
+        try {
+            $pdo->exec("CREATE OR REPLACE VIEW `angel_consultancy_admin_sessions` AS SELECT * FROM `admin_sessions`");
+            $pdo->exec("CREATE OR REPLACE VIEW `angel_consultancy_admin_users` AS SELECT * FROM `admin_users`");
         } catch (Throwable) {
-            $sessionsExist = false;
+            // Silencia caso criação de view não seja suportada pelo usuário do banco
         }
 
-        if (!$sessionsExist) {
-            $schemaFile = __DIR__ . '/database/schema_cms.sql';
-            executeSqlFile($pdo, $schemaFile);
+        // 4. Insere configurações padrão em site_settings caso a tabela esteja vazia
+        try {
+            $countStmt = $pdo->query('SELECT COUNT(*) FROM `site_settings`');
+            if ((int)$countStmt->fetchColumn() === 0) {
+                $pdo->exec("INSERT IGNORE INTO `site_settings` (`setting_key`, `setting_value`, `setting_type`) VALUES
+                    ('company_name', 'Angel Consultancy and Network', 'text'),
+                    ('company_description', 'Assistência humana, simples e confiável para sua organização financeira e administrativa.', 'textarea'),
+                    ('company_phone', '+32 492 319 741', 'text'),
+                    ('company_email', 'info@angel-consultancy.be', 'text'),
+                    ('company_whatsapp_url', 'https://wa.me/32492319741?text=Ol%C3%A1%2C%20gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20os%20servi%C3%A7os%20da%20Angel%20Consultancy.', 'text'),
+                    ('company_location', 'Bélgica (Atendimento Presencial e Online)', 'text'),
+                    ('seo_site_title', 'Angel Consultancy and Network | Apoio Humano, Simples e Confiável', 'text'),
+                    ('seo_meta_description', 'Assistência humana, simples e confiável para sua organização financeira e administrativa. Atendimento personalizado para pessoas físicas, associações e autônomos.', 'textarea'),
+                    ('seo_default_og_image', '/logo.png', 'text'),
+                    ('seo_canonical_url', 'https://www.angel-consultancy.be', 'text'),
+                    ('seo_robots', 'index, follow', 'text')");
+            }
+        } catch (Throwable) {
+            // Continua caso já existam configurações
         }
 
-        // Garante a existência do usuário administrador padrão com hash seguro
+        // 5. Insere categorias padrão no blog caso esteja vazio
+        try {
+            $catCountStmt = $pdo->query('SELECT COUNT(*) FROM `blog_categories`');
+            if ((int)$catCountStmt->fetchColumn() === 0) {
+                $pdo->exec("INSERT IGNORE INTO `blog_categories` (`id`, `name`, `slug`, `description`) VALUES
+                    (1, 'Geral', 'geral', 'Artigos gerais e novidades da Angel Consultancy'),
+                    (2, 'Organização Administrativa', 'organizacao-administrativa', 'Dicas práticas para organizar documentos e rotinas'),
+                    (3, 'Tributário & Finanças', 'tributario-financas', 'Orientações simplificadas sobre impostos e obrigações')");
+            }
+        } catch (Throwable) {
+            // Continua caso já existam categorias
+        }
+
+        // 6. Garante o usuário administrador padrão com hash seguro
         ensureDefaultAdminExists($pdo);
+
     } catch (Throwable $e) {
         error_log('[CMS Tables Init Error] ' . $e->getMessage());
     }
