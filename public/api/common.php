@@ -536,11 +536,18 @@ function ensureCmsTablesExist(PDO $pdo): void
                 ('company_email', 'info@angel-consultancy.be', 'text'),
                 ('company_whatsapp_url', 'https://wa.me/32492319741?text=Ol%C3%A1%2C%20gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20os%20servi%C3%A7os%20da%20Angel%20Consultancy.', 'text'),
                 ('company_location', 'Bélgica (Atendimento Presencial e Online)', 'text'),
+                ('logo_header', '/logo.png', 'text'),
+                ('logo_footer', '/logo.png', 'text'),
                 ('seo_site_title', 'Angel Consultancy and Network | Apoio Humano, Simples e Confiável', 'text'),
                 ('seo_meta_description', 'Assistência humana, simples e confiável para sua organização financeira e administrativa. Atendimento personalizado para pessoas físicas, associações e autônomos.', 'textarea'),
                 ('seo_default_og_image', '/logo.png', 'text'),
                 ('seo_canonical_url', 'https://www.angel-consultancy.be', 'text'),
                 ('seo_robots', 'index, follow', 'text')");
+        } else {
+            // Garante que logo_header e logo_footer existam mesmo se a tabela já foi populada anteriormente
+            $pdo->exec("INSERT IGNORE INTO `site_settings` (`setting_key`, `setting_value`, `setting_type`) VALUES
+                ('logo_header', '/logo.png', 'text'),
+                ('logo_footer', '/logo.png', 'text')");
         }
     } catch (Throwable) {
         // Continua caso já existam configurações

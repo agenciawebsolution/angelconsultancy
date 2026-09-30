@@ -115,6 +115,8 @@ export interface SiteSettings {
   company_social_linkedin: string;
   company_social_instagram: string;
   company_social_facebook: string;
+  logo_header?: string;
+  logo_footer?: string;
   seo_site_title: string;
   seo_meta_description: string;
   seo_default_og_image: string;

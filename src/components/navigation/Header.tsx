@@ -94,26 +94,26 @@ export const Header: React.FC = () => {
               {isHome ? (
                 <a 
                   href="#inicio" 
-                  className="flex items-center gap-3 transition-opacity duration-200 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy rounded-lg p-1"
+                  className="flex items-center gap-3 transition-opacity duration-200 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy rounded-lg p-1 flex-shrink-0"
                   aria-label={translations.common.logoHomeAria || "Angel Consultancy - Ir para o início"}
                 >
                   <img 
-                    src="/logo.png" 
+                    src={settings.logo_header || '/logo.png'} 
                     alt="Angel Consultancy and Network" 
-                    className="h-9 sm:h-11 w-auto object-contain"
+                    className="header-logo w-[105px] lg:w-[150px] h-auto object-contain flex-shrink-0"
                     loading="eager"
                   />
                 </a>
               ) : (
                 <Link 
                   to="/" 
-                  className="flex items-center gap-3 transition-opacity duration-200 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy rounded-lg p-1"
+                  className="flex items-center gap-3 transition-opacity duration-200 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy rounded-lg p-1 flex-shrink-0"
                   aria-label={translations.common.logoHomeAria || "Angel Consultancy - Ir para o início"}
                 >
                   <img 
-                    src="/logo.png" 
+                    src={settings.logo_header || '/logo.png'} 
                     alt="Angel Consultancy and Network" 
-                    className="h-9 sm:h-11 w-auto object-contain"
+                    className="header-logo w-[105px] lg:w-[150px] h-auto object-contain flex-shrink-0"
                     loading="eager"
                   />
                 </Link>

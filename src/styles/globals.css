@@ -55,3 +55,47 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
 }
+
+/* ==========================================================================
+   Logo Size Controls by Context (Independent Sizing)
+   ========================================================================== */
+
+/* Header / Navigation Logo */
+.header-logo {
+  width: 105px;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .header-logo {
+    width: 150px;
+  }
+}
+
+/* Mobile Drawer Menu Logo */
+.mobile-menu-logo {
+  width: 105px;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Footer Section Logo */
+.footer-logo {
+  width: 140px;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .footer-logo {
+    width: 180px;
+  }
+}
+

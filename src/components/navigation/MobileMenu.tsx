@@ -7,6 +7,7 @@ import type { NavItem } from '../../types';
 import { useScrollLock } from '../../hooks/useScrollLock';
 import { LanguageSelector } from '../common/LanguageSelector';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { useSettings } from '../../context/SettingsContext';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -55,6 +56,7 @@ const itemVariants: Variants = {
 export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, navItems }) => {
   const location = useLocation();
   const { translations } = useLanguage();
+  const { settings } = useSettings();
   const isHome = location.pathname === '/';
 
   // Lock body scroll while drawer is open
@@ -120,11 +122,11 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, navItem
               <div className="flex items-center justify-between p-5 border-b border-slate-100">
                 {isHome ? (
                   <a href="#inicio" onClick={onClose} className="flex items-center gap-2">
-                    <img src="/logo.png" alt="Angel Consultancy" className="h-8 w-auto object-contain" />
+                    <img src={settings.logo_header || '/logo.png'} alt="Angel Consultancy" className="mobile-menu-logo w-[105px] h-auto object-contain" />
                   </a>
                 ) : (
                   <Link to="/" onClick={onClose} className="flex items-center gap-2">
-                    <img src="/logo.png" alt="Angel Consultancy" className="h-8 w-auto object-contain" />
+                    <img src={settings.logo_header || '/logo.png'} alt="Angel Consultancy" className="mobile-menu-logo w-[105px] h-auto object-contain" />
                   </Link>
                 )}
                 <button

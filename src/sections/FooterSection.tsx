@@ -44,17 +44,17 @@ export const FooterSection: React.FC = () => {
             {isHome ? (
               <a href="#inicio" className="inline-block p-1 bg-white/95 rounded-xl shadow-soft-sm">
                 <img
-                  src="/logo.png"
+                  src={settings.logo_footer || '/logo.png'}
                   alt={settings.company_name || 'Angel Consultancy and Network'}
-                  className="h-10 w-auto object-contain"
+                  className="footer-logo w-[140px] md:w-[180px] h-auto object-contain"
                 />
               </a>
             ) : (
               <Link to="/" className="inline-block p-1 bg-white/95 rounded-xl shadow-soft-sm">
                 <img
-                  src="/logo.png"
+                  src={settings.logo_footer || '/logo.png'}
                   alt={settings.company_name || 'Angel Consultancy and Network'}
-                  className="h-10 w-auto object-contain"
+                  className="footer-logo w-[140px] md:w-[180px] h-auto object-contain"
                 />
               </Link>
             )}

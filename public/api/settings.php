@@ -42,6 +42,8 @@ if ($method === 'GET') {
             'company_social_linkedin',
             'company_social_instagram',
             'company_social_facebook',
+            'logo_header',
+            'logo_footer',
             'seo_site_title',
             'seo_meta_description',
             'seo_default_og_image',

@@ -153,6 +153,8 @@ INSERT IGNORE INTO `site_settings` (`setting_key`, `setting_value`, `setting_typ
 ('company_social_linkedin', '', 'text'),
 ('company_social_instagram', '', 'text'),
 ('company_social_facebook', '', 'text'),
+('logo_header', '/logo.png', 'text'),
+('logo_footer', '/logo.png', 'text'),
 ('seo_site_title', 'Angel Consultancy and Network | Apoio Humano, Simples e Confiável', 'text'),
 ('seo_meta_description', 'Assistência humana, simples e confiável para sua organização financeira e administrativa. Atendimento personalizado para pessoas físicas, associações e autônomos.', 'textarea'),
 ('seo_default_og_image', '/logo.png', 'text'),

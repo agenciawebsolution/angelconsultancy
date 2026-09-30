@@ -16,6 +16,8 @@ export const defaultSettings: SiteSettings = {
   company_social_linkedin: '',
   company_social_instagram: '',
   company_social_facebook: '',
+  logo_header: '/logo.png',
+  logo_footer: '/logo.png',
   seo_site_title: 'Angel Consultancy and Network | Apoio Humano, Simples e Confiável',
   seo_meta_description: 'Assistência humana, simples e confiável para sua organização financeira e administrativa. Atendimento personalizado para pessoas físicas, associações e autônomos.',
   seo_default_og_image: '/logo.png',
