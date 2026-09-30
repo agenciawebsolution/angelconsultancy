@@ -525,6 +525,48 @@ function ensureCmsTablesExist(PDO $pdo): void
         error_log('[Admin Users Column role Error] ' . $e->getMessage());
     }
 
+    // 2.1 Garante compatibilidade total de colunas na tabela media
+    try {
+        $mediaColsStmt = $pdo->query("SHOW COLUMNS FROM `media`");
+        if ($mediaColsStmt) {
+            $existingCols = array_map(function($c) { return strtolower($c['Field']); }, $mediaColsStmt->fetchAll(PDO::FETCH_ASSOC));
+
+            // Garante original_name / migra de original_filename
+            if (!in_array('original_name', $existingCols, true)) {
+                $pdo->exec("ALTER TABLE `media` ADD COLUMN `original_name` VARCHAR(255) NULL AFTER `filename`");
+                if (in_array('original_filename', $existingCols, true)) {
+                    $pdo->exec("UPDATE `media` SET `original_name` = `original_filename` WHERE `original_name` IS NULL AND `original_filename` IS NOT NULL");
+                }
+            }
+
+            // Garante path / migra de file_url
+            if (!in_array('path', $existingCols, true)) {
+                $pdo->exec("ALTER TABLE `media` ADD COLUMN `path` VARCHAR(500) NULL AFTER `original_name`");
+                if (in_array('file_url', $existingCols, true)) {
+                    $pdo->exec("UPDATE `media` SET `path` = `file_url` WHERE `path` IS NULL AND `file_url` IS NOT NULL");
+                }
+            }
+
+            // Garante size / migra de file_size
+            if (!in_array('size', $existingCols, true)) {
+                $pdo->exec("ALTER TABLE `media` ADD COLUMN `size` INT UNSIGNED NULL AFTER `mime_type`");
+                if (in_array('file_size', $existingCols, true)) {
+                    $pdo->exec("UPDATE `media` SET `size` = `file_size` WHERE `size` IS NULL AND `file_size` IS NOT NULL");
+                }
+            }
+
+            // Garante title / migra de caption
+            if (!in_array('title', $existingCols, true)) {
+                $pdo->exec("ALTER TABLE `media` ADD COLUMN `title` VARCHAR(255) NULL AFTER `alt_text`");
+                if (in_array('caption', $existingCols, true)) {
+                    $pdo->exec("UPDATE `media` SET `title` = `caption` WHERE `title` IS NULL AND `caption` IS NOT NULL");
+                }
+            }
+        }
+    } catch (Throwable $e) {
+        error_log('[Media Table Columns Error] ' . $e->getMessage());
+    }
+
     // 3. Insere configurações padrão em site_settings caso a tabela esteja vazia
     try {
         $countStmt = $pdo->query('SELECT COUNT(*) FROM `site_settings`');

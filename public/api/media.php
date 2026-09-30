@@ -52,7 +52,21 @@ if ($method === 'GET') {
     try {
         ensureTableCreated($pdo, 'media', getCmsTableDefinitions()['media']);
         $stmt = $pdo->query('SELECT * FROM `media` ORDER BY created_at DESC');
-        $items = $stmt->fetchAll();
+        $rawItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $items = [];
+        foreach ($rawItems as $row) {
+            $items[] = [
+                'id'            => (int)$row['id'],
+                'filename'      => $row['filename'],
+                'original_name' => $row['original_name'] ?? $row['original_filename'] ?? $row['filename'],
+                'path'          => $row['path'] ?? $row['file_url'] ?? ('/uploads/' . $row['filename']),
+                'mime_type'     => $row['mime_type'] ?? 'image/jpeg',
+                'size'          => (int)($row['size'] ?? $row['file_size'] ?? 0),
+                'alt_text'      => $row['alt_text'] ?? null,
+                'title'         => $row['title'] ?? $row['caption'] ?? null,
+                'created_at'    => $row['created_at'],
+            ];
+        }
         sendJson(true, ['media' => $items]);
     } catch (Throwable $e) {
         sendJson(false, 'Erro ao carregar mídias: ' . $e->getMessage(), 500);
@@ -175,19 +189,80 @@ if ($method === 'POST') {
         // 5. Garantir tabela media e registrar no banco
         ensureTableCreated($pdo, 'media', getCmsTableDefinitions()['media']);
 
-        $stmt = $pdo->prepare(
-            'INSERT INTO `media` (`filename`, `original_name`, `path`, `mime_type`, `size`, `alt_text`, `title`)
-             VALUES (:fname, :orig, :path, :mime, :size, :alt, :title)'
-        );
-        $stmt->execute([
-            ':fname' => $safeFilename,
-            ':orig'  => substr($originalName, 0, 255),
-            ':path'  => $publicPath,
-            ':mime'  => $mimeType ?: 'image/jpeg',
-            ':size'  => (int)$file['size'],
-            ':alt'   => substr($altText, 0, 255),
-            ':title' => substr($title, 0, 255),
-        ]);
+        // Detectar colunas presentes para máxima compatibilidade com schemas existentes
+        $availableCols = [];
+        try {
+            $colsStmt = $pdo->query('SHOW COLUMNS FROM `media`');
+            if ($colsStmt) {
+                foreach ($colsStmt->fetchAll(PDO::FETCH_ASSOC) as $c) {
+                    $availableCols[strtolower($c['Field'])] = true;
+                }
+            }
+        } catch (Throwable) {
+            $availableCols = [
+                'filename' => true,
+                'original_name' => true,
+                'path' => true,
+                'mime_type' => true,
+                'size' => true,
+                'alt_text' => true,
+                'title' => true,
+            ];
+        }
+
+        $insertData = [
+            'filename'  => $safeFilename,
+            'mime_type' => $mimeType ?: 'image/jpeg',
+            'alt_text'  => substr($altText, 0, 255),
+        ];
+
+        // Mapear original_name e original_filename
+        if (isset($availableCols['original_name'])) {
+            $insertData['original_name'] = substr($originalName, 0, 255);
+        }
+        if (isset($availableCols['original_filename'])) {
+            $insertData['original_filename'] = substr($originalName, 0, 255);
+        }
+
+        // Mapear path e file_url
+        if (isset($availableCols['path'])) {
+            $insertData['path'] = $publicPath;
+        }
+        if (isset($availableCols['file_url'])) {
+            $insertData['file_url'] = $publicPath;
+        }
+
+        // Mapear size e file_size
+        if (isset($availableCols['size'])) {
+            $insertData['size'] = (int)$file['size'];
+        }
+        if (isset($availableCols['file_size'])) {
+            $insertData['file_size'] = (int)$file['size'];
+        }
+
+        // Mapear title e caption
+        if (isset($availableCols['title'])) {
+            $insertData['title'] = substr($title, 0, 255);
+        }
+        if (isset($availableCols['caption'])) {
+            $insertData['caption'] = substr($title, 0, 255);
+        }
+
+        // Mapear uploaded_by caso exista na tabela
+        if (isset($availableCols['uploaded_by'])) {
+            $insertData['uploaded_by'] = !empty($admin['id']) ? (int)$admin['id'] : null;
+        }
+
+        $fields = array_keys($insertData);
+        $placeholders = array_map(fn($f) => ":$f", $fields);
+        $sql = "INSERT INTO `media` (`" . implode('`, `', $fields) . "`) VALUES (" . implode(', ', $placeholders) . ")";
+        $stmt = $pdo->prepare($sql);
+
+        $execParams = [];
+        foreach ($insertData as $k => $v) {
+            $execParams[":$k"] = $v;
+        }
+        $stmt->execute($execParams);
 
         $mediaId = (int)$pdo->lastInsertId();
         logAdminActivity($pdo, (int)$admin['id'], 'upload_media', 'media', $mediaId, "Arquivo enviado: {$originalName}");
