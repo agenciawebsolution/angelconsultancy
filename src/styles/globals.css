@@ -67,11 +67,16 @@
   max-width: 100%;
   object-fit: contain;
   display: block;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (min-width: 1024px) {
   .header-logo {
     width: 150px;
+  }
+
+  .header-logo-compact {
+    width: 115px;
   }
 }
 

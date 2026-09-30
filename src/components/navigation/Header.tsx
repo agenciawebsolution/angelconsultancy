@@ -81,9 +81,9 @@ export const Header: React.FC = () => {
         {/* ========================================================= */}
         <div 
           className={cn(
-            "w-full transition-all duration-300 border-b",
+            "w-full transition-all duration-300 ease-in-out border-b",
             isScrolled 
-              ? "bg-white/95 backdrop-blur-md py-3 shadow-soft-sm border-slate-200/80" 
+              ? "bg-white/95 backdrop-blur-md py-3 lg:py-1.5 shadow-soft-sm border-slate-200/80" 
               : "bg-white py-4 shadow-soft-xs border-slate-100"
           )}
         >
@@ -100,7 +100,10 @@ export const Header: React.FC = () => {
                   <img 
                     src={settings.logo_header || '/logo.png'} 
                     alt="Angel Consultancy and Network" 
-                    className="header-logo w-[105px] lg:w-[150px] h-auto object-contain flex-shrink-0"
+                    className={cn(
+                      "header-logo w-[105px] h-auto object-contain flex-shrink-0 transition-all duration-300 ease-in-out",
+                      isScrolled ? "header-logo-compact lg:w-[115px]" : "lg:w-[150px]"
+                    )}
                     loading="eager"
                   />
                 </a>
@@ -113,7 +116,10 @@ export const Header: React.FC = () => {
                   <img 
                     src={settings.logo_header || '/logo.png'} 
                     alt="Angel Consultancy and Network" 
-                    className="header-logo w-[105px] lg:w-[150px] h-auto object-contain flex-shrink-0"
+                    className={cn(
+                      "header-logo w-[105px] h-auto object-contain flex-shrink-0 transition-all duration-300 ease-in-out",
+                      isScrolled ? "header-logo-compact lg:w-[115px]" : "lg:w-[150px]"
+                    )}
                     loading="eager"
                   />
                 </Link>
@@ -130,7 +136,8 @@ export const Header: React.FC = () => {
                         key={item.key}
                         href={item.href}
                         className={cn(
-                          "relative px-3.5 py-2 text-sm font-semibold transition-all duration-150 rounded-lg group",
+                          "relative px-3.5 text-sm font-semibold transition-all duration-300 rounded-lg group",
+                          isScrolled ? "py-2 lg:py-1" : "py-2",
                           isActive
                             ? "text-[#1D5BD8] font-bold"
                             : "text-slate-700 hover:text-[#0B1F3A] hover:bg-slate-50"
@@ -145,7 +152,10 @@ export const Header: React.FC = () => {
                       <Link
                         key={item.key}
                         to={`/${item.href}`}
-                        className="px-3.5 py-2 text-sm font-semibold text-slate-700 hover:text-[#0B1F3A] hover:bg-slate-50 rounded-lg transition-colors duration-150"
+                        className={cn(
+                          "px-3.5 text-sm font-semibold text-slate-700 hover:text-[#0B1F3A] hover:bg-slate-50 rounded-lg transition-all duration-300",
+                          isScrolled ? "py-2 lg:py-1" : "py-2"
+                        )}
                       >
                         {item.label}
                       </Link>
@@ -159,7 +169,8 @@ export const Header: React.FC = () => {
                       key={item.key}
                       to={item.href}
                       className={cn(
-                        "relative px-3.5 py-2 text-sm font-semibold rounded-lg transition-colors duration-150",
+                        "relative px-3.5 text-sm font-semibold rounded-lg transition-all duration-300",
+                        isScrolled ? "py-2 lg:py-1" : "py-2",
                         isCurrentRoute
                           ? "text-[#1D5BD8] font-bold bg-blue-50/50"
                           : "text-slate-700 hover:text-[#0B1F3A] hover:bg-slate-50"
@@ -179,7 +190,10 @@ export const Header: React.FC = () => {
                 {isHome ? (
                   <a
                     href="#contato"
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#0B1F3A] hover:bg-[#102D55] text-white text-sm font-bold shadow-soft-sm hover:shadow-soft-md transition-all duration-200 active:scale-[0.98] group"
+                    className={cn(
+                      "inline-flex items-center gap-2 rounded-full bg-[#0B1F3A] hover:bg-[#102D55] text-white font-bold shadow-soft-sm hover:shadow-soft-md transition-all duration-300 active:scale-[0.98] group",
+                      isScrolled ? "px-5 py-1.5 text-xs lg:text-[13px]" : "px-6 py-2.5 text-sm"
+                    )}
                   >
                     <span>{translations.nav.ctaButton}</span>
                     <ArrowRight className="w-4 h-4 text-[#D4AF37] transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -187,7 +201,10 @@ export const Header: React.FC = () => {
                 ) : (
                   <Link
                     to="/#contato"
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#0B1F3A] hover:bg-[#102D55] text-white text-sm font-bold shadow-soft-sm hover:shadow-soft-md transition-all duration-200 active:scale-[0.98] group"
+                    className={cn(
+                      "inline-flex items-center gap-2 rounded-full bg-[#0B1F3A] hover:bg-[#102D55] text-white font-bold shadow-soft-sm hover:shadow-soft-md transition-all duration-300 active:scale-[0.98] group",
+                      isScrolled ? "px-5 py-1.5 text-xs lg:text-[13px]" : "px-6 py-2.5 text-sm"
+                    )}
                   >
                     <span>{translations.nav.ctaButton}</span>
                     <ArrowRight className="w-4 h-4 text-[#D4AF37] transition-transform duration-200 group-hover:translate-x-0.5" />
